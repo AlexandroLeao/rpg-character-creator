@@ -1,0 +1,53 @@
+@startuml
+title RPG Character Creator - Save Character Sequence
+
+actor "Authenticated User" as User
+boundary "React Frontend" as Frontend
+control "Express API" as API
+participant "Supabase Auth" as Auth
+database "PostgreSQL" as Database
+
+User -> Frontend: Select character attributes
+User -> Frontend: Click Save
+
+Frontend -> API: PUT /api/characters/me\nAuthorization: Bearer JWT
+
+API -> Auth: Validate access token
+Auth --> API: Verified user or authentication error
+
+alt Invalid or expired token
+
+    API --> Frontend: 401 Unauthorized
+
+else Authenticated user
+
+    API -> API: Validate character data
+    API -> API: Derive user_id from verified token
+
+    alt Invalid character data
+
+        API --> Frontend: 400 Bad Request
+
+    else Valid character data
+
+        API -> Database: Upsert character using\nuser-scoped credentials
+
+        Database -> Database: Enforce RLS policies\nand UNIQUE(user_id)
+
+        alt Database operation failed
+
+            Database --> API: Database error
+            API --> Frontend: Safe error response
+
+        else Character saved
+
+            Database --> API: Saved character
+            API --> Frontend: 201 Created or 200 OK
+
+        end
+    end
+end
+
+Frontend --> User: Display operation result
+
+@enduml
