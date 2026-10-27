@@ -1,0 +1,42 @@
+@startuml
+title RPG Character Creator - Use Case Diagram
+
+left to right direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+actor "Guest" as Guest
+actor "Authenticated User" as User
+actor "Supabase Auth" as Auth
+
+rectangle "RPG Character Creator" {
+    usecase "Register Account" as UC_Register
+    usecase "Sign In" as UC_Login
+    usecase "Sign Out" as UC_Logout
+
+    usecase "Create Character" as UC_Create
+    usecase "View Character" as UC_View
+    usecase "Edit Character" as UC_Edit
+    usecase "Save Character" as UC_Save
+
+    usecase "Switch Theme" as UC_Theme
+}
+
+Guest --> UC_Register
+Guest --> UC_Login
+Guest --> UC_Theme
+
+User --> UC_Logout
+User --> UC_Create
+User --> UC_View
+User --> UC_Edit
+User --> UC_Theme
+
+UC_Create .> UC_Save : <<include>>
+UC_Edit .> UC_Save : <<include>>
+
+Auth -- UC_Register
+Auth -- UC_Login
+Auth -- UC_Logout
+
+@enduml
