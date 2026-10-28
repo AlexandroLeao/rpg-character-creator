@@ -1,53 +1,47 @@
 @startuml
-title RPG Character Creator - Save Character Sequence
+title RPG Character Creator - Save or Update Character
 
 actor "Authenticated User" as User
 boundary "React Frontend" as Frontend
 control "Express API" as API
 participant "Supabase Auth" as Auth
-database "PostgreSQL" as Database
+database "PostgreSQL + RLS" as Database
 
-User -> Frontend: Select character attributes
-User -> Frontend: Click Save
+User -> Frontend: Choose class, name, and seven attributes
+User -> Frontend: Click Save Character
+Frontend -> API: PUT /api/characters/me\nAuthorization: Bearer access_token\nJSON character fields only
 
-Frontend -> API: PUT /api/characters/me\nAuthorization: Bearer JWT
+API -> Auth: Validate supplied access token
+Auth --> API: Verified user ID or authentication failure
 
-API -> Auth: Validate access token
-Auth --> API: Verified user or authentication error
-
-alt Invalid or expired token
-
+alt Invalid, expired, or missing token
     API --> Frontend: 401 Unauthorized
+else Verified user
+    API -> API: Validate name and catalog slugs
+    API -> API: Derive user_id from verified identity
 
-else Authenticated user
+    alt Invalid input
+        API --> Frontend: 400 Validation error
+    else Valid input
+        API -> Database: User-scoped upsert by user_id
+        Database -> Database: Enforce RLS for owner\nand UNIQUE(user_id)
 
-    API -> API: Validate character data
-    API -> API: Derive user_id from verified token
-
-    alt Invalid character data
-
-        API --> Frontend: 400 Bad Request
-
-    else Valid character data
-
-        API -> Database: Upsert character using\nuser-scoped credentials
-
-        Database -> Database: Enforce RLS policies\nand UNIQUE(user_id)
-
-        alt Database operation failed
-
-            Database --> API: Database error
-            API --> Frontend: Safe error response
-
-        else Character saved
-
-            Database --> API: Saved character
+        alt Permission or persistence failure
+            Database --> API: Error
+            API --> Frontend: Safe error status/body
+        else Created or updated
+            Database --> API: Own character row
             API --> Frontend: 201 Created or 200 OK
-
         end
     end
 end
 
-Frontend --> User: Display operation result
+Frontend --> User: Show success or safe error\nretain form draft when needed
+
+note over API, Database
+  No service-role bypass for character CRUD.
+  No client-provided user_id trusted.
+  Randomize changes draft only until Save.
+end note
 
 @enduml
