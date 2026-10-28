@@ -1,0 +1,2 @@
+# Local-only Supabase CLI configuration. Hosted project secrets never belong here.
+project_id = "rpg-character-creator"
