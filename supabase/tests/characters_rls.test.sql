@@ -4,7 +4,7 @@
 begin;
 
 create extension if not exists pgtap with schema extensions;
-select plan(23);
+select plan(24);
 
 select has_table('public', 'characters', 'Characters table exists');
 select col_is_pk('public', 'characters', 'id', 'Character ID is the primary key');
