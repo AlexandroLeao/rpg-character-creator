@@ -1,0 +1,44 @@
+@startuml
+title RPG Character Creator - Registration and Password Recovery
+
+actor Guest
+boundary "React Frontend" as Web
+participant "Supabase Auth" as Auth
+participant "Email Sender (SMTP)" as SMTP
+
+group Register
+    Guest -> Web: Submit display name, email, password
+    Web -> Auth: Sign up
+    Auth -> SMTP: Send confirmation email
+    SMTP --> Guest: Verification link
+    Guest -> Auth: Follow verification link
+    Auth --> Web: Verified account flow
+end
+
+group Sign in
+    Guest -> Web: Submit email and password
+    Web -> Auth: Sign in
+    alt Verified valid credentials
+        Auth --> Web: Authenticated session
+        Web --> Guest: Creator or My Character
+    else Invalid credentials
+        Auth --> Web: Authentication failure
+        Web --> Guest: Generic login error
+    end
+end
+
+group Forgot password
+    Guest -> Web: Request reset with email
+    Web -> Auth: Request managed reset email
+    Auth -> SMTP: Send reset link if account is eligible
+    Web --> Guest: Same confirmation message for any email
+    SMTP --> Guest: Recovery link when applicable
+    Guest -> Auth: Complete provider-managed reset flow
+end
+
+note over Web, Auth
+  Never reveal account existence via login/reset messages.
+  No passwords or reset tokens stored in app tables.
+end note
+
+@enduml
