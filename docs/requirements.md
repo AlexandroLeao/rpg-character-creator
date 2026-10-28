@@ -18,7 +18,7 @@ The product is a full-stack **fictional RPG character creator**, not a playable 
 | ID | Requirement |
 |---|---|
 | FR-01 | The first public screen shows original RPG pixel art, an email/password login form, **Create Account**, and **Forgot Password?** |
-| FR-02 | Registration collects a display name, email, and password (with an optional confirmation input); unnecessary personal information is not requested. |
+| FR-02 | Registration collects a display name, email, and password (with a password-confirmation input for typing verification); unnecessary personal information is not requested. |
 | FR-03 | Supabase Auth handles registration, password storage, and email confirmation; an unverified account cannot use protected character operations. |
 | FR-04 | Users can sign in and sign out; failed authentication displays a safe, generic error rather than revealing whether an account exists. |
 | FR-05 | Password recovery sends a managed, expiring recovery link. The UI displays the same neutral response for registered and unregistered addresses. |
