@@ -1,26 +1,73 @@
 # RPG Character Creator
 
-A full-stack fictional RPG character creator with a minimalist retro-computer / pixel-art aesthetic. Registered users will create, save, edit, and export **one** RPG character each.
+A full-stack fictional RPG character creator with a minimalist retro-computer and pixel-art aesthetic.
 
-> **Current status:** Project scaffold and Express health API are implemented. Authentication, character persistence, expanded creator UI, PDF export, and production infrastructure are **planned**, not yet complete.
+Registered users will create, save, edit, and export **one RPG character per account**.
 
-## Planned Experience
+> **Current status:** The initial React frontend, Express health API, Supabase PostgreSQL schema, and database Row Level Security (RLS) are implemented. Email/password authentication, registration, login, logout, session handling, and password recovery are implemented in the authentication feature branch. Protected character API endpoints, character creation, PDF export, and production deployment are planned.
 
-- Public welcome, registration, sign-in, email verification, and password recovery
-- Eight character classes and a rich, data-driven customization catalog
-- Four-stage guided creation flow with original pixel art and draft randomization
-- Private character dashboard and downloadable retro PDF
-- Email/password Supabase Auth and PostgreSQL with strict per-user RLS
-- Responsive light/dark styling in emerald, mint, cream, and near-black
-- Vercel deployment and GitHub Actions CI/CD
+## Project Vision
 
-**No playable combat, multiple characters, or Google login in the first release.** A final project name will be selected later.
+RPG Character Creator is a character creation application, not a playable RPG.
 
-## Repository Layout
+The experience combines modern web technologies with an interface inspired by early desktop computers and classic handheld games.
 
-- `web/` — React, Vite, TypeScript frontend
-- `api/` — Express, TypeScript backend with health endpoint and tests
-- `docs/` — Scope, architecture, requirements, product design, and UML
+### Planned Features
+
+- Email/password authentication using Supabase Auth.
+- Email confirmation and password recovery.
+- One saved character per authenticated user.
+- Eight character classes.
+- Seven character customization categories.
+- Four-stage guided character creation.
+- Character draft randomization.
+- Private character dashboard.
+- Character editing and deletion.
+- Downloadable retro-styled PDF character sheet.
+- Original pixel-art illustrations.
+- Retro CRT effects and subtle visual glitches.
+- Responsive layouts and accessible controls.
+- Light and dark visual themes.
+
+Google OAuth, playable combat, and multiple saved characters per account are outside the initial release.
+
+## Technology Stack
+
+### Frontend
+
+- React
+- TypeScript
+- Vite
+- Supabase JavaScript Client
+- Vitest
+- React Testing Library
+
+### Backend
+
+- Node.js
+- Express
+- TypeScript
+
+### Database and Authentication
+
+- Supabase Auth
+- PostgreSQL
+- Row Level Security (RLS)
+
+### Development and Automation
+
+- Git and GitHub
+- Google Cloud Shell
+- GitHub Actions
+- npm
+
+## Repository Structure
+
+- `web/` — React frontend and authentication interface.
+- `api/` — Express REST API.
+- `supabase/` — Database configuration, migrations, and security tests.
+- `docs/` — Requirements, architecture, product design, and UML diagrams.
+- `.github/workflows/` — Automated CI workflows.
 
 ## Documentation
 
@@ -36,19 +83,117 @@ A full-stack fictional RPG character creator with a minimalist retro-computer / 
 
 ## Local Development
 
-Requirements: Node.js 24 and npm, Git; Google Cloud Shell Editor is the current development workspace.
+### Requirements
 
-Frontend (from repository root):
+- Node.js 24
+- npm
+- Git
+
+Google Cloud Shell is currently used as the primary development environment.
+
+### Frontend Setup
+
+From the repository root:
 
 ```bash
 cd web
 npm ci
-npm run build
-npm run lint
+```
+
+Create a local environment file:
+
+```text
+web/.env.local
+```
+
+Use `web/.env.example` as the reference.
+
+The required environment variables are:
+
+```env
+VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
+```
+
+Replace the placeholders with the correct project URL and publishable key from the Supabase dashboard.
+
+Never put a Supabase secret key, service-role key, or database password in the frontend environment.
+
+The `.env.local` file must remain untracked by Git.
+
+### Start the Frontend
+
+From the `web` directory:
+
+```bash
 npm run dev
 ```
 
-Backend (from repository root, in a separate terminal):
+For Google Cloud Shell:
+
+```bash
+npm run dev -- --host 0.0.0.0 --port 5173
+```
+
+Open the application using Cloud Shell Web Preview on port `5173`.
+
+### Run Frontend Tests
+
+```bash
+npm test
+```
+
+### Run ESLint
+
+```bash
+npm run lint
+```
+
+### Build the Frontend
+
+```bash
+npm run build
+```
+
+## Authentication
+
+The frontend uses Supabase Auth for:
+
+- Email registration.
+- Email confirmation.
+- Password-based sign-in.
+- Sign-out.
+- Session restoration.
+- Password recovery.
+- Password updates.
+
+Authentication is managed by Supabase.
+
+The application does not implement custom password storage or password-reset tokens.
+
+### Authentication Redirect URLs
+
+Development and production redirect URLs must be configured in the Supabase dashboard.
+
+The password recovery flow uses:
+
+```text
+/reset-password
+```
+
+The development URL and its `/reset-password` route must be included in the allowed redirect URLs.
+
+Google Cloud Shell preview URLs may change between environments.
+
+### Production Email Delivery
+
+Supabase's default email service is suitable only for limited development and testing.
+
+Before public registration is enabled, configure a production-ready SMTP provider and review authentication rate limits, abuse prevention, and account verification settings.
+
+## Backend Setup
+
+From the repository root:
 
 ```bash
 cd api
@@ -59,10 +204,82 @@ npm test
 npm run dev
 ```
 
-The implemented API health check is `GET /api/health`. Future Supabase integration requires environment configuration; do **not** commit real secret values. See `api/README.md` and `api/.env.example` for API-specific setup.
+The currently implemented public health endpoint is:
+
+```http
+GET /api/health
+```
+
+Protected character endpoints will be implemented in a separate development milestone.
+
+## Database Security
+
+The PostgreSQL schema is managed through version-controlled Supabase migrations.
+
+The character table enforces one character per account and uses Row Level Security to protect user-owned records.
+
+Database security tests validate ownership isolation, anonymous access restrictions, and database constraints.
+
+Authentication middleware and protected Express character operations will be implemented separately.
+
+## Continuous Integration
+
+GitHub Actions runs automated checks when relevant files change.
+
+### Frontend Checks
+
+The frontend workflow runs:
+
+- Dependency installation.
+- Automated Vitest tests.
+- ESLint.
+- Production build.
+
+Workflow:
+
+```text
+.github/workflows/frontend.yml
+```
+
+### Database Security Tests
+
+The database workflow checks Supabase migrations and database security policies.
+
+Workflow:
+
+```text
+.github/workflows/database.yml
+```
 
 ## Contribution Workflow
 
-Issues → topic branches → tests/build/lint → pull requests → review → merge. Keep `main` in a deployable state as the project progresses.
+Development follows:
 
-All code, UI strings, and project documentation are written in **English**.
+1. Create or select a GitHub Issue.
+2. Create a dedicated feature branch.
+3. Implement the approved scope.
+4. Run tests, lint, and build checks.
+5. Open a Pull Request.
+6. Review the changes and CI results.
+7. Merge into `main` after approval.
+8. Close the related Issue.
+
+Keep `main` stable as development progresses.
+
+## Project Conventions
+
+- Source code is written in English.
+- User interface text is written in English.
+- Commits, Issues, Pull Requests, and documentation use English.
+- Authentication and authorization must follow least-privilege principles.
+- Secrets must never be committed to the repository.
+- Visual effects must not interfere with usability or accessibility.
+- Character data must always be protected by server-side authorization and database RLS.
+
+## Current Development Milestone
+
+**Issue #11 — Supabase Email Authentication and Recovery UI**
+
+The authentication feature includes frontend screens, Supabase integration, automated tests, and CI.
+
+The next planned milestone is secure Express API authentication and authorization, followed by character persistence and the guided character creator.
