@@ -1,6 +1,6 @@
 # RPG Character Creator — Data Model
 
-## Entity-Relationship Diagram
+## Entity Relationship Diagram
 
 ```mermaid
 erDiagram
@@ -9,63 +9,70 @@ erDiagram
     AUTH_USERS {
         uuid id PK
         string email
+        jsonb user_metadata
     }
 
     CHARACTERS {
         uuid id PK
         uuid user_id FK,UK
         varchar name
-        string character_class
-        string gender_identity "nullable"
-        string origin
-        string artifact
-        string aura
+        text character_class
+        text ancestry
+        text background
+        text weapon
+        text artifact
+        text personality
+        text aura
+        text companion
         timestamptz created_at
         timestamptz updated_at
     }
 ```
 
-## Entities
+## Source of Truth
 
-### AUTH_USERS
+- **AUTH_USERS:** The Supabase-managed `auth.users` identity table. Email, password credentials, confirmation and recovery belong to Supabase Auth. A minimal `display_name` can be maintained in authenticated-user metadata.
+- **CHARACTERS:** Application-owned `public.characters` table for fictional character records. It stores a **single** row per user, not account credentials.
+- **Relationship:** One user may have zero or one character; every character belongs to one existing user.
+- **Ownership:** `user_id` references `auth.users(id)`, is non-null, and has a UNIQUE constraint.
+- **Delete behavior:** Use `ON DELETE CASCADE` on the Auth user FK so deleting the account also removes the character.
 
-Managed by Supabase Auth.
+## Proposed Constraints
 
-The application does not store user passwords in the
-character database table.
+| Column | Rule |
+|---|---|
+| `id` | UUID primary key, server-generated |
+| `user_id` | UUID not null, unique, references auth.users |
+| `name` | Trimmed fictional character name, 2–32 characters |
+| `character_class` | One of the 8 class slugs |
+| `ancestry` | One of the 6 ancestry slugs |
+| `background` | One of the 6 background slugs |
+| `weapon` | One of the 8 weapon slugs |
+| `artifact` | One of the 9 artifact slugs, including `none` |
+| `personality` | One of the 8 personality slugs |
+| `aura` | One of the 8 aura slugs |
+| `companion` | One of the 8 companion slugs, including `none` |
+| `created_at` | DB-managed timestamp |
+| `updated_at` | Updated on successful write |
 
-### CHARACTERS
+The [Customization Catalog](../customization-catalog.md) lists all allowed values. Exact SQL constraints and the migration strategy will be implemented alongside the database setup.
 
-Stores the customized character belonging to an authenticated user.
+## Row Level Security
 
-## Relationships
+Enable RLS for `public.characters` and create separate policies:
 
-- One user can own zero or one character.
-- Every character belongs to exactly one user.
-- The `user_id` column is unique.
-- `user_id` references `auth.users(id)`.
-- Deleting a user should also remove their associated character.
+- SELECT: `auth.uid() = user_id`.
+- INSERT: `WITH CHECK (auth.uid() = user_id)`.
+- UPDATE: existing owner must match `auth.uid()` and resulting row must remain owned by that same user.
+- DELETE: `auth.uid() = user_id`.
 
-## Data Constraints
+The API must run per-user database operations with the caller's verified user identity, not a service-role connection that bypasses RLS. Test user A vs user B at both API and DB levels.
 
-- Character names must contain between 2 and 32 characters.
-- Character classes must match predefined valid values.
-- Gender identity is optional.
-- Origin, artifact, and aura must use predefined valid values.
-- Database policies must prevent cross-user access.
+## Privacy and Application Design
 
-## Design Notes
-
-The `AUTH_USERS` entity represents the Supabase-managed
-`auth.users` table.
-
-Only the `characters` table needs to be created by the application.
-
-The unique constraint on `user_id` enforces the rule of
-one character per user.
-
-The interface theme is a local user preference and is not
-stored in the character table.
-
-The exact allowed values for origin, artifact, and aura
-will be defined before implementing the database schema.
+- The app collects only display name, email, and authentication information required by Supabase Auth.
+- No sex, gender, gender identity, or selectable body type is collected or stored.
+- Illustrations are static assets keyed by character class, not persisted image or appearance selections.
+- A PDF is generated from the authenticated user's already-loaded fictional character data in the browser, not stored in the database.
+- Theme preference is local to the browser and not part of the character record.
+- Characters use stable catalog slugs; labels/descriptions can change without changing saved values.
