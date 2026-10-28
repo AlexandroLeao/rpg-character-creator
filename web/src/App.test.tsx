@@ -159,4 +159,3 @@ describe('Authentication interface', () => {
     expect(mocks.updatePassword).not.toHaveBeenCalled()
   })
 })
-
