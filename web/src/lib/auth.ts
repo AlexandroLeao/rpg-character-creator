@@ -9,7 +9,7 @@ export function signUpWithEmail(
     email: email.trim(),
     password,
     options: {
-      emailRedirectTo: window.location.origin,
+      emailRedirectTo: `${window.location.origin}/`,
       data: {
         display_name: displayName.trim(),
       },
@@ -31,7 +31,7 @@ export function sendPasswordReset(email: string) {
   return supabase.auth.resetPasswordForEmail(
     email.trim(),
     {
-      redirectTo: window.location.origin,
+      redirectTo: `${window.location.origin}/reset-password`,
     },
   )
 }

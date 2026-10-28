@@ -139,3 +139,108 @@
     transition: none;
   }
 }
+
+.auth-nav {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.auth-nav button {
+  padding: 10px;
+  border: 0;
+  background: transparent;
+  color: #a4ed86;
+  text-decoration: underline;
+}
+
+.auth-nav button:hover:not(:disabled) {
+  color: #d3ffc0;
+}
+
+.auth-content [role='status'] {
+  margin-top: 20px;
+  color: #a4ed86;
+  line-height: 1.5;
+}
+
+/* Subtle CRT screen texture */
+
+.auth-window {
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-window::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 3px,
+    rgba(164, 237, 134, 0.09) 4px
+  );
+
+  opacity: 0.3;
+}
+
+/* Occasional retro screen glitch */
+
+.auth-titlebar {
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-titlebar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+
+  background: rgba(245, 239, 210, 0.65);
+  pointer-events: none;
+  opacity: 0;
+
+  animation: tiny-crt-glitch 17s steps(1, end) infinite;
+}
+
+@keyframes tiny-crt-glitch {
+  0%,
+  91%,
+  93%,
+  95%,
+  100% {
+    opacity: 0;
+    transform: translateY(0);
+  }
+
+  92% {
+    opacity: 0.35;
+    transform: translateY(7px);
+  }
+
+  94% {
+    opacity: 0.25;
+    transform: translateY(23px);
+  }
+}
+
+/* Accessibility: respect reduced motion preferences */
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-titlebar::after {
+    animation: none;
+  }
+}
+
+/* Keep account navigation accessible on smaller screens */
+
+.auth-nav {
+  flex-wrap: wrap;
+  gap: 12px;
+}
