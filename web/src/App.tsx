@@ -8,6 +8,7 @@ import {
   signUpWithEmail,
   updatePassword,
 } from './lib/auth'
+import { CharacterDashboard } from './CharacterDashboard'
 import './App.css'
 
 type AuthMode =
@@ -262,8 +263,10 @@ function App() {
             </div>
           ) : session && mode !== 'resetPassword' ? (
             <div className="auth-success">
-              <h2>Welcome back, adventurer!</h2>
-              <p>Your session is active.</p>
+              <CharacterDashboard
+                key={session.user.id}
+                accessToken={session.access_token}
+              />
 
               <button
                 type="button"
