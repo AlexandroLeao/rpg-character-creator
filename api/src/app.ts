@@ -1,5 +1,6 @@
 import express, { type ErrorRequestHandler } from 'express'
 import cors from 'cors'
+import { characterRouter } from './routes/characters.js'
 
 const app = express()
 
@@ -25,6 +26,8 @@ app.get('/api/health', (_req, res) => {
     service: 'rpg-character-creator-api',
   })
 })
+
+app.use('/api/characters', characterRouter)
 
 app.use((_req, res) => {
   res.status(404).json({

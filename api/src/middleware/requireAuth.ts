@@ -71,6 +71,7 @@ export const requireAuth: RequestHandler = async (
     }
 
     res.locals.authenticatedUserId = user.id
+    res.locals.authenticatedAccessToken = accessToken
 
     next()
   } catch {
