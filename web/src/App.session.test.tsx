@@ -12,6 +12,7 @@ const mocks = vi.hoisted(() => ({
   sendPasswordReset: vi.fn(),
   updatePassword: vi.fn(),
   signOut: vi.fn(),
+  dashboardRender: vi.fn(),
 }))
 
 vi.mock('./lib/supabase', () => ({
@@ -28,6 +29,18 @@ vi.mock('./lib/auth', () => ({
   sendPasswordReset: mocks.sendPasswordReset,
   updatePassword: mocks.updatePassword,
   signOut: mocks.signOut,
+}))
+
+vi.mock('./CharacterDashboard', () => ({
+  CharacterDashboard: ({
+    accessToken,
+  }: {
+    accessToken: string
+  }) => {
+    mocks.dashboardRender(accessToken)
+
+    return <p>Meu personagem</p>
+  },
 }))
 
 const testSession = {
@@ -86,8 +99,12 @@ describe('Authentication sessions and errors', () => {
     render(<App />)
 
     expect(
-      screen.getByText('Your session is active.'),
+      screen.getByText('Meu personagem'),
     ).toBeTruthy()
+
+    expect(
+      mocks.dashboardRender,
+    ).toHaveBeenCalledWith('test-access-token')
 
     expect(
       screen.getByRole('button', { name: 'Sign Out' }),
