@@ -1,7 +1,21 @@
 // @vitest-environment jsdom
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest'
+
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from '@testing-library/react'
+
 import App from './App'
 
 const mocks = vi.hoisted(() => ({
@@ -32,12 +46,24 @@ vi.mock('./lib/auth', () => ({
 describe('Authentication interface', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.stubGlobal('matchMedia', () => ({ matches: true }))
+
+    window.localStorage.removeItem(
+      'adventure-files-language',
+    )
+
+    vi.stubGlobal('matchMedia', () => ({
+      matches: true,
+    }))
 
     window.history.replaceState(null, '', '/')
 
     mocks.onAuthStateChange.mockImplementation(
-      (callback: (event: string, session: null) => void) => {
+      (
+        callback: (
+          event: string,
+          session: null,
+        ) => void,
+      ) => {
         callback('INITIAL_SESSION', null)
 
         return {
@@ -53,66 +79,138 @@ describe('Authentication interface', () => {
 
   afterEach(() => {
     cleanup()
+
     vi.unstubAllGlobals()
+
     window.history.replaceState(null, '', '/')
+
+    window.localStorage.removeItem(
+      'adventure-files-language',
+    )
   })
+
+  /*
+   * SIGN IN
+   */
 
   it('shows the sign-in screen to guests', () => {
     render(<App />)
 
-    expect(screen.getByRole('heading', { name: 'ADVENTURE FILES' })).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
-
     expect(
-      screen.getByRole('heading', { name: 'Create Your Legend' }),
+      screen.getByRole('heading', {
+        name: 'ADVENTURE FILES',
+      }),
     ).toBeTruthy()
 
-    expect(screen.getByLabelText('Email')).toBeTruthy()
-    expect(screen.getByLabelText('Password')).toBeTruthy()
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'PRESS START',
+      }),
+    )
 
     expect(
-      screen.getByRole('button', { name: 'Sign In' }),
+      screen.getByRole('heading', {
+        name: 'Sign In',
+      }),
     ).toBeTruthy()
 
     expect(
-      screen.getByRole('button', { name: 'Create Account' }),
+      screen.getByLabelText('Email'),
+    ).toBeTruthy()
+
+    expect(
+      screen.getByLabelText('Password'),
+    ).toBeTruthy()
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Sign In',
+      }),
+    ).toBeTruthy()
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Create Account',
+      }),
     ).toBeTruthy()
   })
 
+  /*
+   * REGISTRATION VALIDATION
+   */
+
   it('prevents registration when passwords do not match', async () => {
     render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
 
     fireEvent.click(
-      screen.getByRole('button', { name: 'Create Account' }),
+      screen.getByRole('button', {
+        name: 'PRESS START',
+      }),
     )
 
-    fireEvent.change(screen.getByLabelText('Display Name'), {
-      target: { value: 'Test Adventurer' },
-    })
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Create Account',
+      }),
+    )
 
-    fireEvent.change(screen.getByLabelText('Email'), {
-      target: { value: 'adventurer@example.com' },
-    })
+    fireEvent.change(
+      screen.getByLabelText('Display Name'),
+      {
+        target: {
+          value: 'Test Adventurer',
+        },
+      },
+    )
 
-    fireEvent.change(screen.getByLabelText('Password'), {
-      target: { value: 'Password123!' },
-    })
+    fireEvent.change(
+      screen.getByLabelText('Email'),
+      {
+        target: {
+          value: 'adventurer@example.com',
+        },
+      },
+    )
 
-    fireEvent.change(screen.getByLabelText('Confirm Password'), {
-      target: { value: 'Different123!' },
-    })
+    fireEvent.change(
+      screen.getByLabelText('Password'),
+      {
+        target: {
+          value: 'Password123!',
+        },
+      },
+    )
+
+    fireEvent.change(
+      screen.getByLabelText('Confirm Password'),
+      {
+        target: {
+          value: 'Different123!',
+        },
+      },
+    )
 
     fireEvent.click(
-      screen.getByRole('button', { name: 'Create Account' }),
+      screen.getByRole('button', {
+        name: 'Create Account',
+      }),
     )
 
     expect(
       await screen.findByRole('alert'),
-    ).toHaveProperty('textContent', 'Passwords do not match.')
+    ).toHaveProperty(
+      'textContent',
+      'Passwords do not match.',
+    )
 
-    expect(mocks.signUpWithEmail).not.toHaveBeenCalled()
+    expect(
+      mocks.signUpWithEmail,
+    ).not.toHaveBeenCalled()
   })
+
+  /*
+   * PASSWORD RECOVERY
+   */
 
   it('shows a neutral password recovery message', async () => {
     mocks.sendPasswordReset.mockResolvedValue({
@@ -120,18 +218,32 @@ describe('Authentication interface', () => {
     })
 
     render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
 
     fireEvent.click(
-      screen.getByRole('button', { name: 'Forgot Password?' }),
+      screen.getByRole('button', {
+        name: 'PRESS START',
+      }),
     )
 
-    fireEvent.change(screen.getByLabelText('Email'), {
-      target: { value: 'adventurer@example.com' },
-    })
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Forgot Password?',
+      }),
+    )
+
+    fireEvent.change(
+      screen.getByLabelText('Email'),
+      {
+        target: {
+          value: 'adventurer@example.com',
+        },
+      },
+    )
 
     fireEvent.click(
-      screen.getByRole('button', { name: 'Send Recovery Email' }),
+      screen.getByRole('button', {
+        name: 'Send Recovery Email',
+      }),
     )
 
     expect(
@@ -140,13 +252,23 @@ describe('Authentication interface', () => {
       ),
     ).toBeTruthy()
 
-    expect(mocks.sendPasswordReset).toHaveBeenCalledWith(
+    expect(
+      mocks.sendPasswordReset,
+    ).toHaveBeenCalledWith(
       'adventurer@example.com',
     )
   })
 
+  /*
+   * INVALID RECOVERY SESSION
+   */
+
   it('rejects a reset page without a recovery session', async () => {
-    window.history.replaceState(null, '', '/reset-password')
+    window.history.replaceState(
+      null,
+      '',
+      '/reset-password',
+    )
 
     render(<App />)
 
@@ -160,9 +282,118 @@ describe('Authentication interface', () => {
     )
 
     expect(
-      screen.getByRole('button', { name: 'Request a New Link' }),
+      screen.getByRole('button', {
+        name: 'Request a New Link',
+      }),
     ).toBeTruthy()
 
-    expect(mocks.updatePassword).not.toHaveBeenCalled()
+    expect(
+      mocks.updatePassword,
+    ).not.toHaveBeenCalled()
+  })
+
+  /*
+   * LANGUAGE SELECTION
+   */
+
+  it('switches the authentication interface to Portuguese', () => {
+    render(<App />)
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'PRESS START',
+      }),
+    )
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Português',
+      }),
+    )
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'Entrar',
+      }),
+    ).toBeTruthy()
+
+    expect(
+      screen.getByLabelText('Senha'),
+    ).toBeTruthy()
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Criar Conta',
+      }),
+    ).toBeTruthy()
+
+    expect(
+      window.localStorage.getItem(
+        'adventure-files-language',
+      ),
+    ).toBe('pt')
+
+    expect(
+      screen
+        .getByRole('button', {
+          name: 'Português',
+        })
+        .getAttribute('aria-pressed'),
+    ).toBe('true')
+  })
+
+  /*
+   * LANGUAGE PERSISTENCE
+   */
+
+  it('restores the saved language and allows switching back to English', () => {
+    window.localStorage.setItem(
+      'adventure-files-language',
+      'pt',
+    )
+
+    render(<App />)
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'PRESS START',
+      }),
+    )
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'Entrar',
+      }),
+    ).toBeTruthy()
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'English',
+      }),
+    )
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'Sign In',
+      }),
+    ).toBeTruthy()
+
+    expect(
+      screen.getByLabelText('Password'),
+    ).toBeTruthy()
+
+    expect(
+      window.localStorage.getItem(
+        'adventure-files-language',
+      ),
+    ).toBe('en')
+
+    expect(
+      screen
+        .getByRole('button', {
+          name: 'English',
+        })
+        .getAttribute('aria-pressed'),
+    ).toBe('true')
   })
 })
