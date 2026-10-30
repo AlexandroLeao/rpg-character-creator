@@ -55,7 +55,6 @@ flowchart TD
 - Load the class/attribute catalog by stable slug and label; show concise descriptions and selection feedback.
 - Randomize only the draft, not the database or account profile.
 - Use explicit actions to Save, Discard Edits, Delete Character, and Export PDF.
-- Render the private My Character screen, responsive themes, validation errors and loading/empty/error states.
 - Generate the retro PDF locally and keep it free of personally identifying account details.
 - Never trust client-side route guards as the only authorization control.
 
