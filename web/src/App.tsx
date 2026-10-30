@@ -1,6 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import type { Session } from '@supabase/supabase-js'
+
 import { supabase } from './lib/supabase'
+
 import {
   sendPasswordReset,
   signInWithEmail,
@@ -8,33 +10,35 @@ import {
   signUpWithEmail,
   updatePassword,
 } from './lib/auth'
+
+import {
+  authTranslations,
+  type AuthMode,
+  type Language,
+} from './lib/authTranslations'
+
 import { CharacterDashboard } from './CharacterDashboard'
 import { StartScreen } from './StartScreen'
-import './App.css'
 
-type AuthMode =
-  | 'signIn'
-  | 'signUp'
-  | 'forgotPassword'
-  | 'resetPassword'
+import './App.css'
 
 type Feedback = {
   kind: 'error' | 'success'
   text: string
 } | null
 
-const titles: Record<AuthMode, string> = {
-  signIn: 'Create Your Legend',
-  signUp: 'Join the Realm',
-  forgotPassword: 'Recover Your Account',
-  resetPassword: 'Choose a New Password',
-}
+const LANGUAGE_STORAGE_KEY = 'adventure-files-language'
 
-const submitLabels: Record<AuthMode, string> = {
-  signIn: 'Sign In',
-  signUp: 'Create Account',
-  forgotPassword: 'Send Recovery Email',
-  resetPassword: 'Update Password',
+function getInitialLanguage(): Language {
+  try {
+    const storedLanguage = window.localStorage.getItem(
+      LANGUAGE_STORAGE_KEY,
+    )
+
+    return storedLanguage === 'pt' ? 'pt' : 'en'
+  } catch {
+    return 'en'
+  }
 }
 
 function App() {
@@ -42,24 +46,20 @@ function App() {
 
   const [checkingSession, setCheckingSession] = useState(true)
 
-  /*
-   * Controls whether the player has passed
-   * the Adventure Files START screen.
-   */
   const [hasStarted, setHasStarted] = useState(
     () => window.location.pathname === '/reset-password',
   )
 
-  /*
-   * Controls the reverse iris animation
-   * when entering the login screen.
-   */
   const [showLoginReveal, setShowLoginReveal] = useState(false)
 
   const [mode, setMode] = useState<AuthMode>(() =>
     window.location.pathname === '/reset-password'
       ? 'resetPassword'
       : 'signIn',
+  )
+
+  const [language, setLanguage] = useState<Language>(
+    getInitialLanguage,
   )
 
   const [displayName, setDisplayName] = useState('')
@@ -70,6 +70,11 @@ function App() {
   const [working, setWorking] = useState(false)
   const [feedback, setFeedback] = useState<Feedback>(null)
 
+  const copy = authTranslations[language]
+
+  const isDashboard =
+    session !== null && mode !== 'resetPassword'
+
   /*
    * SUPABASE SESSION
    */
@@ -77,18 +82,37 @@ function App() {
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, nextSession) => {
-      setSession(nextSession)
-      setCheckingSession(false)
+    } = supabase.auth.onAuthStateChange(
+      (event, nextSession) => {
+        setSession(nextSession)
+        setCheckingSession(false)
 
-      if (event === 'PASSWORD_RECOVERY') {
-        setMode('resetPassword')
-        setFeedback(null)
-      }
-    })
+        if (event === 'PASSWORD_RECOVERY') {
+          setMode('resetPassword')
+          setFeedback(null)
+        }
+      },
+    )
 
     return () => subscription.unsubscribe()
   }, [])
+
+  /*
+   * LANGUAGE SELECTION
+   */
+
+  function changeLanguage(nextLanguage: Language) {
+    setLanguage(nextLanguage)
+
+    try {
+      window.localStorage.setItem(
+        LANGUAGE_STORAGE_KEY,
+        nextLanguage,
+      )
+    } catch {
+      // The interface remains usable if storage is unavailable.
+    }
+  }
 
   /*
    * AUTHENTICATION MODES
@@ -110,34 +134,48 @@ function App() {
    * LOGIN / REGISTRATION / PASSWORD RECOVERY
    */
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(
+    event: FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault()
     setFeedback(null)
 
-    if (mode === 'signUp' && displayName.trim().length < 2) {
+    if (
+      mode === 'signUp' &&
+      displayName.trim().length < 2
+    ) {
       setFeedback({
         kind: 'error',
-        text: 'Display name must contain at least 2 characters.',
+        text: copy.displayNameTooShort,
       })
+
       return
     }
 
     const requiresNewPassword =
       mode === 'signUp' || mode === 'resetPassword'
 
-    if (requiresNewPassword && password.length < 8) {
+    if (
+      requiresNewPassword &&
+      password.length < 8
+    ) {
       setFeedback({
         kind: 'error',
-        text: 'Password must contain at least 8 characters.',
+        text: copy.passwordTooShort,
       })
+
       return
     }
 
-    if (requiresNewPassword && password !== confirmPassword) {
+    if (
+      requiresNewPassword &&
+      password !== confirmPassword
+    ) {
       setFeedback({
         kind: 'error',
-        text: 'Passwords do not match.',
+        text: copy.passwordsMismatch,
       })
+
       return
     }
 
@@ -151,11 +189,11 @@ function App() {
           error
             ? {
                 kind: 'error',
-                text: 'Unable to process your request. Please try again later.',
+                text: copy.recoveryRequestFailure,
               }
             : {
                 kind: 'success',
-                text: 'If an account exists for this email, a recovery message will be sent shortly.',
+                text: copy.recoveryRequestSuccess,
               },
         )
 
@@ -166,8 +204,9 @@ function App() {
         if (!session) {
           setFeedback({
             kind: 'error',
-            text: 'Your recovery session is invalid or expired. Please request a new link.',
+            text: copy.invalidRecoverySession,
           })
+
           return
         }
 
@@ -176,17 +215,19 @@ function App() {
         if (error) {
           setFeedback({
             kind: 'error',
-            text: 'Unable to update your password. Please request a new recovery link if needed.',
+            text: copy.updatePasswordFailure,
           })
+
           return
         }
 
         window.history.replaceState(null, '', '/')
+
         setMode('signIn')
 
         setFeedback({
           kind: 'success',
-          text: 'Your password has been updated successfully.',
+          text: copy.updatePasswordSuccess,
         })
 
         return
@@ -202,8 +243,9 @@ function App() {
         if (error) {
           setFeedback({
             kind: 'error',
-            text: 'Unable to create an account. Please review your details.',
+            text: copy.signUpFailure,
           })
+
           return
         }
 
@@ -211,24 +253,27 @@ function App() {
 
         setFeedback({
           kind: 'success',
-          text: 'If registration is available for this email, check your inbox for a confirmation link.',
+          text: copy.signUpSuccess,
         })
 
         return
       }
 
-      const { error } = await signInWithEmail(email, password)
+      const { error } = await signInWithEmail(
+        email,
+        password,
+      )
 
       if (error) {
         setFeedback({
           kind: 'error',
-          text: 'Unable to sign in. Please check your details.',
+          text: copy.signInFailure,
         })
       }
     } catch {
       setFeedback({
         kind: 'error',
-        text: 'Something went wrong. Please try again later.',
+        text: copy.unexpectedError,
       })
     } finally {
       setPassword('')
@@ -238,7 +283,7 @@ function App() {
   }
 
   /*
-   * LOGOUT
+   * SIGN OUT
    */
 
   async function handleSignOut() {
@@ -251,13 +296,13 @@ function App() {
       if (error) {
         setFeedback({
           kind: 'error',
-          text: 'Unable to sign out. Please try again.',
+          text: copy.signOutFailure,
         })
       }
     } catch {
       setFeedback({
         kind: 'error',
-        text: 'Unable to sign out. Please try again.',
+        text: copy.signOutFailure,
       })
     } finally {
       setWorking(false)
@@ -266,14 +311,13 @@ function App() {
 
   /*
    * ADVENTURE FILES START SCREEN
-   *
-   * The START screen closes first.
-   *
-   * After the closing animation finishes,
-   * the login screen opens from the center.
    */
 
-  if (!hasStarted && !session && mode !== 'resetPassword') {
+  if (
+    !hasStarted &&
+    !session &&
+    mode !== 'resetPassword'
+  ) {
     return (
       <StartScreen
         onStart={() => {
@@ -285,53 +329,81 @@ function App() {
   }
 
   /*
-   * AUTHENTICATION SCREEN
-   *
-   * The reveal animation only plays after
-   * entering through the START screen.
-   *
-   * Password recovery links and restored
-   * sessions are not interrupted.
+   * AUTHENTICATION AND CHARACTER AREA
    */
 
+  const shellClassName = [
+    'auth-shell',
+    showLoginReveal ? 'auth-shell--reveal' : '',
+    isDashboard ? 'auth-shell--dashboard' : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+
+  const windowClassName = [
+    'auth-window',
+    isDashboard ? 'auth-window--dashboard' : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
+
+  const heading = isDashboard
+    ? copy.myCharacter
+    : copy.titles[mode]
+
   return (
-    <main
-      className={
-        showLoginReveal
-          ? 'auth-shell auth-shell--reveal'
-          : 'auth-shell'
-      }
-    >
-      <section className="auth-window">
+    <main className={shellClassName}>
+      <section className={windowClassName}>
         <header className="auth-titlebar">
-          <span>ADVENTURE FILES</span>
-          <span aria-hidden="true">◆</span>
+          <h1 className="auth-titlebar__heading">
+            {heading}
+          </h1>
+
+          <nav
+            className="auth-language"
+            aria-label={copy.languageSelector}
+          >
+            <button
+              type="button"
+              aria-label="Português"
+              aria-pressed={language === 'pt'}
+              onClick={() => changeLanguage('pt')}
+            >
+              PT
+            </button>
+
+            <span aria-hidden="true">/</span>
+
+            <button
+              type="button"
+              aria-label="English"
+              aria-pressed={language === 'en'}
+              onClick={() => changeLanguage('en')}
+            >
+              EN
+            </button>
+          </nav>
         </header>
 
         <div className="auth-content">
-          <p className="auth-kicker">WELCOME TO THE REALM</p>
-
-          <h1>{titles[mode]}</h1>
-
           {checkingSession ? (
             <p role="status">
-              Checking your session...
+              {copy.checkingSession}
             </p>
           ) : mode === 'resetPassword' && !session ? (
             <div className="auth-success">
               <p role="alert">
-                Your recovery link could not be verified.
-                It may be invalid or expired.
+                {copy.recoveryLinkInvalid}
               </p>
 
               <button
                 type="button"
                 onClick={requestNewRecoveryLink}
               >
-                Request a New Link
+                {copy.requestNewLink}
               </button>
             </div>
-          ) : session && mode !== 'resetPassword' ? (
+          ) : isDashboard && session ? (
             <div className="auth-success">
               <CharacterDashboard
                 key={session.user.id}
@@ -343,7 +415,9 @@ function App() {
                 onClick={handleSignOut}
                 disabled={working}
               >
-                {working ? 'Signing out...' : 'Sign Out'}
+                {working
+                  ? copy.signingOut
+                  : copy.signOut}
               </button>
             </div>
           ) : (
@@ -355,7 +429,7 @@ function App() {
                 {mode === 'signUp' && (
                   <>
                     <label htmlFor="displayName">
-                      Display Name
+                      {copy.displayName}
                     </label>
 
                     <input
@@ -375,7 +449,7 @@ function App() {
                 {mode !== 'resetPassword' && (
                   <>
                     <label htmlFor="email">
-                      Email
+                      {copy.email}
                     </label>
 
                     <input
@@ -395,8 +469,8 @@ function App() {
                   <>
                     <label htmlFor="password">
                       {mode === 'resetPassword'
-                        ? 'New Password'
-                        : 'Password'}
+                        ? copy.newPassword
+                        : copy.password}
                     </label>
 
                     <input
@@ -420,7 +494,7 @@ function App() {
                   mode === 'resetPassword') && (
                   <>
                     <label htmlFor="confirmPassword">
-                      Confirm Password
+                      {copy.confirmPassword}
                     </label>
 
                     <input
@@ -430,7 +504,9 @@ function App() {
                       required
                       value={confirmPassword}
                       onChange={(event) =>
-                        setConfirmPassword(event.target.value)
+                        setConfirmPassword(
+                          event.target.value,
+                        )
                       }
                     />
                   </>
@@ -441,15 +517,15 @@ function App() {
                   disabled={working}
                 >
                   {working
-                    ? 'Please wait...'
-                    : submitLabels[mode]}
+                    ? copy.pleaseWait
+                    : copy.submitLabels[mode]}
                 </button>
               </form>
 
               {mode !== 'resetPassword' && (
                 <nav
                   className="auth-nav"
-                  aria-label="Account options"
+                  aria-label={copy.accountOptions}
                 >
                   {mode === 'signIn' ? (
                     <>
@@ -460,7 +536,7 @@ function App() {
                           changeMode('signUp')
                         }
                       >
-                        Create Account
+                        {copy.createAccount}
                       </button>
 
                       <button
@@ -470,7 +546,7 @@ function App() {
                           changeMode('forgotPassword')
                         }
                       >
-                        Forgot Password?
+                        {copy.forgotPassword}
                       </button>
                     </>
                   ) : (
@@ -481,7 +557,7 @@ function App() {
                         changeMode('signIn')
                       }
                     >
-                      Back to Sign In
+                      {copy.backToSignIn}
                     </button>
                   )}
                 </nav>

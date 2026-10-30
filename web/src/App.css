@@ -1,238 +1,352 @@
 /* ==========================================
    ADVENTURE FILES
-   AUTHENTICATION SCREEN
+   RETRO AUTHENTICATION INTERFACE
    ========================================== */
 
 .auth-shell {
+  --auth-black: #000000;
+  --auth-surface: #111c15;
+  --auth-surface-dark: #0a130d;
+  --auth-green: #a4ed86;
+  --auth-green-hover: #c9ffb1;
+  --auth-cream: #f5efd2;
+  --auth-muted: #a7ba9c;
+  --auth-border: #618b5a;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
+
   padding: 24px;
-  background:
-    linear-gradient(
-      rgba(16, 24, 21, 0.93),
-      rgba(16, 24, 21, 0.93)
-    ),
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 3px,
-      #7ac46a 4px
-    );
-}
 
-/* AUTHENTICATION WINDOW */
-
-.auth-window {
-  width: 100%;
-  max-width: 480px;
-  border: 2px solid #a4ed86;
-  background: #19231d;
-  box-shadow: 10px 10px 0 #060a07;
-}
-
-/* WINDOW TITLE BAR */
-
-.auth-titlebar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 14px 18px;
-  background: #a4ed86;
-  color: #101815;
-  font-size: 13px;
-  font-weight: bold;
-  letter-spacing: 1px;
-}
-
-/* CONTENT */
-
-.auth-content {
-  padding: 40px 32px;
-}
-
-.auth-kicker {
-  margin: 0 0 12px;
-  color: #a4ed86;
-  font-size: 12px;
-  letter-spacing: 2px;
-}
-
-.auth-content h1 {
-  margin: 0 0 32px;
-  color: #f5efd2;
-  font-size: clamp(28px, 6vw, 36px);
-  line-height: 1.2;
-}
-
-.auth-content h2 {
-  color: #f5efd2;
-  font-size: 20px;
-}
-
-/* AUTHENTICATION FORM */
-
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.auth-form label {
-  color: #c4d6b8;
-  font-size: 13px;
-  font-weight: bold;
-}
-
-.auth-form input {
-  width: 100%;
-  min-height: 48px;
-  padding: 12px;
-  border: 1px solid #60745d;
-  border-radius: 0;
-  background: #101815;
-  color: #f5efd2;
-}
-
-.auth-form input:focus {
-  border-color: #a4ed86;
-}
-
-/* BUTTONS */
-
-.auth-form button,
-.auth-success button {
-  width: 100%;
-  min-height: 48px;
-  margin-top: 14px;
-  padding: 12px;
-  border: 2px solid #a4ed86;
-  border-radius: 0;
-  background: #a4ed86;
-  color: #101815;
-  font-weight: bold;
-  text-transform: uppercase;
-  transition: background 150ms ease;
-}
-
-.auth-form button:hover:not(:disabled),
-.auth-success button:hover:not(:disabled) {
-  background: #d3ffc0;
-}
-
-/* FEEDBACK MESSAGES */
-
-.auth-success p {
-  color: #c4d6b8;
-  line-height: 1.6;
-}
-
-.auth-content [role='alert'] {
-  margin-top: 20px;
-  padding: 12px;
-  border-left: 3px solid #ff9d8e;
-  background: #35221f;
-  color: #ffd2ca;
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-/* MOBILE RESPONSIVENESS */
-
-@media (max-width: 480px) {
-  .auth-shell {
-    padding: 16px;
-  }
-
-  .auth-content {
-    padding: 32px 20px;
-  }
-
-  .auth-titlebar {
-    font-size: 11px;
-  }
-}
-
-/* REDUCED MOTION FOR BUTTONS */
-
-@media (prefers-reduced-motion: reduce) {
-  .auth-form button,
-  .auth-success button {
-    transition: none;
-  }
-}
-
-/* ACCOUNT NAVIGATION */
-
-.auth-nav {
-  display: flex;
-  justify-content: center;
-  margin-top: 24px;
-}
-
-.auth-nav button {
-  padding: 10px;
-  border: 0;
-  background: transparent;
-  color: #a4ed86;
-  text-decoration: underline;
-}
-
-.auth-nav button:hover:not(:disabled) {
-  color: #d3ffc0;
-}
-
-.auth-content [role='status'] {
-  margin-top: 20px;
-  color: #a4ed86;
-  line-height: 1.5;
+  background: var(--auth-black);
+  color: var(--auth-cream);
 }
 
 /* ==========================================
-   SUBTLE CRT SCREEN TEXTURE
+   AUTHENTICATION WINDOW
    ========================================== */
 
 .auth-window {
   position: relative;
+  isolation: isolate;
   overflow: hidden;
+
+  width: 100%;
+  max-width: 420px;
+
+  border: 2px solid var(--auth-green);
+  border-radius: 12px;
+
+  background: var(--auth-surface);
+
+  box-shadow:
+    0 0 0 3px #000000,
+    6px 6px 0 #263f2a;
 }
+
+/*
+ * The existing character dashboard needs
+ * more horizontal space than the login form.
+ */
+
+.auth-window:has(.character-dashboard) {
+  max-width: 760px;
+}
+
+/* ==========================================
+   WINDOW TITLE BAR
+   ========================================== */
+
+.auth-titlebar {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+  min-height: 49px;
+  padding: 14px 18px;
+
+  border-bottom: 2px solid var(--auth-border);
+
+  background: var(--auth-surface-dark);
+  color: var(--auth-green);
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  line-height: 1.8;
+  letter-spacing: 0;
+}
+
+/* Hide the old decorative diamond.
+   The PT/EN selector will replace it
+   in the next implementation step. */
+
+.auth-titlebar > span:last-child[aria-hidden='true'] {
+  display: none;
+}
+
+/* ==========================================
+   WINDOW CONTENT
+   ========================================== */
+
+.auth-content {
+  position: relative;
+  z-index: 1;
+
+  padding: 28px 26px 26px;
+}
+
+/*
+ * The old decorative introduction is
+ * temporarily hidden.
+ *
+ * It will be removed from the JSX
+ * during the next step.
+ */
+
+.auth-kicker {
+  display: none;
+}
+
+.auth-content h1 {
+  margin: 0 0 28px;
+
+  color: var(--auth-cream);
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(13px, 3vw, 16px);
+  font-weight: normal;
+  line-height: 1.8;
+}
+
+.auth-content h2 {
+  color: var(--auth-cream);
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 1.8;
+}
+
+/* ==========================================
+   AUTHENTICATION FORM
+   ========================================== */
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.auth-form label {
+  color: var(--auth-muted);
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  font-weight: normal;
+  line-height: 1.7;
+}
+
+.auth-form input {
+  display: block;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 47px;
+
+  padding: 12px 13px;
+
+  border: 1px solid var(--auth-border);
+  border-radius: 6px;
+
+  background: #060d09;
+  color: var(--auth-cream);
+
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 15px;
+  line-height: 1.4;
+
+  outline-offset: 3px;
+
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease;
+}
+
+.auth-form input:hover:not(:disabled) {
+  border-color: #85b875;
+}
+
+.auth-form input:focus {
+  border-color: var(--auth-green);
+  background: #09140d;
+}
+
+/* ==========================================
+   PRIMARY BUTTONS
+   ========================================== */
+
+.auth-form button[type='submit'],
+.auth-success > button,
+.character-error button {
+  display: block;
+
+  width: 100%;
+  min-height: 48px;
+
+  margin-top: 12px;
+  padding: 13px 12px;
+
+  border: 2px solid var(--auth-green);
+  border-radius: 7px;
+
+  background: var(--auth-green);
+  color: #07120a;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  font-weight: normal;
+  line-height: 1.7;
+  text-align: center;
+
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.auth-form button[type='submit']:hover:not(:disabled),
+.auth-success > button:hover:not(:disabled),
+.character-error button:hover:not(:disabled) {
+  background: var(--auth-green-hover);
+}
+
+.auth-form button[type='submit']:active:not(:disabled),
+.auth-success > button:active:not(:disabled),
+.character-error button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* ==========================================
+   ACCOUNT NAVIGATION
+   ========================================== */
+
+.auth-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  gap: 10px 16px;
+
+  margin-top: 23px;
+}
+
+.auth-nav button {
+  padding: 8px 4px;
+
+  border: 0;
+  border-radius: 3px;
+
+  background: transparent;
+  color: var(--auth-green);
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  line-height: 1.9;
+
+  text-align: center;
+  text-decoration: none;
+}
+
+.auth-nav button:hover:not(:disabled) {
+  color: var(--auth-green-hover);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* ==========================================
+   FEEDBACK AND STATUS
+   ========================================== */
+
+.auth-content [role='alert'] {
+  margin: 18px 0 0;
+  padding: 12px;
+
+  border: 1px solid #b77b70;
+  border-radius: 6px;
+
+  background: #2a1b18;
+  color: #ffd3c8;
+
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.auth-content [role='status'] {
+  margin-top: 18px;
+
+  color: var(--auth-green);
+
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.auth-success p,
+.character-dashboard p {
+  line-height: 1.8;
+}
+
+/* ==========================================
+   SUBTLE CRT TEXTURE
+   ========================================== */
 
 .auth-window::after {
   content: '';
+
   position: absolute;
   inset: 0;
+  z-index: 2;
+
   pointer-events: none;
 
   background: repeating-linear-gradient(
     to bottom,
     transparent 0,
     transparent 3px,
-    rgba(164, 237, 134, 0.09) 4px
+    rgba(164, 237, 134, 0.07) 4px
   );
 
-  opacity: 0.3;
+  opacity: 0.2;
 }
 
 /* ==========================================
-   OCCASIONAL RETRO SCREEN GLITCH
+   OCCASIONAL WINDOW GLITCH
    ========================================== */
 
 .auth-titlebar {
-  position: relative;
   overflow: hidden;
 }
 
 .auth-titlebar::after {
   content: '';
+
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
+
   height: 2px;
 
-  background: rgba(245, 239, 210, 0.65);
+  background: rgba(245, 239, 210, 0.55);
+
   pointer-events: none;
   opacity: 0;
 
@@ -250,70 +364,70 @@
   }
 
   92% {
-    opacity: 0.35;
+    opacity: 0.3;
     transform: translateY(7px);
   }
 
   94% {
-    opacity: 0.25;
-    transform: translateY(23px);
+    opacity: 0.2;
+    transform: translateY(20px);
   }
-}
-
-/* ACCESSIBILITY */
-
-@media (prefers-reduced-motion: reduce) {
-  .auth-titlebar::after {
-    animation: none;
-  }
-}
-
-/* SMALLER SCREEN NAVIGATION */
-
-.auth-nav {
-  flex-wrap: wrap;
-  gap: 12px;
 }
 
 /* ==========================================
-   ADVENTURE FILES
-   RETRO LOGIN SCREEN REVEAL
+   RESPONSIVE LAYOUT
    ========================================== */
 
-/*
- * Dark background behind the animation.
- *
- * The login will expand from the center,
- * revealing the interface gradually.
- */
+@media (max-width: 480px) {
+  .auth-shell {
+    padding: 18px;
+  }
+
+  .auth-window {
+    max-width: 100%;
+    border-radius: 10px;
+    box-shadow: 4px 4px 0 #263f2a;
+  }
+
+  .auth-titlebar {
+    min-height: 46px;
+    padding: 12px 14px;
+
+    font-size: 8px;
+  }
+
+  .auth-content {
+    padding: 24px 18px 22px;
+  }
+
+  .auth-content h1 {
+    margin-bottom: 24px;
+    font-size: 13px;
+  }
+
+  .auth-nav {
+    gap: 8px 12px;
+  }
+}
+
+/* ==========================================
+   EXISTING RETRO SCREEN REVEAL
+   ========================================== */
 
 #root {
-  background-color: #030d09;
+  background-color: #000000;
 }
 
 /*
- * REVERSE IRIS ANIMATION
- *
- * START:
- * Corners -> Center
- *
- * LOGIN:
- * Center -> Corners
+ * The login screen opens from the center.
  *
  * Duration: 1600ms
+ * Preserve the approved transition.
  */
 
 .auth-shell--reveal {
   animation: auth-iris-open 1600ms steps(32, end) both;
 }
-
-/*
- * RETRO SCREEN OPENING
- *
- * The visible area starts at the center
- * and expands until the whole screen
- * becomes visible.
- */
 
 @keyframes auth-iris-open {
   from {
@@ -325,14 +439,204 @@
   }
 }
 
-/*
- * ACCESSIBILITY
- *
- * Respect users who prefer reduced motion.
- */
+/* ==========================================
+   REDUCED MOTION
+   ========================================== */
 
 @media (prefers-reduced-motion: reduce) {
-  .auth-shell--reveal {
+  .auth-shell--reveal,
+  .auth-titlebar::after {
     animation: none;
+  }
+
+  .auth-form input,
+  .auth-form button[type='submit'],
+  .auth-success > button,
+  .character-error button {
+    transition: none;
+  }
+}
+
+/* ==========================================
+   AUTH WINDOW HEADER AND LANGUAGE SELECTOR
+   ========================================== */
+
+.auth-titlebar__heading {
+  flex: 1;
+  min-width: 0;
+
+  margin: 0;
+
+  color: var(--auth-green);
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  font-weight: normal;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+.auth-language {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+
+  gap: 3px;
+}
+
+.auth-language button {
+  min-width: 35px;
+  min-height: 36px;
+
+  padding: 7px 4px;
+
+  border: 0;
+  border-radius: 4px;
+
+  background: transparent;
+  color: var(--auth-muted);
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.auth-language button[aria-pressed='true'] {
+  color: var(--auth-green);
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+
+.auth-language button:hover {
+  color: var(--auth-green-hover);
+}
+
+.auth-language span {
+  color: var(--auth-border);
+  font-size: 11px;
+}
+
+@media (max-width: 480px) {
+  .auth-titlebar__heading {
+    font-size: 8px;
+  }
+
+  .auth-language button {
+    min-width: 32px;
+    font-size: 8px;
+  }
+}
+
+/* ==========================================
+   ADVENTURE FILES
+   TYPOGRAPHY AND SPACING REFINEMENTS
+   ========================================== */
+
+/* Window heading */
+
+.auth-titlebar__heading {
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+/* Form labels */
+
+.auth-form label {
+  font-size: 10px;
+  line-height: 1.8;
+  letter-spacing: 0.2px;
+}
+
+/* Text entered in the fields */
+
+.auth-form input {
+  font-size: 16px;
+}
+
+/* Primary authentication button */
+
+.auth-form button[type='submit'] {
+  font-size: 11px;
+  line-height: 1.8;
+}
+
+/* Create Account / Forgot Password navigation */
+
+.auth-nav {
+  justify-content: center;
+  gap: 14px 28px;
+  margin-top: 28px;
+}
+
+.auth-nav button {
+  padding: 10px 4px;
+
+  font-size: 10px;
+  line-height: 1.8;
+  letter-spacing: 0.2px;
+}
+
+/* Feedback messages */
+
+.auth-content [role='alert'],
+.auth-content [role='status'] {
+  font-size: 13px;
+}
+
+/* Character dashboard headings */
+
+.auth-content h2 {
+  font-size: 13px;
+}
+
+/* ==========================================
+   MOBILE ADJUSTMENTS
+   ========================================== */
+
+@media (max-width: 480px) {
+  .auth-titlebar__heading {
+    font-size: 10px;
+  }
+
+  .auth-nav {
+    gap: 12px 24px;
+    margin-top: 26px;
+  }
+
+  .auth-nav button {
+    font-size: 10px;
+  }
+}
+
+/* ==========================================
+   ADVENTURE FILES
+   AUTH NAVIGATION ALIGNMENT
+   ========================================== */
+
+.auth-nav {
+  display: grid;
+  grid-template-columns: max-content max-content;
+  justify-content: space-between;
+  align-items: center;
+
+  width: 100%;
+  max-width: none;
+
+  gap: 12px;
+  margin: 24px 0 0;
+}
+
+.auth-nav button {
+  white-space: nowrap;
+  padding: 10px 0;
+}
+
+/* Smaller mobile screens */
+@media (max-width: 380px) {
+  .auth-nav {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 12px;
   }
 }
