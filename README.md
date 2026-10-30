@@ -1,35 +1,139 @@
-# RPG Character Creator
+# Adventure Files
 
-A full-stack fictional RPG character creator with a minimalist retro-computer and pixel-art aesthetic.
+**Adventure Files** is a personal full-stack web project inspired by classic RPGs, retro computers, and minimalist pixel-art games.
 
-Registered users will create, save, edit, and export **one RPG character per account**.
+The project transforms a traditional authentication system into a nostalgic experience where users can create, customize, save, and eventually export their own fictional RPG characters.
 
-> **Current status:** The initial React frontend, Express health API, Supabase PostgreSQL schema, and database Row Level Security (RLS) are implemented. Email/password authentication, registration, login, logout, session handling, and password recovery are implemented in the authentication feature branch. Protected character API endpoints, character creation, PDF export, and production deployment are planned.
+Adventure Files is not a playable RPG. It is a character creation experience designed to demonstrate full-stack development while exploring creative interface design.
 
 ## Project Vision
 
-RPG Character Creator is a character creation application, not a playable RPG.
+Adventure Files combines modern web development with the visual identity of classic 8-bit games and early computer interfaces.
 
-The experience combines modern web technologies with an interface inspired by early desktop computers and classic handheld games.
+The experience begins with a retro title screen featuring original pixel-art illustrations, followed by authentication and a guided character creation system.
 
-### Planned Features
+Each authenticated user can maintain one fictional character, customize its attributes, and eventually download a printable character sheet.
 
-- Email/password authentication using Supabase Auth.
-- Email confirmation and password recovery.
-- One saved character per authenticated user.
-- Eight character classes.
-- Seven character customization categories.
-- Four-stage guided character creation.
-- Character draft randomization.
-- Private character dashboard.
-- Character editing and deletion.
-- Downloadable retro-styled PDF character sheet.
+### Design Principles
+
+- Minimalist retro RPG aesthetic.
 - Original pixel-art illustrations.
-- Retro CRT effects and subtle visual glitches.
-- Responsive layouts and accessible controls.
-- Light and dark visual themes.
+- Classic computer-inspired interfaces.
+- A single dark visual theme.
+- Dark backgrounds with mint-green and cream accents.
+- Pixel-style typography.
+- Subtle CRT effects and visual glitches.
+- Responsive desktop and mobile layouts.
+- Accessible navigation and controls.
+- Portuguese and English interface support (planned).
 
-Google OAuth, playable combat, and multiple saved characters per account are outside the initial release.
+## Current Development Status
+
+Adventure Files is under active development.
+
+### Implemented
+
+- React, Vite, and TypeScript frontend.
+- Node.js, Express, and TypeScript backend.
+- Supabase email/password authentication.
+- Account registration and email confirmation.
+- Login, logout, and session restoration.
+- Password recovery and password updates.
+- PostgreSQL database schema.
+- Row Level Security (RLS).
+- One-character-per-account database constraint.
+- Protected character API endpoints.
+- Character retrieval, creation/update, and deletion on the backend.
+- Basic authenticated character dashboard.
+- Responsive Adventure Files START screen.
+- Original desktop and mobile start-screen illustrations.
+- Animated title and blinking PRESS START.
+- Retro screen closing and opening transitions.
+- Automated tests and GitHub Actions workflows.
+
+### Planned
+
+- Final authentication interface redesign.
+- Portuguese and English localization.
+- Four-stage character creation wizard.
+- Class-specific pixel-art illustrations.
+- Character customization interface.
+- Character editing and deletion controls.
+- Draft randomization.
+- Illustrated character sheet.
+- Client-side PDF export.
+- Production deployment and final accessibility review.
+
+## User Experience
+
+The planned experience follows this structure:
+
+1. Adventure Files START screen.
+2. Login or account registration.
+3. Authenticated character dashboard.
+4. Four-stage character creation.
+5. Character review and explicit save.
+6. Saved character sheet.
+7. Editing, deletion, PDF export, and logout.
+
+Authentication credentials and character creation are separate processes.
+
+Users register with a display name, email address, and password. Character creation takes place after authentication.
+
+### Start Screen
+
+The start screen includes:
+
+- The Adventure Files title.
+- An original fantasy pixel-art illustration.
+- Eight adventurers representing the available classes.
+- A minimalist blinking PRESS START control.
+- Mouse, keyboard, and touch interaction.
+- Responsive desktop and mobile artwork.
+
+The transition uses a retro circular closing effect followed by an inverse opening animation on the authentication screen.
+
+The approved animation sequence is:
+
+- Screen closing: 1.6 seconds.
+- Dark pause: 0.3 seconds.
+- Authentication screen opening: 1.6 seconds.
+
+The interface respects reduced-motion accessibility preferences.
+
+### Character Creation
+
+The creator will use four stages:
+
+1. **Class & Name:** Select a class and enter the character's name.
+2. **Origins:** Choose ancestry and background.
+3. **Equipment:** Choose weapon, artifact, and companion.
+4. **Essence & Review:** Choose personality and aura, review the selections, and save.
+
+Selections remain editable until the user explicitly saves the character.
+
+## Character Classes
+
+Adventure Files includes eight predefined classes:
+
+| Class | Identifier |
+|---|---|
+| Warrior | `warrior` |
+| Paladin | `paladin` |
+| Mage | `mage` |
+| Rogue | `rogue` |
+| Ranger | `ranger` |
+| Druid | `druid` |
+| Cleric | `cleric` |
+| Bard | `bard` |
+
+The complete customization catalog is documented in:
+
+[Customization Catalog](docs/customization-catalog.md)
+
+Each account supports one saved character.
+
+The project does not include character gender selection, combat mechanics, or restrictions on combining customization options.
 
 ## Technology Stack
 
@@ -38,6 +142,7 @@ Google OAuth, playable combat, and multiple saved characters per account are out
 - React
 - TypeScript
 - Vite
+- CSS
 - Supabase JavaScript Client
 - Vitest
 - React Testing Library
@@ -56,18 +161,19 @@ Google OAuth, playable combat, and multiple saved characters per account are out
 
 ### Development and Automation
 
-- Git and GitHub
+- Git
+- GitHub
 - Google Cloud Shell
 - GitHub Actions
 - npm
 
 ## Repository Structure
 
-- `web/` — React frontend and authentication interface.
+- `web/` — React frontend and user interface.
 - `api/` — Express REST API.
-- `supabase/` — Database configuration, migrations, and security tests.
-- `docs/` — Requirements, architecture, product design, and UML diagrams.
-- `.github/workflows/` — Automated CI workflows.
+- `supabase/` — Database migrations, configuration, and security tests.
+- `docs/` — Product documentation, requirements, architecture, and diagrams.
+- `.github/workflows/` — Continuous integration workflows.
 
 ## Documentation
 
@@ -89,7 +195,7 @@ Google OAuth, playable combat, and multiple saved characters per account are out
 - npm
 - Git
 
-Google Cloud Shell is currently used as the primary development environment.
+Google Cloud Shell is the primary development environment.
 
 ### Frontend Setup
 
@@ -100,26 +206,24 @@ cd web
 npm ci
 ```
 
-Create a local environment file:
+Create the local environment file:
 
 ```text
 web/.env.local
 ```
 
-Use `web/.env.example` as the reference.
+Use `web/.env.example` as a reference.
 
-The required environment variables are:
+Required variables:
 
 ```env
 VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
 ```
 
-Replace the placeholders with the correct project URL and publishable key from the Supabase dashboard.
+Replace the placeholders with your Supabase project configuration.
 
-Never put a Supabase secret key, service-role key, or database password in the frontend environment.
-
-The `.env.local` file must remain untracked by Git.
+Never expose service-role keys, database passwords, or other secrets through public frontend variables.
 
 ### Start the Frontend
 
@@ -135,7 +239,7 @@ For Google Cloud Shell:
 npm run dev -- --host 0.0.0.0 --port 5173
 ```
 
-Open the application using Cloud Shell Web Preview on port `5173`.
+Open Cloud Shell Web Preview on port `5173`.
 
 ### Run Frontend Tests
 
@@ -155,42 +259,6 @@ npm run lint
 npm run build
 ```
 
-## Authentication
-
-The frontend uses Supabase Auth for:
-
-- Email registration.
-- Email confirmation.
-- Password-based sign-in.
-- Sign-out.
-- Session restoration.
-- Password recovery.
-- Password updates.
-
-Authentication is managed by Supabase.
-
-The application does not implement custom password storage or password-reset tokens.
-
-### Authentication Redirect URLs
-
-Development and production redirect URLs must be configured in the Supabase dashboard.
-
-The password recovery flow uses:
-
-```text
-/reset-password
-```
-
-The development URL and its `/reset-password` route must be included in the allowed redirect URLs.
-
-Google Cloud Shell preview URLs may change between environments.
-
-### Production Email Delivery
-
-Supabase's default email service is suitable only for limited development and testing.
-
-Before public registration is enabled, configure a production-ready SMTP provider and review authentication rate limits, abuse prevention, and account verification settings.
-
 ## Backend Setup
 
 From the repository root:
@@ -198,29 +266,98 @@ From the repository root:
 ```bash
 cd api
 npm ci
-npm run build
-npm run lint
-npm test
+```
+
+Use `api/.env.example` as a reference for the API environment configuration.
+
+The API requires:
+
+```env
+PORT=3000
+CORS_ORIGIN=http://localhost:5173
+SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
+```
+
+Run the backend:
+
+```bash
 npm run dev
 ```
 
-The currently implemented public health endpoint is:
+The frontend development server proxies API requests to the backend running on port `3000`.
+
+### API Endpoints
+
+Public health endpoint:
 
 ```http
 GET /api/health
 ```
 
-Protected character endpoints will be implemented in a separate development milestone.
+Authenticated character endpoints:
+
+```http
+GET /api/characters/me
+PUT /api/characters/me
+DELETE /api/characters/me
+```
+
+Character endpoints require a valid authenticated session.
+
+The API validates character selections against the approved catalog and associates records with the authenticated user.
+
+## Authentication
+
+Supabase Auth manages:
+
+- Registration.
+- Email verification.
+- Password-based login.
+- Logout.
+- Session restoration.
+- Password recovery.
+- Password updates.
+
+The application does not implement custom password storage or password-reset tokens.
+
+### Authentication Redirect URLs
+
+Development and production redirect URLs must be configured in Supabase.
+
+Password recovery uses:
+
+```text
+/reset-password
+```
+
+The configured application URL and its password recovery route must be included in the allowed redirect URLs.
+
+Google Cloud Shell preview URLs may change between environments.
+
+### Production Email Delivery
+
+Before enabling public registration, configure a production-ready email provider.
+
+Review authentication rate limits, account verification, abuse prevention, and security settings before production deployment.
 
 ## Database Security
 
-The PostgreSQL schema is managed through version-controlled Supabase migrations.
+The database schema is maintained through version-controlled Supabase migrations.
 
-The character table enforces one character per account and uses Row Level Security to protect user-owned records.
+The character table enforces one character per account.
 
-Database security tests validate ownership isolation, anonymous access restrictions, and database constraints.
+Row Level Security protects character records so authenticated users can only access their own data.
 
-Authentication middleware and protected Express character operations will be implemented separately.
+The API also verifies authentication and character ownership.
+
+Database security tests cover:
+
+- Anonymous access restrictions.
+- User ownership isolation.
+- Character uniqueness.
+- Approved customization values.
+- Database constraints.
 
 ## Continuous Integration
 
@@ -228,10 +365,10 @@ GitHub Actions runs automated checks when relevant files change.
 
 ### Frontend Checks
 
-The frontend workflow runs:
+The frontend workflow includes:
 
 - Dependency installation.
-- Automated Vitest tests.
+- Automated tests.
 - ESLint.
 - Production build.
 
@@ -241,9 +378,19 @@ Workflow:
 .github/workflows/frontend.yml
 ```
 
+### API Checks
+
+The API workflow verifies the backend implementation through automated checks.
+
+Workflow:
+
+```text
+.github/workflows/api.yml
+```
+
 ### Database Security Tests
 
-The database workflow checks Supabase migrations and database security policies.
+The database workflow validates migrations and security policies.
 
 Workflow:
 
@@ -253,33 +400,56 @@ Workflow:
 
 ## Contribution Workflow
 
-Development follows:
+Development follows these steps:
 
 1. Create or select a GitHub Issue.
-2. Create a dedicated feature branch.
-3. Implement the approved scope.
-4. Run tests, lint, and build checks.
+2. Create a dedicated branch.
+3. Implement the approved changes.
+4. Run the required tests.
 5. Open a Pull Request.
 6. Review the changes and CI results.
 7. Merge into `main` after approval.
-8. Close the related Issue.
 
-Keep `main` stable as development progresses.
+The main branch should remain stable throughout development.
 
 ## Project Conventions
 
-- Source code is written in English.
-- User interface text is written in English.
-- Commits, Issues, Pull Requests, and documentation use English.
-- Authentication and authorization must follow least-privilege principles.
-- Secrets must never be committed to the repository.
-- Visual effects must not interfere with usability or accessibility.
-- Character data must always be protected by server-side authorization and database RLS.
+- Source code uses English identifiers and comments.
+- Commits, Issues, Pull Requests, and technical documentation use English.
+- The user interface is planned to support Portuguese and English.
+- Database identifiers and stored customization slugs remain language-independent.
+- Authentication and authorization follow least-privilege principles.
+- Secrets must never be committed to Git.
+- Visual effects must respect accessibility and usability.
+- Character data must remain protected by authentication and database policies.
+
+## Out of Scope
+
+The initial release does not include:
+
+- Playable RPG mechanics.
+- Combat systems.
+- Multiplayer.
+- Multiple characters per account.
+- Character gender selection.
+- User-generated artwork.
+- Public character sharing.
+- Google OAuth.
+- A custom administration dashboard.
 
 ## Current Development Milestone
 
-**Issue #11 — Supabase Email Authentication and Recovery UI**
+The responsive Adventure Files START screen has been implemented and merged into `main` through Pull Request #19.
 
-The authentication feature includes frontend screens, Supabase integration, automated tests, and CI.
+The next development milestones focus on:
 
-The next planned milestone is secure Express API authentication and authorization, followed by character persistence and the guided character creator.
+1. Product documentation alignment.
+2. Authentication interface redesign.
+3. PT/EN localization.
+4. Four-stage character creation.
+5. Character management and PDF export.
+6. Production validation and deployment.
+
+---
+
+Adventure Files is a personal project combining full-stack development, creativity, and nostalgia for classic adventure games.

@@ -1,94 +1,903 @@
-# RPG Character Creator — Product Experience and Visual Direction
+# Adventure Files — Product Experience and Visual Direction
 
-## 1. Visual Identity
+- **Project:** Adventure Files
+- **Document type:** Product experience and visual design specification
+- **Status:** Approved direction; implementation in progress
 
-A simple fictional RPG application that resembles an early desktop computer program blended with an old handheld game screen.
+## 1. Experience Overview
 
-- **Palette:** cream/off-white, mint, muted emerald, dark forest green, near-black; both light and dark themes.
-- **Surfaces:** rectangular windows, thin pixel borders, compact title bars, simple dialogs, small icons, restrained shadows.
-- **Type:** decorative pixel font for headings/buttons and a highly legible regular font for form values, hints, and errors.
-- **Artwork:** original, static 1-bit/few-color pixel illustrations with crisp nearest-neighbor rendering. Avoid copying supplied game logos, characters, or copyrighted screens.
-- **Layout:** a single primary window at a time; prefer clear flow to overlapping decorative windows.
-- **Accessibility:** labels accompany icons, adequate contrast, focus states, keyboard operation, mobile-friendly hit targets, descriptive alternatives for meaningful art.
+Adventure Files is a full-stack character creator presented through the visual language of a classic adventure game and an early computer interface.
 
-## 2. Screen Inventory
+The experience should feel nostalgic, intuitive, and personal.
 
-### Screen A — Welcome / Sign In (public)
+The website is not a playable game. Its game-inspired presentation turns an otherwise conventional authentication and data-management project into a memorable interactive experience.
 
-- Header: project logo/working title (final brand TBD).
-- Main art: original retro-fantasy ensemble artwork, visually similar in tone to classic game start screens.
-- Email and password fields, **Sign In** primary button.
-- **Create Account** and **Forgot Password?** links.
-- Optional short theme switcher; interface copy in English.
-- Generic errors such as `Invalid email or password.` must not reveal whether the account exists.
-- Google login intentionally absent from the first release.
+The complete journey is:
 
-### Screen B — Create Account (public)
+1. Adventure Files title screen.
+2. Retro transition into authentication.
+3. Sign in or create an account.
+4. Enter the authenticated character area.
+5. Create a character through four guided steps.
+6. Review and save the character.
+7. View, edit, delete, or export the saved character.
+8. Return to the saved character after future logins.
 
-- Display Name, Email, Password, Confirm Password.
-- **Create Account** primary button and **Already have an account? Sign In** link.
-- On valid registration: **Check Your Email** confirmation screen.
-- Confirmation link returns to a verified sign-in/session flow, per Supabase configuration.
+Every screen must preserve a consistent visual identity.
 
-### Screen C — Forgot / Reset Password (public)
+## 2. Visual Identity
 
-- Email address request and generic submission confirmation.
-- Recovery link takes the user to a limited password-reset form.
-- Use the auth provider's recovery lifecycle; never expose whether an email is registered.
+### 2.1. Overall direction
 
-### Screen D — Character Creator (authenticated, no record or editing)
+The visual identity combines:
 
-Four connected steps inside the main retro window, with current class illustration retained when appropriate.
+- Classic adventure and fantasy RPG atmosphere.
+- Early handheld video game interfaces.
+- Vintage computer windows and dialog boxes.
+- Minimalist pixel-art illustrations.
+- Intuitive game-menu interaction patterns.
 
-1. **Class & Name:** initial ensemble art for all eight classes. Selecting a class swaps the central art to a static pair of different-looking character examples for that class; select class and enter a fictional name. A **Randomize Character** button can fill an editable draft.
-2. **Origins:** choose **Ancestry** and **Background** together.
-3. **Equipment:** choose **Weapon**, **Artifact** (including None), and **Companion** (including None).
-4. **Essence & Review:** choose **Personality** and **Aura**, show a consolidated character summary, then require **Save Character**. If validation fails, keep the selected draft in place.
+The design should remain simple.
 
-- Controls: Back/Next, clear progress, persistent valid draft values, informative option labels.
-- Options must have independent text labels; icons alone are insufficient.
-- No sex/gender selection; the dual character art is representative only.
-- Character art is decorative; the user's actual selections determine the textual record.
-- In edit mode, load the persisted character first; **Discard Changes** restores saved values and never overwrites without confirmation.
-- Randomizing an edit draft may require a confirm dialog if it would discard unsaved changes.
+Avoid excessive decorative panels, unnecessary text, large groups of icons, overlapping windows, or visual elements that do not contribute to the experience.
 
-### Screen E — My Character (authenticated)
+The application should resemble a carefully designed retro game interface rather than a modern dashboard covered in nostalgic decorations.
 
-- Title: **My Character** or **Character Record**.
-- Centered class art and a card containing all eight saved character properties (class, ancestry, background, weapon, artifact, personality, aura, companion) plus the fictional name.
-- Actions: **Edit Character**, **Export PDF**, **Delete Character** (with confirmation), **Sign Out**, **Account Settings**.
-- If data does not exist, redirect to creator. If data is loading or an API error occurs, show an honest state; never flash another user's record.
-- One character per account means no gallery or list of saved characters is needed.
+### 2.2. Color palette
 
-## 3. Exported Character Sheet
+Adventure Files uses a fixed dark visual identity.
 
-- A printable and downloadable client-side PDF resembling an old monochrome computer document.
-- Original pixel art, readable text, a clear heading, and every fictional character selection.
-- Letter/A4-friendly print formatting with no cropped or tiny labels.
-- No account email, password, auth token, or private profile data in the PDF.
-- Export has no server upload/storage requirement in V1; implementation library may be chosen later.
+Primary colors include:
 
-## 4. Artwork Inventory
+- Pure black and near-black backgrounds.
+- Dark forest green.
+- Muted emerald.
+- Soft mint green.
+- Cream and warm off-white.
 
-| Art | Quantity | Purpose |
+The exact color tokens should remain centralized in the frontend styling.
+
+There is no light/dark theme toggle.
+
+Different screens may emphasize different colors from the same palette without changing the overall theme.
+
+### 2.3. Typography
+
+Pixel-style typography is a defining part of Adventure Files.
+
+It should appear in:
+
+- The title screen.
+- Buttons and navigation.
+- Window headers.
+- Character classes.
+- Selection labels.
+- Progress indicators.
+- Character details.
+
+Typography must remain legible.
+
+Very small pixel text should be avoided, especially on mobile devices and in form validation messages.
+
+Form content should prioritize readability while preserving the retro identity.
+
+### 2.4. Window design
+
+Authentication and character-management screens should resemble compact retro computer windows.
+
+Preferred characteristics:
+
+- Slightly rounded rectangular corners.
+- Defined pixel-inspired borders.
+- Minimal window headers.
+- Simple input fields.
+- Clear selected and unselected states.
+- Small, deliberate interface details.
+
+The borders should not feel excessively sharp or aggressively futuristic.
+
+Avoid excessive gradients, glowing elements, large shadows, and complex decorations.
+
+### 2.5. Glitches and visual imperfections
+
+Subtle visual imperfections may reinforce the illusion of an old computer interface.
+
+However:
+
+- Glitches should remain restrained.
+- They should primarily affect the interface window.
+- They must not obscure fields, buttons, or important text.
+- They must not interfere with typing or keyboard navigation.
+- They should respect reduced-motion preferences.
+
+The surrounding black background should remain visually quiet.
+
+### 2.6. Artwork
+
+Artwork must be original and use a limited color palette.
+
+Pixel edges should remain crisp.
+
+Avoid smooth illustration styles, photographic textures, excessive shading, and highly detailed fantasy compositions.
+
+Character silhouettes, recognizable equipment, and a few carefully placed environmental elements should communicate the scene.
+
+The artwork may draw inspiration from supplied references without reproducing copyrighted characters, game logos, or identifiable scenes.
+
+## 3. Screen A — Adventure Files Start Screen
+
+### 3.1. Purpose
+
+The start screen introduces Adventure Files as if it were an old adventure game.
+
+It should create atmosphere before asking the user to interact with account forms.
+
+The screen must remain minimal.
+
+### 3.2. Visible elements
+
+The start screen contains only three main elements:
+
+1. The title: **ADVENTURE FILES**.
+2. The original adventure illustration.
+3. The prompt: **PRESS START**.
+
+Do not add:
+
+- Login fields.
+- Registration links.
+- Language controls.
+- A theme selector.
+- Additional explanatory phrases.
+- Decorative arrows beside the start prompt.
+- Unnecessary navigation menus.
+
+### 3.3. Main illustration
+
+The approved visual direction is a simplified fantasy landscape.
+
+The composition features:
+
+- A group of eight adventurers.
+- A distant fantasy environment.
+- A dominant moon or circular light source.
+- A distant threatening figure or silhouette.
+- Limited environmental details.
+
+The scene should suggest that the characters are preparing to begin an adventure.
+
+The adventurers represent the eight available character classes.
+
+The illustration should communicate the variety of character roles through silhouettes, equipment, and clothing.
+
+The scene must remain more detailed than the application's later interface screens, but still clearly minimalist.
+
+### 3.4. Desktop and mobile artwork
+
+The project uses two distinct artwork compositions:
+
+- Desktop artwork.
+- Mobile artwork.
+
+Both represent the same world and visual concept.
+
+They may differ in framing and spacing to preserve the important subjects at different aspect ratios.
+
+The artwork must not contain the interactive title or start prompt as baked-in text.
+
+Instead, the title and prompt are rendered separately by the frontend.
+
+This allows:
+
+- Responsive positioning.
+- Independent animation.
+- Text adjustments without editing artwork.
+- Clearer scaling across devices.
+
+### 3.5. Title animation
+
+The Adventure Files title may have a subtle entrance or reveal animation.
+
+The effect should be simple and consistent with an old video game.
+
+Avoid dramatic motion, elaborate cinematic effects, or continuous visual distractions.
+
+### 3.6. PRESS START behavior
+
+The screen displays a small, centered "PRESS START" prompt.
+
+The prompt:
+
+- Uses pixel-style typography.
+- Blinks slowly.
+- Has no decorative arrows.
+- Has no surrounding button frame.
+- Is smaller than the title.
+- Remains visually secondary to the illustration.
+
+The established blinking timing is approximately 1.8 seconds per cycle.
+
+Users can start through:
+
+- Mouse click.
+- Touch input.
+- Enter key.
+
+The interaction should work consistently on desktop and mobile.
+
+### 3.7. Accessibility
+
+The start action must remain keyboard-accessible.
+
+Users with reduced-motion preferences should not be required to watch the full animation.
+
+The illustration should have appropriate accessible treatment depending on whether it conveys information or is purely decorative.
+
+## 4. Screen Transition — Start to Authentication
+
+### 4.1. Concept
+
+The transition imitates the screen-closing effects of classic video games.
+
+It should feel nostalgic and deliberate.
+
+### 4.2. Closing sequence
+
+After the user starts:
+
+1. Input is accepted once.
+2. The start screen begins closing toward its center.
+3. The visible area gradually becomes smaller.
+4. The screen becomes black.
+
+The approved closing duration is approximately 1.6 seconds.
+
+### 4.3. Black-screen pause
+
+After closing, the screen remains black briefly.
+
+The established pause is approximately 0.3 seconds.
+
+This creates separation between the title screen and the authentication interface.
+
+### 4.4. Opening sequence
+
+The authentication interface then opens using the reverse effect.
+
+The visible area expands from the center toward the edges.
+
+The approved opening duration is approximately 1.6 seconds.
+
+The final result reveals the authentication screen.
+
+### 4.5. Technical and interaction requirements
+
+The transition must:
+
+- Avoid duplicate navigation.
+- Prevent accidental repeated starts.
+- Work on mobile and desktop.
+- Keep the interface usable after completion.
+- Respect reduced-motion preferences.
+- Avoid leaving an invisible overlay blocking later interactions.
+
+The animation should not resemble a modern loading spinner or a conventional page fade.
+
+## 5. Screen B — Sign In
+
+### 5.1. Purpose
+
+The sign-in screen provides a direct, minimal authentication experience.
+
+The user should immediately understand where to enter credentials.
+
+### 5.2. Background
+
+The area behind the login window is black.
+
+It should resemble a dark, inactive computer display.
+
+Avoid decorative artwork behind the authentication window.
+
+The window itself is the visual focus.
+
+### 5.3. Main window
+
+The authentication window should be:
+
+- Compact.
+- Centered.
+- Slightly rounded.
+- Consistent with the project palette.
+- Styled as a retro computer interface.
+
+The window should be smaller and simpler than a conventional modern login card.
+
+Its proportions must adapt to narrow screens.
+
+### 5.4. Window header
+
+The upper-left portion identifies the active authentication view.
+
+For example:
+
+- Sign In.
+- Create Account.
+- Reset Password.
+
+The upper-right portion contains the language selection:
+
+**PT / EN**
+
+The active language must have a clear visual state.
+
+The control should remain small and unobtrusive.
+
+### 5.5. Sign-in elements
+
+The sign-in form contains:
+
+- Email.
+- Password.
+- Primary sign-in action.
+- Create-account option.
+- Password-recovery option.
+
+Avoid additional slogans, lengthy descriptions, and unrelated icons.
+
+### 5.6. Form behavior
+
+The interface must provide:
+
+- Clearly identified fields.
+- Keyboard navigation.
+- Visible input focus.
+- Password masking.
+- Loading feedback during submission.
+- Helpful validation messages.
+- Clear failure states.
+
+Authentication errors must not disclose sensitive account information.
+
+### 5.7. Language behavior
+
+Portuguese and English are the supported interface languages.
+
+The language selector appears on the authentication screen and should remain effective throughout the application.
+
+Changing language updates interface labels and messages without changing stored character values.
+
+Backend identifiers remain stable English slugs.
+
+The selected language should persist appropriately as the user navigates through the experience.
+
+The title-screen prompt remains "PRESS START" as part of the approved retro presentation.
+
+### 5.8. Visual effects
+
+Any glitch or interference effect should be subtle and limited to the window.
+
+The effect must never compromise readability or form usability.
+
+## 6. Screen C — Create Account
+
+### 6.1. Purpose
+
+Registration creates a user account.
+
+It does not create a character.
+
+The account and character creation experiences must remain separate.
+
+### 6.2. Fields
+
+The registration form contains:
+
+- Display name.
+- Email.
+- Password.
+- Confirm password.
+
+Do not request unnecessary personal information.
+
+### 6.3. Actions
+
+The user can:
+
+- Create an account.
+- Return to sign in.
+
+After successful registration, the interface must explain the required email-confirmation step when applicable.
+
+### 6.4. Visual consistency
+
+Registration uses the same retro window, dark background, typography, palette, and minimal design principles as sign-in.
+
+Switching between sign-in and registration must not introduce an unrelated visual style.
+
+The PT/EN selector remains available.
+
+## 7. Screen D — Password Recovery
+
+Password recovery uses the established authentication window.
+
+The flow includes:
+
+1. Requesting a recovery email.
+2. Displaying a generic submission confirmation.
+3. Following the authentication provider's recovery link.
+4. Entering and confirming a new password.
+5. Returning to the appropriate authenticated or sign-in state.
+
+Recovery feedback must not reveal whether an email address belongs to an existing account.
+
+The interface should remain simple and consistent with the other authentication screens.
+
+## 8. Screen E — Authenticated Character Area
+
+### 8.1. First entry
+
+After authentication, the application checks whether the account already owns a character.
+
+If no character exists, the user can begin character creation.
+
+If a saved character exists, the user enters the saved-character dashboard.
+
+### 8.2. Main navigation
+
+The authenticated interface must provide obvious access to:
+
+- Character creation or the saved character.
+- Relevant account controls.
+- Sign out.
+
+Do not create a complex navigation system for a small application.
+
+A single clearly presented main action should guide users toward the next step.
+
+### 8.3. Loading and error states
+
+The interface must distinguish between:
+
+- Checking the session.
+- Loading a character.
+- No saved character.
+- Successfully loaded character.
+- API or network failure.
+
+A temporary network error must not be treated as proof that the user has no saved character.
+
+## 9. Screen F — Character Creator
+
+### 9.1. General concept
+
+Character creation should resemble selecting and configuring a character in an old RPG.
+
+The interface must remain intuitive and visually focused.
+
+The user completes a small number of choices at a time.
+
+A central illustration reinforces the current selection.
+
+### 9.2. Layout
+
+The creator should contain:
+
+- A compact header.
+- A visible current step.
+- A prominent illustration area.
+- Clearly labeled options.
+- Back and Next controls.
+- A clear final save action.
+
+Desktop and mobile layouts may arrange these elements differently.
+
+### 9.3. Four-step structure
+
+The approved creator contains four stages.
+
+| Step | Name | Choices |
+|---|---|---|
+| 1 | Class & Name | Class, character name |
+| 2 | Origins | Ancestry, background |
+| 3 | Equipment | Weapon, artifact, companion |
+| 4 | Essence & Review | Personality, aura, complete review |
+
+Each stage should show only the options relevant to that stage.
+
+The user must be able to go backward without losing previous selections.
+
+### 9.4. Class selection
+
+The available classes are:
+
+1. Warrior
+2. Paladin
+3. Mage
+4. Rogue
+5. Ranger
+6. Druid
+7. Cleric
+8. Bard
+
+These class names correspond to the canonical backend catalog.
+
+### 9.5. Default class illustration
+
+Before a class is chosen, the creator displays an illustration representing all eight classes together.
+
+This is the default state.
+
+The illustration should remain original, minimalist, and consistent with the title-screen art direction.
+
+### 9.6. Temporary class preview
+
+When the user hovers over a class option, the illustration changes temporarily to that class.
+
+Keyboard focus should provide an equivalent preview.
+
+For example:
+
+- Hover over Mage: show Mage artwork.
+- Move away without selecting: restore the eight-class group illustration.
+
+A temporary preview is not a saved selection.
+
+### 9.7. Persistent class selection
+
+Clicking or otherwise activating a class selects it.
+
+Once selected:
+
+- The option receives a clear active state.
+- The matching class illustration remains visible.
+- Moving the pointer away does not remove the selection.
+- Selecting another class updates the active option and illustration.
+
+Hovering a different class may preview it temporarily, but the confirmed selection must remain intact until the user explicitly changes it.
+
+### 9.8. Character representation
+
+Each class-specific illustration presents two different-looking examples of that class.
+
+This gives visual variety without adding a separate avatar-customization system.
+
+The user does not select:
+
+- A male or female avatar.
+- A gender.
+- A body type.
+- Individual facial features.
+
+The illustration is representative and decorative.
+
+The actual character record is determined by the selected class and customization fields.
+
+### 9.9. Options and controls
+
+Options should resemble compact retro game-menu selections.
+
+They must have:
+
+- Text labels.
+- Clearly visible selection states.
+- Consistent spacing.
+- Readable typography.
+- Keyboard interaction.
+- Touch-friendly activation areas.
+
+Avoid unlabeled icon-only choices.
+
+### 9.10. Draft persistence
+
+Selections are held in an editable draft throughout the wizard.
+
+Navigating between stages must not discard those choices.
+
+The user can return to earlier stages and make changes before the final save.
+
+### 9.11. Optional randomization
+
+A randomization action may fill the current draft using valid catalog values.
+
+Randomization must not immediately overwrite a saved character.
+
+Any random result remains editable before saving.
+
+This feature is secondary to the guided creation flow and should not visually dominate the interface.
+
+### 9.12. Review and save
+
+The final step shows the complete character summary.
+
+The user can:
+
+- Review all selected values.
+- Return to previous stages.
+- Correct information.
+- Explicitly save the character.
+
+Validation errors must preserve the current draft.
+
+Saving should show a loading state and prevent duplicate submissions.
+
+## 10. Screen G — My Character
+
+### 10.1. Purpose
+
+The saved-character screen presents the result of the user's choices.
+
+It should resemble a compact character record or retro RPG status screen.
+
+### 10.2. Content
+
+The view contains:
+
+- Character name.
+- Character illustration.
+- Class.
+- Ancestry.
+- Background.
+- Weapon.
+- Artifact.
+- Companion.
+- Personality.
+- Aura.
+
+Use clear labels and avoid unnecessary statistics or fictional gameplay values.
+
+### 10.3. Available actions
+
+The dashboard provides:
+
+- Edit Character.
+- Export PDF.
+- Delete Character.
+- Sign Out.
+
+Account-related options may be included when the corresponding functionality is implemented.
+
+### 10.4. Editing
+
+Editing loads the saved character into the creator.
+
+The user can move between stages and update selections.
+
+Changes must remain a draft until explicitly saved.
+
+If the user cancels editing, the previously saved character must remain unchanged.
+
+### 10.5. Deletion
+
+Deleting a character requires explicit confirmation.
+
+The interface must explain what will be removed.
+
+Deleting the character does not delete the account.
+
+After deletion, the user returns to the no-character state and can create another character.
+
+### 10.6. Returning users
+
+After future logins, users with an existing character should see their saved character.
+
+They should not be forced to repeat the creation flow.
+
+## 11. Screen H — PDF Export
+
+### 11.1. Purpose
+
+PDF export turns the character into a portable, printable document.
+
+It is one of the main outcomes of the application.
+
+### 11.2. Layout
+
+The PDF should contain:
+
+1. The character illustration at the top.
+2. The character name as a prominent heading.
+3. The character class.
+4. The remaining selected character information below.
+
+The document should resemble a simple retro character sheet.
+
+### 11.3. Visual direction
+
+Use:
+
+- Original pixel-art illustration.
+- Clear pixel-inspired headings.
+- Readable body text.
+- Consistent borders.
+- A restrained color palette.
+- Balanced spacing.
+
+The PDF must be readable when printed.
+
+Avoid elaborate backgrounds, excessive decoration, and tiny text.
+
+### 11.4. Data and privacy
+
+The exported document contains only the fictional character information needed for the sheet.
+
+It must not contain:
+
+- Account passwords.
+- Authentication tokens.
+- Internal user identifiers.
+- Private authentication data.
+
+Client-side PDF generation is preferred for the initial release if it meets the quality and functionality requirements.
+
+## 12. Artwork Inventory
+
+The planned artwork system includes:
+
+| Asset | Quantity | Purpose |
 |---|---:|---|
-| Original welcome/landing RPG art | 1 | Public sign-in identity |
-| Ensemble showing the eight classes | 1 | Default creator illustration |
-| Class-specific static images, each showing two visual interpretations | 8 | Selected class preview and My Character |
-| Small original pixel icons | As needed | Assist labeled controls |
+| Desktop title-screen artwork | 1 | Landscape start-screen composition |
+| Mobile title-screen artwork | 1 | Portrait start-screen composition |
+| Eight-class ensemble illustration | 1 | Default creator preview |
+| Class-specific illustration | 8 | Preview for each class |
+| Retro interface icons | As needed | Support labeled actions |
 
-Class art is **not** a selectable male/female avatar; it intentionally avoids linking appearance to a user-provided gender selection. Characters must be recognizable by class and compatible with the same limited palette.
+The start-screen artwork must remain separate from its title and prompt.
 
-## 5. UX Guardrails
+Class illustrations should share a consistent style, proportions, and palette.
 
-- Limit cognitive load by grouping related options in the same step and using a visible progress indicator.
-- Prefer buttons/options with clear text over unlabeled pixel art.
-- Default art must fit mobile screens without excessive vertical scrolling before choices.
-- Use loading states while checking authentication/character data; prevent double submissions.
-- Clearly separate account name from fictional character name.
-- Explicit user action is required to persist, delete, or replace a saved character.
-- Design security and privacy notices in plain English; do not hide essential controls in decorative menus.
+When feasible, the same class illustrations can be reused in the character dashboard and PDF.
 
-## 6. Non-Goals
+## 13. Responsive Behavior
 
-No playable RPG, public social profile, avatar-builder with body parts, selectable gender, avatar animations, or more than one saved character in the initial release.
+### 13.1. Desktop
+
+The desktop interface may use a wider layout with the main illustration beside character options.
+
+The start-screen composition should preserve the full atmosphere of the scene.
+
+### 13.2. Mobile
+
+The mobile interface should:
+
+- Use the dedicated mobile title-screen artwork.
+- Keep the title readable.
+- Preserve the blinking "PRESS START" prompt.
+- Display authentication forms without horizontal scrolling.
+- Keep important buttons within comfortable reach.
+- Reorganize character previews and options vertically when necessary.
+- Allow the complete creation and editing experience.
+- Support PDF export.
+
+Mobile users must have access to the same functional choices as desktop users.
+
+### 13.3. Shared behavior
+
+Both layouts must support:
+
+- Authentication.
+- Language selection.
+- Character creation.
+- Character review.
+- Character editing.
+- Character deletion.
+- PDF export.
+- Sign out.
+
+## 14. Motion and Interaction Guidelines
+
+Animations should be purposeful.
+
+Approved or acceptable motion includes:
+
+- Subtle title entrance.
+- Slow "PRESS START" blinking.
+- Start-screen iris closing.
+- Authentication-screen iris opening.
+- Lightweight selection feedback.
+- Restrained window effects.
+
+Avoid:
+
+- Constant background movement.
+- Excessive glitches.
+- Large bouncy transitions.
+- Unnecessary loading animations.
+- Effects that delay routine form interactions.
+
+The retro aesthetic should feel like an old game, not a heavily animated modern interface.
+
+## 15. Accessibility Requirements
+
+The product must support:
+
+- Keyboard navigation.
+- Clear focus indicators.
+- Proper form labels.
+- Accessible error feedback.
+- Adequate color contrast.
+- Touch-friendly interactive areas.
+- Readable pixel typography.
+- Reduced-motion preferences.
+- Correct treatment of decorative and meaningful illustrations.
+
+Hover must never be the only way to access important information or confirm a selection.
+
+All important actions should remain available through click, touch, and keyboard activation.
+
+## 16. UX Guardrails
+
+The following rules apply across the entire application:
+
+1. Keep each screen focused on one primary task.
+2. Avoid unnecessary text and decorative controls.
+3. Prefer clear labels to icon-only interactions.
+4. Preserve unsaved choices while navigating the creator.
+5. Require explicit confirmation before saving or deleting data.
+6. Never confuse account information with fictional character information.
+7. Show honest loading, empty, success, and error states.
+8. Keep visual effects secondary to usability.
+9. Preserve the fixed dark visual identity.
+10. Do not add features that turn the project into a playable RPG.
+
+## 17. Implementation Status
+
+The product experience described here represents the approved direction.
+
+### Already implemented
+
+- Adventure Files start screen.
+- Separate desktop and mobile start-screen artwork.
+- "PRESS START" interaction.
+- Retro transition into authentication.
+- Authentication foundations.
+- Basic authenticated character dashboard.
+- Protected backend character API.
+
+### Still requiring implementation or refinement
+
+- Final minimalist authentication-window design.
+- Portuguese/English interface localization.
+- Four-stage character creator.
+- Interactive class illustration previews.
+- Draft management and review.
+- Frontend character save/edit/delete workflows.
+- Final illustrated character dashboard.
+- Illustrated PDF export.
+- Final responsive and accessibility refinements.
+
+Approved designs must not be described as completed features until their implementation is verified.
+
+## 18. Non-Goals
+
+Adventure Files is not intended to include:
+
+- Playable combat.
+- Quests or exploration.
+- Character levels.
+- Multiplayer.
+- Public character sharing.
+- Multiple saved characters per account.
+- Detailed avatar construction.
+- Gender-selection controls.
+- A light/dark theme switch.
+- Complex desktop-style window management.
+
+The objective is a polished, memorable full-stack character-creation experience.
+
+## 19. Design Success Criteria
+
+The visual and interaction design is successful when:
+
+- The title screen immediately resembles a minimalist old adventure game.
+- The start transition feels deliberate and nostalgic.
+- Authentication is simple and visually consistent.
+- Users can understand the next action without lengthy instructions.
+- Class previews make character creation more engaging.
+- The four-stage wizard remains easy to navigate.
+- Saved characters are easy to view and manage.
+- The final PDF feels like a natural extension of the project.
+- Desktop and mobile experiences remain coherent.
+- The application's creativity supports its technical purpose.
+
+Adventure Files should feel like a small adventure from its first screen to the final character sheet.

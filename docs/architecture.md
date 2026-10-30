@@ -1,8 +1,8 @@
-# RPG Character Creator — System Architecture
+# Adventure Files — System Architecture
 
-**Status:** Planned architecture and implementation contract, not a claim that all integrations exist.
-**Working title:** RPG Character Creator.
-**Linked specs:** [Requirements](./requirements.md), [Catalog](./customization-catalog.md), [Product Experience](./product-experience.md).
+- **Status:** Partially implemented; remaining product features are documented below.
+- **Product name:** Adventure Files
+- **Linked specs:** [Requirements](./requirements.md), [Catalog](./customization-catalog.md), [Product Experience](./product-experience.md).
 
 ## 1. System Context
 
@@ -34,7 +34,7 @@ flowchart TD
 
 ## 3. User and Navigation Flows
 
-1. **Public entry:** Welcome page shows original minimalist RPG art, email/password sign-in, registration, and password recovery.
+1. **Public entry:** The Adventure Files start screen displays the title, original responsive pixel-art illustration, and blinking "PRESS START" prompt. After activation, a retro iris transition reveals the authentication interface, which provides sign-in, registration, password recovery, and PT/EN language selection.
 2. **Registration:** Display name, email, password, and password confirmation. Supabase Auth creates an account and sends an email-confirmation link.
 3. **Session:** The app resolves user state after a confirmed sign-in. An authenticated account with no character enters the four-stage creator; an account with an existing character enters My Character.
 4. **Character creation:** Class & Name → Origins → Equipment → Essence & Review → explicit Save.
@@ -47,19 +47,20 @@ flowchart TD
 ## 4. Frontend Responsibilities
 
 - Maintain guest/authenticated/loading states and route guards.
-- Render accessible registration, sign-in, verification, and recovery forms using Supabase Auth.
+- Render the private My Character screen, the approved fixed dark theme, localized interface labels, validation errors, and loading/empty/error states.
+- Render the responsive Adventure Files start screen with separate desktop and mobile artwork, independently animated title and "PRESS START" prompt, and the approved closing/opening iris transition.
+- Support Portuguese and English interface labels while preserving stable English catalog slugs and backend data contracts.
 - Keep an editable character draft through grouped steps; preserve entered data on Back/Next.
 - Render an ensemble of eight original class sprites before class selection and one original pair illustration for the chosen class.
 - Load the class/attribute catalog by stable slug and label; show concise descriptions and selection feedback.
 - Randomize only the draft, not the database or account profile.
 - Use explicit actions to Save, Discard Edits, Delete Character, and Export PDF.
-- Render the private My Character screen, responsive themes, validation errors and loading/empty/error states.
 - Generate the retro PDF locally and keep it free of personally identifying account details.
 - Never trust client-side route guards as the only authorization control.
 
 ## 5. API Responsibilities and Contracts
 
-Base path: `/api`. The existing Express API already implements `GET /api/health`; all new character operations are planned.
+Base path: `/api`. The Express API already implements the health endpoint and authenticated character GET, PUT, and DELETE routes. The corresponding frontend creation, editing, and deletion workflows are still being completed.
 
 | Method | Path | Auth | Response |
 |---|---|---|---|
@@ -182,11 +183,11 @@ Reference: [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row
 
 ## 9. State Management and UX
 
-- React holds auth/session state, character data, an editable draft, current wizard stage, save status, and theme.
+- React holds authentication/session state, character data, an editable draft, the current wizard stage, save status, and the selected interface language.
 - Draft changes do not affect persistence until explicit Save.
 - Back/Next never discard valid selections; randomization only updates the draft.
 - Prefer accessible text controls for selection, with decorative icons and class illustrations.
-- Theme preference can be local to the browser; personal character fields are persisted in PostgreSQL.
+- The interface uses one fixed dark theme. Language preference may be retained locally, while saved character fields are persisted in PostgreSQL.
 - Keep `My Character` private and prevent flashing stale data from a previous session after sign-out.
 
 ## 10. Testing Strategy
@@ -198,7 +199,7 @@ Reference: [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row
 | Auth | No token, invalid token, expired token rejected; email confirmation/recovery work |
 | Authorization | User A cannot GET/PUT/DELETE User B's record; RLS verified independently |
 | Persistence | Single-row invariant, save/update/reload/delete, duplicate-save handling |
-| UX | Wizard Back/Next retains state, randomization does not auto-save |
+| UX | Start-screen interactions and transitions, PT/EN selection, class preview behavior, wizard draft persistence, Back/Next navigation, and randomization without automatic saving |
 | Export | PDF contains fictional attributes and no account email/token |
 | CI | Frontend and API install/build/lint/test, secrets review, dependency advisories |
 
@@ -221,6 +222,10 @@ Reference: [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row
 - **AD-05:** Four grouped wizard stages, static pixel art, optional random draft generation, and no combat mechanics.
 - **AD-06:** Local PDF export; no server-generated PDF storage.
 - **AD-07:** Security verification and production email readiness before public signup.
+- **AD-08:** Adventure Files uses a fixed dark visual identity, with no light/dark theme toggle.
+- **AD-09:** The responsive start screen precedes authentication and uses separate artwork compositions, independent interface text, and a retro iris transition.
+- **AD-10:** The interface supports Portuguese and English; stored character values retain stable English slugs.
+- **AD-11:** Character creation uses a four-stage wizard with an eight-class default illustration and temporary versus confirmed class-selection states.
 
 ## 13. Documentation Index
 
