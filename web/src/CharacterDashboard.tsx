@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
+
+import type { Language } from './lib/authTranslations'
 
 import {
   CharacterApiError,
@@ -6,24 +8,37 @@ import {
   type Character,
 } from './lib/characterApi'
 
+import {
+  characterFieldKeys,
+  characterTranslations,
+  translateCharacterOption,
+} from './lib/characterTranslations'
+
 type DashboardState =
   | { status: 'loading' }
   | { status: 'empty' }
   | { status: 'ready'; character: Character }
-  | { status: 'error'; message: string }
+  | {
+      status: 'error'
+      reason: 'session' | 'unavailable'
+    }
 
 type CharacterDashboardProps = {
   accessToken: string
+  language: Language
 }
 
 export function CharacterDashboard({
   accessToken,
+  language,
 }: CharacterDashboardProps) {
   const [state, setState] = useState<DashboardState>({
     status: 'loading',
   })
 
   const [attempt, setAttempt] = useState(0)
+
+  const copy = characterTranslations[language]
 
   useEffect(() => {
     const controller = new AbortController()
@@ -61,9 +76,9 @@ export function CharacterDashboard({
 
         setState({
           status: 'error',
-          message: sessionError
-            ? 'Sua sessão não pôde ser validada. Entre novamente.'
-            : 'Não foi possível carregar seu personagem.',
+          reason: sessionError
+            ? 'session'
+            : 'unavailable',
         })
       })
 
@@ -80,22 +95,20 @@ export function CharacterDashboard({
   return (
     <section
       className="character-dashboard"
-      aria-label="Meu personagem"
+      aria-label={copy.title}
     >
-      <h2>Meu personagem</h2>
+      <h2>{copy.title}</h2>
 
       {state.status === 'loading' && (
         <p role="status">
-          Carregando personagem...
+          {copy.loading}
         </p>
       )}
 
       {state.status === 'empty' && (
         <div className="character-empty">
-          <p>Você ainda não criou seu personagem.</p>
-          <p>
-            Em breve, você poderá começar sua aventura!
-          </p>
+          <p>{copy.empty}</p>
+          <p>{copy.upcoming}</p>
         </div>
       )}
 
@@ -104,42 +117,36 @@ export function CharacterDashboard({
           <h3>{state.character.name}</h3>
 
           <dl>
-            <dt>Classe</dt>
-            <dd>{state.character.characterClass}</dd>
+            {characterFieldKeys.map((field) => (
+              <Fragment key={field}>
+                <dt>{copy.fields[field]}</dt>
 
-            <dt>Ancestralidade</dt>
-            <dd>{state.character.ancestry}</dd>
-
-            <dt>Origem</dt>
-            <dd>{state.character.background}</dd>
-
-            <dt>Arma</dt>
-            <dd>{state.character.weapon}</dd>
-
-            <dt>Artefato</dt>
-            <dd>{state.character.artifact}</dd>
-
-            <dt>Personalidade</dt>
-            <dd>{state.character.personality}</dd>
-
-            <dt>Aura</dt>
-            <dd>{state.character.aura}</dd>
-
-            <dt>Companheiro</dt>
-            <dd>{state.character.companion}</dd>
+                <dd>
+                  {translateCharacterOption(
+                    language,
+                    field,
+                    state.character[field],
+                  )}
+                </dd>
+              </Fragment>
+            ))}
           </dl>
         </div>
       )}
 
       {state.status === 'error' && (
         <div className="character-error">
-          <p role="alert">{state.message}</p>
+          <p role="alert">
+            {state.reason === 'session'
+              ? copy.sessionError
+              : copy.loadError}
+          </p>
 
           <button
             type="button"
             onClick={retry}
           >
-            Tentar novamente
+            {copy.retry}
           </button>
         </div>
       )}

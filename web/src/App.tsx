@@ -408,6 +408,7 @@ function App() {
               <CharacterDashboard
                 key={session.user.id}
                 accessToken={session.access_token}
+                language={language}
               />
 
               <button

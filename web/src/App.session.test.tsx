@@ -1,8 +1,23 @@
 // @vitest-environment jsdom
 
 import type { Session } from '@supabase/supabase-js'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest'
+
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from '@testing-library/react'
+
 import App from './App'
 
 const mocks = vi.hoisted(() => ({
@@ -34,10 +49,12 @@ vi.mock('./lib/auth', () => ({
 vi.mock('./CharacterDashboard', () => ({
   CharacterDashboard: ({
     accessToken,
+    language,
   }: {
     accessToken: string
+    language: 'pt' | 'en'
   }) => {
-    mocks.dashboardRender(accessToken)
+    mocks.dashboardRender(accessToken, language)
 
     return <p>Meu personagem</p>
   },
@@ -48,6 +65,7 @@ const testSession = {
   refresh_token: 'test-refresh-token',
   expires_in: 3600,
   token_type: 'bearer',
+
   user: {
     id: 'test-user',
     aud: 'authenticated',
@@ -84,14 +102,24 @@ function mockSessionEvent(
 describe('Authentication sessions and errors', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    vi.stubGlobal('matchMedia', () => ({ matches: true }))
+
+    window.localStorage.removeItem(
+      'adventure-files-language',
+    )
+
+    vi.stubGlobal('matchMedia', () => ({
+      matches: true,
+    }))
+
     window.history.replaceState(null, '', '/')
+
     mockSessionEvent('INITIAL_SESSION', null)
   })
 
   afterEach(() => {
     cleanup()
     vi.unstubAllGlobals()
+
     window.history.replaceState(null, '', '/')
   })
 
@@ -106,11 +134,48 @@ describe('Authentication sessions and errors', () => {
 
     expect(
       mocks.dashboardRender,
-    ).toHaveBeenCalledWith('test-access-token')
+    ).toHaveBeenCalledWith(
+      'test-access-token',
+      'en',
+    )
 
     expect(
-      screen.getByRole('button', { name: 'Sign Out' }),
+      screen.getByRole('button', {
+        name: 'Sign Out',
+      }),
     ).toBeTruthy()
+  })
+
+  it('passes the selected language to the dashboard', () => {
+    mockSessionEvent('INITIAL_SESSION', testSession)
+
+    render(<App />)
+
+    expect(
+      mocks.dashboardRender,
+    ).toHaveBeenCalledWith(
+      'test-access-token',
+      'en',
+    )
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Português',
+      }),
+    )
+
+    expect(
+      mocks.dashboardRender,
+    ).toHaveBeenLastCalledWith(
+      'test-access-token',
+      'pt',
+    )
+
+    expect(
+      window.localStorage.getItem(
+        'adventure-files-language',
+      ),
+    ).toBe('pt')
   })
 
   it('shows a generic error when sign in fails', async () => {
@@ -119,18 +184,35 @@ describe('Authentication sessions and errors', () => {
     })
 
     render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
-
-    fireEvent.change(screen.getByLabelText('Email'), {
-      target: { value: 'adventurer@example.com' },
-    })
-
-    fireEvent.change(screen.getByLabelText('Password'), {
-      target: { value: 'IncorrectPassword123!' },
-    })
 
     fireEvent.click(
-      screen.getByRole('button', { name: 'Sign In' }),
+      screen.getByRole('button', {
+        name: 'PRESS START',
+      }),
+    )
+
+    fireEvent.change(
+      screen.getByLabelText('Email'),
+      {
+        target: {
+          value: 'adventurer@example.com',
+        },
+      },
+    )
+
+    fireEvent.change(
+      screen.getByLabelText('Password'),
+      {
+        target: {
+          value: 'IncorrectPassword123!',
+        },
+      },
+    )
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Sign In',
+      }),
     )
 
     expect(
@@ -146,9 +228,16 @@ describe('Authentication sessions and errors', () => {
   })
 
   it('updates the password during a recovery session', async () => {
-    window.history.replaceState(null, '', '/reset-password')
+    window.history.replaceState(
+      null,
+      '',
+      '/reset-password',
+    )
 
-    mockSessionEvent('PASSWORD_RECOVERY', testSession)
+    mockSessionEvent(
+      'PASSWORD_RECOVERY',
+      testSession,
+    )
 
     mocks.updatePassword.mockResolvedValue({
       error: null,
@@ -156,19 +245,33 @@ describe('Authentication sessions and errors', () => {
 
     render(<App />)
 
-    fireEvent.change(screen.getByLabelText('New Password'), {
-      target: { value: 'NewPassword123!' },
-    })
-
-    fireEvent.change(screen.getByLabelText('Confirm Password'), {
-      target: { value: 'NewPassword123!' },
-    })
-
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Update Password' }),
+    fireEvent.change(
+      screen.getByLabelText('New Password'),
+      {
+        target: {
+          value: 'NewPassword123!',
+        },
+      },
     )
 
-    expect(mocks.updatePassword).toHaveBeenCalledWith(
+    fireEvent.change(
+      screen.getByLabelText('Confirm Password'),
+      {
+        target: {
+          value: 'NewPassword123!',
+        },
+      },
+    )
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Update Password',
+      }),
+    )
+
+    expect(
+      mocks.updatePassword,
+    ).toHaveBeenCalledWith(
       'NewPassword123!',
     )
 
