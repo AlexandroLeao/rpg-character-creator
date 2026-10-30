@@ -1,7 +1,7 @@
-# RPG Character Creator — Customization Catalog
+# Adventure Files — Customization Catalog
 
-**Status:** Approved initial catalog; labels and artistic descriptions may be polished without changing the data contract.
-**Language:** All option labels, stored slugs, UI messages, and code use English.
+- **Status:** Approved initial catalog; labels and artistic descriptions may be polished without changing the data contract.
+- **Language:** Code, technical documentation, and stored identifiers use English. User-facing labels and messages support Portuguese and English.
 
 ## Rules
 
@@ -56,7 +56,7 @@ None (`none`), Wolf (`wolf`), Owl (`owl`), Cat (`cat`), Fox (`fox`), Raven (`rav
 
 ## Display and Validation
 
-- Each option has a stable slug, English label, and optional short descriptive helper text or accessible icon.
+- Each option has a stable slug, English canonical label, and optional localized display labels, descriptive helper text, or accessible icon.
 - Class art displays two different-looking examples of that class in a single static illustration. It is not a gameplay attribute and is never stored in the database.
 - The frontend uses a shared data-driven catalog. The backend independently validates submitted values against its approved catalog version.
 - Draft randomization selects a valid value per field and may suggest a fictional character name. It must not use or alter the user's account display name, email, or password.
