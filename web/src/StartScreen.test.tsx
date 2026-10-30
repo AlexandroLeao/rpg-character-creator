@@ -1,8 +1,23 @@
 // @vitest-environment jsdom
 
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+} from '@testing-library/react'
+
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import {
+  afterEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest'
+
 import { StartScreen } from './StartScreen'
 
 afterEach(() => {
@@ -16,62 +31,112 @@ describe('Adventure Files start screen', () => {
     render(<StartScreen onStart={vi.fn()} />)
 
     expect(
-      screen.getByRole('heading', { name: 'ADVENTURE FILES' }),
+      screen.getByRole('heading', {
+        name: 'ADVENTURE FILES',
+      }),
     ).toBeTruthy()
 
     expect(
-      screen.getByRole('button', { name: 'PRESS START' }),
+      screen.getByRole('button', {
+        name: 'PRESS START',
+      }),
     ).toBeTruthy()
 
     expect(screen.queryByText('PT')).toBeNull()
     expect(screen.queryByText('EN')).toBeNull()
 
     expect(
-      document.querySelector('source[media="(orientation: portrait)"]')
+      document
+        .querySelector(
+          'source[media="(orientation: portrait)"]',
+        )
         ?.getAttribute('srcset'),
-    ).toBe('/art/adventure-files-start-mobile.png')
+    ).toBe(
+      '/art/adventure-files-start-mobile.png',
+    )
   })
 
   it('begins immediately when reduced motion is preferred', () => {
-    vi.stubGlobal('matchMedia', () => ({ matches: true }))
+    vi.stubGlobal('matchMedia', () => ({
+      matches: true,
+    }))
+
     const onStart = vi.fn()
 
     render(<StartScreen onStart={onStart} />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'PRESS START',
+      }),
+    )
 
     expect(onStart).toHaveBeenCalledTimes(1)
   })
 
-  it('uses the closing iris before opening login', () => {
-    vi.stubGlobal('matchMedia', () => ({ matches: false }))
+  it('uses the slower closing iris before opening login', () => {
+    vi.stubGlobal('matchMedia', () => ({
+      matches: false,
+    }))
+
     vi.useFakeTimers()
+
     const onStart = vi.fn()
 
-    const { container } = render(<StartScreen onStart={onStart} />)
+    const { container } = render(
+      <StartScreen onStart={onStart} />,
+    )
 
-    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'PRESS START',
+      }),
+    )
+
     expect(
-      container.querySelector('.start-screen__content--closing'),
+      container.querySelector(
+        '.start-screen__content--closing',
+      ),
     ).toBeTruthy()
+
     expect(onStart).not.toHaveBeenCalled()
 
+    // Closing animation finishes at 1600ms.
+
     act(() => {
-      vi.advanceTimersByTime(720)
+      vi.advanceTimersByTime(1600)
     })
+
+    // Login must not open yet.
+
+    expect(onStart).not.toHaveBeenCalled()
+
+    // Wait another 300ms on the dark screen.
+
+    act(() => {
+      vi.advanceTimersByTime(300)
+    })
+
+    // Now the login can open.
 
     expect(onStart).toHaveBeenCalledTimes(1)
   })
 
   it('accepts Enter on the focused start control', async () => {
-    vi.stubGlobal('matchMedia', () => ({ matches: true }))
+    vi.stubGlobal('matchMedia', () => ({
+      matches: true,
+    }))
+
     const onStart = vi.fn()
+
     const user = userEvent.setup()
 
     render(<StartScreen onStart={onStart} />)
 
     expect(document.activeElement).toBe(
-      screen.getByRole('button', { name: 'PRESS START' }),
+      screen.getByRole('button', {
+        name: 'PRESS START',
+      }),
     )
 
     await user.keyboard('{Enter}')
