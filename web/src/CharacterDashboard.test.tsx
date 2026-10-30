@@ -17,7 +17,6 @@ import {
 } from '@testing-library/react'
 
 import { CharacterDashboard } from './CharacterDashboard'
-
 import { CharacterApiError } from './lib/characterApi'
 
 const mocks = vi.hoisted(() => ({
@@ -58,13 +57,16 @@ describe('Character dashboard', () => {
     cleanup()
   })
 
-  it('shows a loading state', () => {
+  it('shows the Portuguese loading state', () => {
     mocks.getMyCharacter.mockReturnValue(
       new Promise(() => undefined),
     )
 
     render(
-      <CharacterDashboard accessToken="valid-token" />,
+      <CharacterDashboard
+        accessToken="valid-token"
+        language="pt"
+      />,
     )
 
     expect(
@@ -77,11 +79,14 @@ describe('Character dashboard', () => {
     )
   })
 
-  it('shows an empty state when no character exists', async () => {
+  it('shows the Portuguese empty state', async () => {
     mocks.getMyCharacter.mockResolvedValue(null)
 
     render(
-      <CharacterDashboard accessToken="valid-token" />,
+      <CharacterDashboard
+        accessToken="valid-token"
+        language="pt"
+      />,
     )
 
     expect(
@@ -91,13 +96,31 @@ describe('Character dashboard', () => {
     ).toBeTruthy()
   })
 
-  it('displays the saved character', async () => {
-    mocks.getMyCharacter.mockResolvedValue(
-      savedCharacter,
-    )
+  it('shows the English empty state', async () => {
+    mocks.getMyCharacter.mockResolvedValue(null)
 
     render(
-      <CharacterDashboard accessToken="valid-token" />,
+      <CharacterDashboard
+        accessToken="valid-token"
+        language="en"
+      />,
+    )
+
+    expect(
+      await screen.findByText(
+        'You have not created a character yet.',
+      ),
+    ).toBeTruthy()
+  })
+
+  it('displays localized Portuguese character details', async () => {
+    mocks.getMyCharacter.mockResolvedValue(savedCharacter)
+
+    render(
+      <CharacterDashboard
+        accessToken="valid-token"
+        language="pt"
+      />,
     )
 
     expect(
@@ -106,10 +129,62 @@ describe('Character dashboard', () => {
       }),
     ).toBeTruthy()
 
-    expect(screen.getByText('mage')).toBeTruthy()
-    expect(screen.getByText('elf')).toBeTruthy()
-    expect(screen.getByText('scholar')).toBeTruthy()
-    expect(screen.getByText('staff')).toBeTruthy()
+    expect(screen.getByText('Mago')).toBeTruthy()
+    expect(screen.getByText('Elfo')).toBeTruthy()
+    expect(screen.getByText('Estudioso')).toBeTruthy()
+    expect(screen.getByText('Cajado')).toBeTruthy()
+    expect(screen.getByText('Cristal Lunar')).toBeTruthy()
+  })
+
+  it('displays localized English character details', async () => {
+    mocks.getMyCharacter.mockResolvedValue(savedCharacter)
+
+    render(
+      <CharacterDashboard
+        accessToken="valid-token"
+        language="en"
+      />,
+    )
+
+    expect(
+      await screen.findByRole('heading', {
+        name: 'Eldrin',
+      }),
+    ).toBeTruthy()
+
+    expect(screen.getByText('Mage')).toBeTruthy()
+    expect(screen.getByText('Elf')).toBeTruthy()
+    expect(screen.getByText('Scholar')).toBeTruthy()
+    expect(screen.getByText('Staff')).toBeTruthy()
+    expect(screen.getByText('Moon Crystal')).toBeTruthy()
+  })
+
+  it('switches language without fetching the character again', async () => {
+    mocks.getMyCharacter.mockResolvedValue(savedCharacter)
+
+    const { rerender } = render(
+      <CharacterDashboard
+        accessToken="valid-token"
+        language="pt"
+      />,
+    )
+
+    expect(
+      await screen.findByText('Mago'),
+    ).toBeTruthy()
+
+    rerender(
+      <CharacterDashboard
+        accessToken="valid-token"
+        language="en"
+      />,
+    )
+
+    expect(screen.getByText('Mage')).toBeTruthy()
+
+    expect(
+      mocks.getMyCharacter,
+    ).toHaveBeenCalledTimes(1)
   })
 
   it.each([
@@ -123,7 +198,10 @@ describe('Character dashboard', () => {
       )
 
       render(
-        <CharacterDashboard accessToken="valid-token" />,
+        <CharacterDashboard
+          accessToken="valid-token"
+          language="pt"
+        />,
       )
 
       expect(
@@ -135,13 +213,16 @@ describe('Character dashboard', () => {
     },
   )
 
-  it('handles unavailable API errors', async () => {
+  it('handles unavailable API errors in Portuguese', async () => {
     mocks.getMyCharacter.mockRejectedValue(
       new CharacterApiError('unavailable'),
     )
 
     render(
-      <CharacterDashboard accessToken="valid-token" />,
+      <CharacterDashboard
+        accessToken="valid-token"
+        language="pt"
+      />,
     )
 
     expect(
@@ -149,6 +230,26 @@ describe('Character dashboard', () => {
     ).toHaveProperty(
       'textContent',
       'Não foi possível carregar seu personagem.',
+    )
+  })
+
+  it('handles unavailable API errors in English', async () => {
+    mocks.getMyCharacter.mockRejectedValue(
+      new CharacterApiError('unavailable'),
+    )
+
+    render(
+      <CharacterDashboard
+        accessToken="valid-token"
+        language="en"
+      />,
+    )
+
+    expect(
+      await screen.findByRole('alert'),
+    ).toHaveProperty(
+      'textContent',
+      'Unable to load your character.',
     )
   })
 
@@ -160,7 +261,10 @@ describe('Character dashboard', () => {
       .mockResolvedValueOnce(null)
 
     render(
-      <CharacterDashboard accessToken="valid-token" />,
+      <CharacterDashboard
+        accessToken="valid-token"
+        language="pt"
+      />,
     )
 
     await screen.findByRole('alert')
@@ -188,7 +292,10 @@ describe('Character dashboard', () => {
     )
 
     const { unmount } = render(
-      <CharacterDashboard accessToken="valid-token" />,
+      <CharacterDashboard
+        accessToken="valid-token"
+        language="pt"
+      />,
     )
 
     const signal = mocks.getMyCharacter
