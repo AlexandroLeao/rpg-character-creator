@@ -19,6 +19,10 @@ import {
 import { CharacterDashboard } from './CharacterDashboard'
 import { CharacterApiError } from './lib/characterApi'
 
+/*
+ * API MOCK
+ */
+
 const mocks = vi.hoisted(() => ({
   getMyCharacter: vi.fn(),
 }))
@@ -32,6 +36,10 @@ vi.mock('./lib/characterApi', async (importOriginal) => {
     getMyCharacter: mocks.getMyCharacter,
   }
 })
+
+/*
+ * SAVED CHARACTER MOCK
+ */
 
 const savedCharacter = {
   id: 'character-123',
@@ -48,6 +56,10 @@ const savedCharacter = {
   updatedAt: '2026-10-29T10:00:00Z',
 }
 
+/*
+ * CHARACTER DASHBOARD TESTS
+ */
+
 describe('Character dashboard', () => {
   beforeEach(() => {
     mocks.getMyCharacter.mockReset()
@@ -56,6 +68,11 @@ describe('Character dashboard', () => {
   afterEach(() => {
     cleanup()
   })
+
+  /*
+   * TEST 01
+   * PORTUGUESE LOADING STATE
+   */
 
   it('shows the Portuguese loading state', () => {
     mocks.getMyCharacter.mockReturnValue(
@@ -79,6 +96,11 @@ describe('Character dashboard', () => {
     )
   })
 
+  /*
+   * TEST 02
+   * PORTUGUESE EMPTY STATE
+   */
+
   it('shows the Portuguese empty state', async () => {
     mocks.getMyCharacter.mockResolvedValue(null)
 
@@ -90,11 +112,22 @@ describe('Character dashboard', () => {
     )
 
     expect(
-      await screen.findByText(
+      await screen.findByRole('button', {
+        name: 'Criar Personagem',
+      }),
+    ).toBeTruthy()
+
+    expect(
+      screen.queryByText(
         'Você ainda não criou seu personagem.',
       ),
-    ).toBeTruthy()
+    ).toBeNull()
   })
+
+  /*
+   * TEST 03
+   * ENGLISH EMPTY STATE
+   */
 
   it('shows the English empty state', async () => {
     mocks.getMyCharacter.mockResolvedValue(null)
@@ -107,11 +140,250 @@ describe('Character dashboard', () => {
     )
 
     expect(
-      await screen.findByText(
+      await screen.findByRole('button', {
+        name: 'Create Character',
+      }),
+    ).toBeTruthy()
+
+    expect(
+      screen.queryByText(
         'You have not created a character yet.',
       ),
+    ).toBeNull()
+  })
+
+  /*
+   * TEST 04
+   * OPEN AND CLOSE CHARACTER CREATOR
+   */
+
+  it('opens the character creator from the empty state', async () => {
+    mocks.getMyCharacter.mockResolvedValue(null)
+
+    render(
+      <CharacterDashboard
+        accessToken="valid-token"
+        language="pt"
+      />,
+    )
+
+    const createButton = await screen.findByRole('button', {
+      name: 'Criar Personagem',
+    })
+
+    fireEvent.click(createButton)
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'ESCOLHA SUA CLASSE',
+      }),
+    ).toBeTruthy()
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Guerreiro',
+      }),
+    ).toBeTruthy()
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'VOLTAR',
+      }),
+    )
+
+    expect(
+      await screen.findByRole('button', {
+        name: 'Criar Personagem',
+      }),
     ).toBeTruthy()
   })
+
+  /*
+   * TEST 05
+   * ARTWORK CHANGES ONLY ON CLICK
+   */
+
+  it('changes artwork only when a class is selected', async () => {
+    mocks.getMyCharacter.mockResolvedValue(null)
+
+    render(
+      <CharacterDashboard
+        accessToken="valid-token"
+        language="pt"
+      />,
+    )
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Criar Personagem',
+      }),
+    )
+
+    const mageButton = screen.getByRole('button', {
+      name: 'Mago',
+    })
+
+    const artwork = document.querySelector(
+      '.character-class-step__visual img',
+    )
+
+    expect(artwork).not.toBeNull()
+
+    expect(
+      artwork?.getAttribute('src'),
+    ).toBe('/art/characters/classes-together.png')
+
+    /*
+     * Hover must not change the selected artwork.
+     */
+
+    fireEvent.mouseEnter(mageButton)
+
+    expect(
+      artwork?.getAttribute('src'),
+    ).toBe('/art/characters/classes-together.png')
+
+    /*
+     * Focus alone must not select a class.
+     */
+
+    fireEvent.focus(mageButton)
+
+    expect(
+      artwork?.getAttribute('src'),
+    ).toBe('/art/characters/classes-together.png')
+
+    expect(
+      mageButton.getAttribute('aria-pressed'),
+    ).toBe('false')
+
+    /*
+     * Clicking selects the class.
+     */
+
+    fireEvent.click(mageButton)
+
+    expect(
+      artwork?.getAttribute('src'),
+    ).toBe('/art/characters/mage.png')
+
+    expect(
+      mageButton.getAttribute('aria-pressed'),
+    ).toBe('true')
+
+    /*
+     * Moving the mouse away must preserve
+     * the currently selected class.
+     */
+
+    fireEvent.mouseLeave(mageButton)
+
+    expect(
+      artwork?.getAttribute('src'),
+    ).toBe('/art/characters/mage.png')
+  })
+
+  /*
+   * TEST 06
+   * PRESERVE CLASS AND NAME BETWEEN STEPS
+   */
+
+  it('preserves class and name when returning from step two', async () => {
+    mocks.getMyCharacter.mockResolvedValue(null)
+
+    render(
+      <CharacterDashboard
+        accessToken="valid-token"
+        language="pt"
+      />,
+    )
+
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Criar Personagem',
+      }),
+    )
+
+    /*
+     * Select the Mage class.
+     */
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Mago',
+      }),
+    )
+
+    /*
+     * Enter the character name.
+     */
+
+    const nameInput = screen.getByLabelText(
+      'NOME DO PERSONAGEM',
+    ) as HTMLInputElement
+
+    fireEvent.change(nameInput, {
+      target: {
+        value: 'Luna',
+      },
+    })
+
+    expect(nameInput.value).toBe('Luna')
+
+    /*
+     * Continue to step two.
+     */
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'CONTINUAR',
+      }),
+    )
+
+    expect(
+      await screen.findByText(
+        '02 / 04 — ORIGENS',
+      ),
+    ).toBeTruthy()
+
+    /*
+     * Return to step one.
+     */
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'VOLTAR',
+      }),
+    )
+
+    /*
+     * Verify that the selected class
+     * remains unchanged.
+     */
+
+    const selectedMage = screen.getByRole('button', {
+      name: 'Mago',
+    })
+
+    expect(
+      selectedMage.getAttribute('aria-pressed'),
+    ).toBe('true')
+
+    /*
+     * Verify that the name is preserved.
+     */
+
+    const restoredName = screen.getByLabelText(
+      'NOME DO PERSONAGEM',
+    ) as HTMLInputElement
+
+    expect(restoredName.value).toBe('Luna')
+  })
+
+  /*
+   * TEST 07
+   * PORTUGUESE CHARACTER DETAILS
+   */
 
   it('displays localized Portuguese character details', async () => {
     mocks.getMyCharacter.mockResolvedValue(savedCharacter)
@@ -136,6 +408,11 @@ describe('Character dashboard', () => {
     expect(screen.getByText('Cristal Lunar')).toBeTruthy()
   })
 
+  /*
+   * TEST 08
+   * ENGLISH CHARACTER DETAILS
+   */
+
   it('displays localized English character details', async () => {
     mocks.getMyCharacter.mockResolvedValue(savedCharacter)
 
@@ -159,6 +436,11 @@ describe('Character dashboard', () => {
     expect(screen.getByText('Moon Crystal')).toBeTruthy()
   })
 
+  /*
+   * TEST 09
+   * LANGUAGE SWITCHING
+   */
+
   it('switches language without fetching the character again', async () => {
     mocks.getMyCharacter.mockResolvedValue(savedCharacter)
 
@@ -180,12 +462,19 @@ describe('Character dashboard', () => {
       />,
     )
 
-    expect(screen.getByText('Mage')).toBeTruthy()
+    expect(
+      screen.getByText('Mage'),
+    ).toBeTruthy()
 
     expect(
       mocks.getMyCharacter,
     ).toHaveBeenCalledTimes(1)
   })
+
+  /*
+   * TESTS 10 AND 11
+   * AUTHENTICATION ERRORS
+   */
 
   it.each([
     'unauthorized',
@@ -213,6 +502,11 @@ describe('Character dashboard', () => {
     },
   )
 
+  /*
+   * TEST 12
+   * UNAVAILABLE API IN PORTUGUESE
+   */
+
   it('handles unavailable API errors in Portuguese', async () => {
     mocks.getMyCharacter.mockRejectedValue(
       new CharacterApiError('unavailable'),
@@ -233,6 +527,11 @@ describe('Character dashboard', () => {
     )
   })
 
+  /*
+   * TEST 13
+   * UNAVAILABLE API IN ENGLISH
+   */
+
   it('handles unavailable API errors in English', async () => {
     mocks.getMyCharacter.mockRejectedValue(
       new CharacterApiError('unavailable'),
@@ -252,6 +551,11 @@ describe('Character dashboard', () => {
       'Unable to load your character.',
     )
   })
+
+  /*
+   * TEST 14
+   * RETRY AFTER FAILED REQUEST
+   */
 
   it('retries after a failed request', async () => {
     mocks.getMyCharacter
@@ -276,15 +580,20 @@ describe('Character dashboard', () => {
     )
 
     expect(
-      await screen.findByText(
-        'Você ainda não criou seu personagem.',
-      ),
+      await screen.findByRole('button', {
+        name: 'Criar Personagem',
+      }),
     ).toBeTruthy()
 
     expect(
       mocks.getMyCharacter,
     ).toHaveBeenCalledTimes(2)
   })
+
+  /*
+   * TEST 15
+   * ABORT REQUEST ON UNMOUNT
+   */
 
   it('aborts the request when the component unmounts', () => {
     mocks.getMyCharacter.mockReturnValue(

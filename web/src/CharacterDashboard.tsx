@@ -14,6 +14,8 @@ import {
   translateCharacterOption,
 } from './lib/characterTranslations'
 
+import { CharacterCreator } from './CharacterCreator'
+
 type DashboardState =
   | { status: 'loading' }
   | { status: 'empty' }
@@ -26,11 +28,13 @@ type DashboardState =
 type CharacterDashboardProps = {
   accessToken: string
   language: Language
+  onCreatorStepChange?: (step: number | null) => void
 }
 
 export function CharacterDashboard({
   accessToken,
   language,
+  onCreatorStepChange,
 }: CharacterDashboardProps) {
   const [state, setState] = useState<DashboardState>({
     status: 'loading',
@@ -38,7 +42,19 @@ export function CharacterDashboard({
 
   const [attempt, setAttempt] = useState(0)
 
+  const [creating, setCreating] = useState(false)
+
   const copy = characterTranslations[language]
+
+  const dashboardTitle = creating
+    ? language === 'pt'
+      ? 'Criar personagem'
+      : 'Create Character'
+    : copy.title
+
+  /*
+   * LOAD CHARACTER
+   */
 
   useEffect(() => {
     const controller = new AbortController()
@@ -87,17 +103,45 @@ export function CharacterDashboard({
     }
   }, [accessToken, attempt])
 
+  /*
+   * RETRY
+   */
+
   function retry() {
     setState({ status: 'loading' })
     setAttempt((current) => current + 1)
   }
 
+  /*
+   * CREATOR NAVIGATION
+   */
+
+  function startCreating() {
+    setCreating(true)
+
+    onCreatorStepChange?.(1)
+  }
+
+  function cancelCreating() {
+    setCreating(false)
+
+    onCreatorStepChange?.(null)
+  }
+
+  /*
+   * RENDER
+   */
+
   return (
     <section
-      className="character-dashboard"
-      aria-label={copy.title}
+      className={
+        creating
+          ? 'character-dashboard character-dashboard--creating'
+          : 'character-dashboard'
+      }
+      aria-label={dashboardTitle}
     >
-      <h2>{copy.title}</h2>
+      {/* LOADING */}
 
       {state.status === 'loading' && (
         <p role="status">
@@ -105,15 +149,36 @@ export function CharacterDashboard({
         </p>
       )}
 
+      {/* EMPTY STATE / CHARACTER CREATOR */}
+
       {state.status === 'empty' && (
-        <div className="character-empty">
-          <p>{copy.empty}</p>
-          <p>{copy.upcoming}</p>
-        </div>
+        creating ? (
+          <CharacterCreator
+            language={language}
+            onCancel={cancelCreating}
+            onStepChange={onCreatorStepChange}
+          />
+        ) : (
+          <div className="character-empty">
+            <button
+              type="button"
+              className="character-empty__create-button"
+              onClick={startCreating}
+            >
+              {language === 'pt'
+                ? 'Criar Personagem'
+                : 'Create Character'}
+            </button>
+          </div>
+        )
       )}
+
+      {/* SAVED CHARACTER */}
 
       {state.status === 'ready' && (
         <div className="character-details">
+          <h2>{copy.title}</h2>
+
           <h3>{state.character.name}</h3>
 
           <dl>
@@ -133,6 +198,8 @@ export function CharacterDashboard({
           </dl>
         </div>
       )}
+
+      {/* ERROR STATE */}
 
       {state.status === 'error' && (
         <div className="character-error">

@@ -50,8 +50,8 @@
 }
 
 /*
- * The existing character dashboard needs
- * more horizontal space than the login form.
+ * The character dashboard needs more
+ * horizontal space than the login form.
  */
 
 .auth-window:has(.character-dashboard) {
@@ -84,10 +84,6 @@
   letter-spacing: 0;
 }
 
-/* Hide the old decorative diamond.
-   The PT/EN selector will replace it
-   in the next implementation step. */
-
 .auth-titlebar > span:last-child[aria-hidden='true'] {
   display: none;
 }
@@ -102,14 +98,6 @@
 
   padding: 28px 26px 26px;
 }
-
-/*
- * The old decorative introduction is
- * temporarily hidden.
- *
- * It will be removed from the JSX
- * during the next step.
- */
 
 .auth-kicker {
   display: none;
@@ -418,13 +406,6 @@
   background-color: #000000;
 }
 
-/*
- * The login screen opens from the center.
- *
- * Duration: 1600ms
- * Preserve the approved transition.
- */
-
 .auth-shell--reveal {
   animation: auth-iris-open 1600ms steps(32, end) both;
 }
@@ -632,11 +613,313 @@
   padding: 10px 0;
 }
 
-/* Smaller mobile screens */
 @media (max-width: 380px) {
   .auth-nav {
     grid-template-columns: 1fr;
     justify-items: center;
     gap: 12px;
+  }
+}
+
+/* ==========================================
+   CHARACTER CREATOR
+   ========================================== */
+
+/*
+ * Give the character creator more room
+ * without changing the login window size.
+ */
+
+.auth-window:has(.character-class-step) {
+  max-width: 1100px;
+}
+
+/* ==========================================
+   CHARACTER CREATOR — VISUAL REFINEMENTS
+   ========================================== */
+
+/* Larger window only while creating */
+
+.auth-window:has(.character-dashboard--creating) {
+  max-width: 1100px;
+}
+
+/* More compact vertical spacing */
+
+.auth-window:has(.character-dashboard--creating)
+.auth-content {
+  padding: 16px 22px 14px;
+}
+
+/*
+ * Sign out remains available when returning
+ * to the character dashboard.
+ *
+ * Hide it during the wizard to keep the
+ * creation screen focused and compact.
+ */
+
+.auth-window:has(.character-dashboard--creating)
+.auth-success > button {
+  display: none;
+}
+
+/* ==========================================
+   CREATE CHARACTER BUTTON
+   ========================================== */
+
+.character-empty__create-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 50px;
+
+  margin-top: 24px;
+  padding: 14px 18px;
+
+  border: 2px solid #a4ed86;
+  border-radius: 7px;
+
+  background: #a4ed86;
+  color: #07120a;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  line-height: 1.6;
+
+  text-align: center;
+
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.character-empty__create-button:hover:not(:disabled) {
+  background: #c9ffb1;
+}
+
+.character-empty__create-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* ==========================================
+   MOBILE CREATOR WINDOW
+   ========================================== */
+
+@media (max-width: 760px) {
+  .auth-window:has(.character-dashboard--creating)
+  .auth-content {
+    padding: 20px 18px;
+  }
+
+  .character-empty__create-button {
+    font-size: 10px;
+  }
+}
+
+/* ==========================================
+   REDUCED MOTION
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .character-empty__create-button {
+    transition: none;
+  }
+}
+
+/* ==========================================
+   ADVENTURE FILES
+   FINAL CHARACTER CREATOR REFINEMENTS
+   ========================================== */
+
+/* ==========================================
+   EMPTY CHARACTER DASHBOARD
+   ========================================== */
+
+/*
+ * Keep only two actions:
+ * Create Character and Sign Out.
+ */
+
+.character-empty {
+  display: block;
+  width: 100%;
+}
+
+/* Consistent button typography */
+
+.character-empty__create-button,
+.auth-window:has(.character-empty)
+.auth-success > button {
+  min-height: 50px;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  font-weight: normal;
+  line-height: 1.7;
+
+  text-align: center;
+}
+
+/* Main create action */
+
+.character-empty__create-button {
+  width: 100%;
+  margin-top: 0;
+
+  border: 2px solid #a4ed86;
+  border-radius: 7px;
+
+  background: #a4ed86;
+  color: #07120a;
+}
+
+.character-empty__create-button:hover:not(:disabled) {
+  background: #c9ffb1;
+}
+
+/* ==========================================
+   SIGN OUT — MUTED DARK GREEN
+   ========================================== */
+
+/*
+ * Secondary action: stays inside the
+ * established Adventure Files palette.
+ */
+
+.auth-window:has(.character-empty)
+.auth-success > button {
+  width: 100%;
+
+  margin-top: 12px;
+
+  border: 2px solid #45684a;
+  border-radius: 7px;
+
+  background: #102719;
+  color: #bfd7a6;
+
+  box-shadow: none;
+}
+
+.auth-window:has(.character-empty)
+.auth-success > button:hover:not(:disabled) {
+  border-color: #78a66f;
+
+  background: #193923;
+  color: #e4f6d6;
+}
+
+.auth-window:has(.character-empty)
+.auth-success > button:focus-visible {
+  outline: 2px solid #a4ed86;
+  outline-offset: 3px;
+}
+
+/* ==========================================
+   CREATOR HEADER
+   ========================================== */
+
+/*
+ * The current step is displayed in the
+ * window title bar by App.tsx.
+ *
+ * Keep the title visible during creation.
+ * PT / EN remains aligned on the right.
+ */
+
+.auth-window:has(.character-dashboard--creating)
+.auth-titlebar__heading {
+  visibility: visible;
+}
+
+/* ==========================================
+   TYPOGRAPHY CONSISTENCY
+   ========================================== */
+
+/*
+ * Class selection and character name
+ * use the same typographic hierarchy.
+ */
+
+.character-class-step__header h2,
+.character-class-step__name label {
+  font-family: 'Press Start 2P', monospace;
+
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 1.85;
+
+  letter-spacing: 0.1px;
+}
+
+/* ==========================================
+   SPACING REFINEMENTS
+   ========================================== */
+
+.character-class-step__controls {
+  gap: 12px;
+}
+
+.character-class-step__header {
+  margin-bottom: 0;
+}
+
+.character-class-step__name {
+  gap: 12px;
+}
+
+.character-class-step__actions {
+  margin-top: 5px;
+}
+
+/* ==========================================
+   TEMPORARY NEXT-STEP BUTTON
+   ========================================== */
+
+.character-creator-next button {
+  min-height: 44px;
+
+  padding: 12px 20px;
+
+  border: 2px solid #a4ed86;
+  border-radius: 6px;
+
+  background: transparent;
+  color: #a4ed86;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.character-creator-next button:hover:not(:disabled) {
+  background: #1c3522;
+}
+
+/* ==========================================
+   MOBILE REFINEMENTS
+   ========================================== */
+
+@media (max-width: 760px) {
+  .character-class-step__controls {
+    gap: 12px;
+  }
+
+  .character-class-step__header h2,
+  .character-class-step__name label {
+    font-size: 11px;
+  }
+
+  .character-class-step__header {
+    margin-bottom: 0;
+  }
+
+  .character-empty__create-button,
+  .auth-window:has(.character-empty)
+  .auth-success > button {
+    font-size: 10px;
   }
 }

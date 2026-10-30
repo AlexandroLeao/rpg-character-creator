@@ -42,6 +42,10 @@ function getInitialLanguage(): Language {
 }
 
 function App() {
+  /*
+   * SESSION AND AUTHENTICATION
+   */
+
   const [session, setSession] = useState<Session | null>(null)
 
   const [checkingSession, setCheckingSession] = useState(true)
@@ -58,9 +62,17 @@ function App() {
       : 'signIn',
   )
 
+  /*
+   * LANGUAGE
+   */
+
   const [language, setLanguage] = useState<Language>(
     getInitialLanguage,
   )
+
+  /*
+   * AUTHENTICATION FORM
+   */
 
   const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
@@ -69,6 +81,19 @@ function App() {
 
   const [working, setWorking] = useState(false)
   const [feedback, setFeedback] = useState<Feedback>(null)
+
+  /*
+   * CHARACTER CREATOR PROGRESS
+   *
+   * null = creator is closed
+   * 1    = class and name
+   * 2    = origins
+   * 3    = equipment
+   * 4    = final review
+   */
+
+  const [creatorStep, setCreatorStep] =
+    useState<number | null>(null)
 
   const copy = authTranslations[language]
 
@@ -86,6 +111,15 @@ function App() {
       (event, nextSession) => {
         setSession(nextSession)
         setCheckingSession(false)
+
+        /*
+         * Reset creator progress when the
+         * authenticated session ends.
+         */
+
+        if (!nextSession) {
+          setCreatorStep(null)
+        }
 
         if (event === 'PASSWORD_RECOVERY') {
           setMode('resetPassword')
@@ -140,6 +174,10 @@ function App() {
     event.preventDefault()
     setFeedback(null)
 
+    /*
+     * DISPLAY NAME VALIDATION
+     */
+
     if (
       mode === 'signUp' &&
       displayName.trim().length < 2
@@ -151,6 +189,10 @@ function App() {
 
       return
     }
+
+    /*
+     * PASSWORD VALIDATION
+     */
 
     const requiresNewPassword =
       mode === 'signUp' || mode === 'resetPassword'
@@ -182,6 +224,10 @@ function App() {
     setWorking(true)
 
     try {
+      /*
+       * PASSWORD RECOVERY REQUEST
+       */
+
       if (mode === 'forgotPassword') {
         const { error } = await sendPasswordReset(email)
 
@@ -199,6 +245,10 @@ function App() {
 
         return
       }
+
+      /*
+       * RESET PASSWORD
+       */
 
       if (mode === 'resetPassword') {
         if (!session) {
@@ -233,6 +283,10 @@ function App() {
         return
       }
 
+      /*
+       * CREATE ACCOUNT
+       */
+
       if (mode === 'signUp') {
         const { error } = await signUpWithEmail(
           displayName,
@@ -258,6 +312,10 @@ function App() {
 
         return
       }
+
+      /*
+       * SIGN IN
+       */
 
       const { error } = await signInWithEmail(
         email,
@@ -347,17 +405,38 @@ function App() {
     .filter(Boolean)
     .join(' ')
 
+  /*
+   * WINDOW HEADER
+   *
+   * During character creation, show
+   * the current step on the left.
+   *
+   * PT / EN remains on the right.
+   *
+   * The dashboard title uses uppercase.
+   */
+
   const heading = isDashboard
-    ? copy.myCharacter
+    ? creatorStep === null
+      ? copy.myCharacter.toUpperCase()
+      : `${String(creatorStep).padStart(2, '0')} / 04`
     : copy.titles[mode]
+
+  /*
+   * RENDER
+   */
 
   return (
     <main className={shellClassName}>
       <section className={windowClassName}>
+        {/* WINDOW HEADER */}
+
         <header className="auth-titlebar">
           <h1 className="auth-titlebar__heading">
             {heading}
           </h1>
+
+          {/* LANGUAGE SELECTOR */}
 
           <nav
             className="auth-language"
@@ -385,12 +464,22 @@ function App() {
           </nav>
         </header>
 
+        {/* WINDOW CONTENT */}
+
         <div className="auth-content">
           {checkingSession ? (
+            /*
+             * CHECKING SESSION
+             */
+
             <p role="status">
               {copy.checkingSession}
             </p>
           ) : mode === 'resetPassword' && !session ? (
+            /*
+             * INVALID PASSWORD RECOVERY SESSION
+             */
+
             <div className="auth-success">
               <p role="alert">
                 {copy.recoveryLinkInvalid}
@@ -404,12 +493,19 @@ function App() {
               </button>
             </div>
           ) : isDashboard && session ? (
+            /*
+             * AUTHENTICATED CHARACTER DASHBOARD
+             */
+
             <div className="auth-success">
               <CharacterDashboard
                 key={session.user.id}
                 accessToken={session.access_token}
                 language={language}
+                onCreatorStepChange={setCreatorStep}
               />
+
+              {/* SIGN OUT */}
 
               <button
                 type="button"
@@ -422,11 +518,17 @@ function App() {
               </button>
             </div>
           ) : (
+            /*
+             * AUTHENTICATION FORM
+             */
+
             <>
               <form
                 className="auth-form"
                 onSubmit={handleSubmit}
               >
+                {/* DISPLAY NAME */}
+
                 {mode === 'signUp' && (
                   <>
                     <label htmlFor="displayName">
@@ -447,6 +549,8 @@ function App() {
                   </>
                 )}
 
+                {/* EMAIL */}
+
                 {mode !== 'resetPassword' && (
                   <>
                     <label htmlFor="email">
@@ -465,6 +569,8 @@ function App() {
                     />
                   </>
                 )}
+
+                {/* PASSWORD */}
 
                 {mode !== 'forgotPassword' && (
                   <>
@@ -491,6 +597,8 @@ function App() {
                   </>
                 )}
 
+                {/* CONFIRM PASSWORD */}
+
                 {(mode === 'signUp' ||
                   mode === 'resetPassword') && (
                   <>
@@ -513,6 +621,8 @@ function App() {
                   </>
                 )}
 
+                {/* SUBMIT */}
+
                 <button
                   type="submit"
                   disabled={working}
@@ -522,6 +632,8 @@ function App() {
                     : copy.submitLabels[mode]}
                 </button>
               </form>
+
+              {/* ACCOUNT OPTIONS */}
 
               {mode !== 'resetPassword' && (
                 <nav
@@ -565,6 +677,8 @@ function App() {
               )}
             </>
           )}
+
+          {/* FEEDBACK MESSAGES */}
 
           {feedback && (
             <p
