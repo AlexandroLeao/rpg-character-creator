@@ -9,6 +9,7 @@ import {
   updatePassword,
 } from './lib/auth'
 import { CharacterDashboard } from './CharacterDashboard'
+import { StartScreen } from './StartScreen'
 import './App.css'
 
 type AuthMode =
@@ -39,6 +40,9 @@ const submitLabels: Record<AuthMode, string> = {
 function App() {
   const [session, setSession] = useState<Session | null>(null)
   const [checkingSession, setCheckingSession] = useState(true)
+  const [hasStarted, setHasStarted] = useState(
+    () => window.location.pathname === '/reset-password',
+  )
 
   const [mode, setMode] = useState<AuthMode>(() =>
     window.location.pathname === '/reset-password'
@@ -232,11 +236,15 @@ function App() {
     }
   }
 
+  if (!hasStarted && !session && mode !== 'resetPassword') {
+    return <StartScreen onStart={() => setHasStarted(true)} />
+  }
+
   return (
     <main className="auth-shell">
       <section className="auth-window">
         <header className="auth-titlebar">
-          <span>RPG CHARACTER CREATOR</span>
+          <span>ADVENTURE FILES</span>
           <span aria-hidden="true">◆</span>
         </header>
 

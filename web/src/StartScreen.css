@@ -1,0 +1,146 @@
+/* Separate illustrated background and animated game-title controls. */
+.start-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
+  background: #030d09;
+  color: #fff7d1;
+}
+
+.start-screen__frame {
+  position: relative;
+  width: min(100vw, 177.78dvh);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.start-screen__content {
+  position: absolute;
+  inset: 0;
+  background: #06130e;
+}
+
+.start-screen__artwork,
+.start-screen__artwork img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.start-screen__artwork img {
+  object-fit: fill;
+  image-rendering: pixelated;
+  pointer-events: none;
+  user-select: none;
+}
+
+.start-screen__title,
+.start-screen__press {
+  position: absolute;
+  left: 50%;
+  margin: 0;
+  color: #fff7d1;
+  font-family: 'Press Start 2P', 'Courier New', monospace;
+  font-weight: 400;
+  text-align: center;
+  text-shadow: 3px 3px 0 #1a3928;
+  white-space: nowrap;
+}
+
+.start-screen__title {
+  top: 9%;
+  width: 96%;
+  font-size: clamp(25px, 5.4vw, 82px);
+  line-height: 1.35;
+  letter-spacing: -0.055em;
+  transform: translateX(-50%);
+  animation: start-title-appear 550ms steps(5, end) both;
+}
+
+.start-screen__title span {
+  display: block;
+}
+
+.start-screen__press {
+  bottom: 4.5%;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 0;
+  background: transparent;
+  font-size: clamp(12px, 1.65vw, 23px);
+  line-height: 1.6;
+  transform: translateX(-50%);
+  animation: start-text-blink 1.2s steps(1, end) infinite;
+}
+
+.start-screen__press:hover {
+  color: #a4ed86;
+}
+
+.start-screen__press:focus-visible {
+  outline: 0;
+  text-decoration: underline;
+  text-underline-offset: 9px;
+}
+
+.start-screen__press:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.start-screen__content--closing {
+  animation: start-iris-close 720ms steps(24, end) forwards;
+}
+
+@keyframes start-title-appear {
+  0% { opacity: 0; transform: translate(-50%, -3px); }
+  40% { opacity: 0.65; }
+  60% { opacity: 0.25; }
+  100% { opacity: 1; transform: translate(-50%, 0); }
+}
+
+@keyframes start-text-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@keyframes start-iris-close {
+  from { clip-path: circle(150% at 50% 50%); }
+  to { clip-path: circle(0% at 50% 50%); }
+}
+
+@media (orientation: portrait) {
+  .start-screen__frame {
+    width: min(100vw, 56.25dvh);
+    aspect-ratio: 9 / 16;
+  }
+
+  .start-screen__title {
+    top: 16%;
+    width: 96%;
+    font-size: clamp(18px, 6.9vw, 41px);
+    line-height: 1.4;
+    letter-spacing: -0.07em;
+    text-shadow: 2px 2px 0 #1a3928;
+  }
+
+  .start-screen__press {
+    bottom: 14%;
+    font-size: clamp(13px, 3.75vw, 22px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .start-screen__title,
+  .start-screen__press,
+  .start-screen__content--closing {
+    animation: none;
+  }
+}
