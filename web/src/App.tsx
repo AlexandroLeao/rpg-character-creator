@@ -9,6 +9,7 @@ import {
   updatePassword,
 } from './lib/auth'
 import { CharacterDashboard } from './CharacterDashboard'
+import { StartScreen } from './StartScreen'
 import './App.css'
 
 type AuthMode =
@@ -38,7 +39,22 @@ const submitLabels: Record<AuthMode, string> = {
 
 function App() {
   const [session, setSession] = useState<Session | null>(null)
+
   const [checkingSession, setCheckingSession] = useState(true)
+
+  /*
+   * Controls whether the player has passed
+   * the Adventure Files START screen.
+   */
+  const [hasStarted, setHasStarted] = useState(
+    () => window.location.pathname === '/reset-password',
+  )
+
+  /*
+   * Controls the reverse iris animation
+   * when entering the login screen.
+   */
+  const [showLoginReveal, setShowLoginReveal] = useState(false)
 
   const [mode, setMode] = useState<AuthMode>(() =>
     window.location.pathname === '/reset-password'
@@ -53,6 +69,10 @@ function App() {
 
   const [working, setWorking] = useState(false)
   const [feedback, setFeedback] = useState<Feedback>(null)
+
+  /*
+   * SUPABASE SESSION
+   */
 
   useEffect(() => {
     const {
@@ -70,6 +90,10 @@ function App() {
     return () => subscription.unsubscribe()
   }, [])
 
+  /*
+   * AUTHENTICATION MODES
+   */
+
   function changeMode(nextMode: AuthMode) {
     setMode(nextMode)
     setPassword('')
@@ -81,6 +105,10 @@ function App() {
     window.history.replaceState(null, '', '/')
     changeMode('forgotPassword')
   }
+
+  /*
+   * LOGIN / REGISTRATION / PASSWORD RECOVERY
+   */
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -209,6 +237,10 @@ function App() {
     }
   }
 
+  /*
+   * LOGOUT
+   */
+
   async function handleSignOut() {
     setWorking(true)
     setFeedback(null)
@@ -232,11 +264,47 @@ function App() {
     }
   }
 
+  /*
+   * ADVENTURE FILES START SCREEN
+   *
+   * The START screen closes first.
+   *
+   * After the closing animation finishes,
+   * the login screen opens from the center.
+   */
+
+  if (!hasStarted && !session && mode !== 'resetPassword') {
+    return (
+      <StartScreen
+        onStart={() => {
+          setShowLoginReveal(true)
+          setHasStarted(true)
+        }}
+      />
+    )
+  }
+
+  /*
+   * AUTHENTICATION SCREEN
+   *
+   * The reveal animation only plays after
+   * entering through the START screen.
+   *
+   * Password recovery links and restored
+   * sessions are not interrupted.
+   */
+
   return (
-    <main className="auth-shell">
+    <main
+      className={
+        showLoginReveal
+          ? 'auth-shell auth-shell--reveal'
+          : 'auth-shell'
+      }
+    >
       <section className="auth-window">
         <header className="auth-titlebar">
-          <span>RPG CHARACTER CREATOR</span>
+          <span>ADVENTURE FILES</span>
           <span aria-hidden="true">◆</span>
         </header>
 
@@ -246,7 +314,9 @@ function App() {
           <h1>{titles[mode]}</h1>
 
           {checkingSession ? (
-            <p role="status">Checking your session...</p>
+            <p role="status">
+              Checking your session...
+            </p>
           ) : mode === 'resetPassword' && !session ? (
             <div className="auth-success">
               <p role="alert">
@@ -278,10 +348,16 @@ function App() {
             </div>
           ) : (
             <>
-              <form className="auth-form" onSubmit={handleSubmit}>
+              <form
+                className="auth-form"
+                onSubmit={handleSubmit}
+              >
                 {mode === 'signUp' && (
                   <>
-                    <label htmlFor="displayName">Display Name</label>
+                    <label htmlFor="displayName">
+                      Display Name
+                    </label>
+
                     <input
                       id="displayName"
                       type="text"
@@ -298,14 +374,19 @@ function App() {
 
                 {mode !== 'resetPassword' && (
                   <>
-                    <label htmlFor="email">Email</label>
+                    <label htmlFor="email">
+                      Email
+                    </label>
+
                     <input
                       id="email"
                       type="email"
                       autoComplete="email"
                       required
                       value={email}
-                      onChange={(event) => setEmail(event.target.value)}
+                      onChange={(event) =>
+                        setEmail(event.target.value)
+                      }
                     />
                   </>
                 )}
@@ -355,8 +436,13 @@ function App() {
                   </>
                 )}
 
-                <button type="submit" disabled={working}>
-                  {working ? 'Please wait...' : submitLabels[mode]}
+                <button
+                  type="submit"
+                  disabled={working}
+                >
+                  {working
+                    ? 'Please wait...'
+                    : submitLabels[mode]}
                 </button>
               </form>
 
@@ -370,7 +456,9 @@ function App() {
                       <button
                         type="button"
                         disabled={working}
-                        onClick={() => changeMode('signUp')}
+                        onClick={() =>
+                          changeMode('signUp')
+                        }
                       >
                         Create Account
                       </button>
@@ -389,7 +477,9 @@ function App() {
                     <button
                       type="button"
                       disabled={working}
-                      onClick={() => changeMode('signIn')}
+                      onClick={() =>
+                        changeMode('signIn')
+                      }
                     >
                       Back to Sign In
                     </button>
@@ -401,7 +491,11 @@ function App() {
 
           {feedback && (
             <p
-              role={feedback.kind === 'error' ? 'alert' : 'status'}
+              role={
+                feedback.kind === 'error'
+                  ? 'alert'
+                  : 'status'
+              }
             >
               {feedback.text}
             </p>

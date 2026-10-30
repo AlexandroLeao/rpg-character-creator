@@ -1,3 +1,8 @@
+/* ==========================================
+   ADVENTURE FILES
+   AUTHENTICATION SCREEN
+   ========================================== */
+
 .auth-shell {
   display: flex;
   align-items: center;
@@ -5,7 +10,10 @@
   min-height: 100vh;
   padding: 24px;
   background:
-    linear-gradient(rgba(16, 24, 21, 0.93), rgba(16, 24, 21, 0.93)),
+    linear-gradient(
+      rgba(16, 24, 21, 0.93),
+      rgba(16, 24, 21, 0.93)
+    ),
     repeating-linear-gradient(
       0deg,
       transparent,
@@ -14,6 +22,8 @@
     );
 }
 
+/* AUTHENTICATION WINDOW */
+
 .auth-window {
   width: 100%;
   max-width: 480px;
@@ -21,6 +31,8 @@
   background: #19231d;
   box-shadow: 10px 10px 0 #060a07;
 }
+
+/* WINDOW TITLE BAR */
 
 .auth-titlebar {
   display: flex;
@@ -34,6 +46,8 @@
   font-weight: bold;
   letter-spacing: 1px;
 }
+
+/* CONTENT */
 
 .auth-content {
   padding: 40px 32px;
@@ -57,6 +71,8 @@
   color: #f5efd2;
   font-size: 20px;
 }
+
+/* AUTHENTICATION FORM */
 
 .auth-form {
   display: flex;
@@ -84,6 +100,8 @@
   border-color: #a4ed86;
 }
 
+/* BUTTONS */
+
 .auth-form button,
 .auth-success button {
   width: 100%;
@@ -104,6 +122,8 @@
   background: #d3ffc0;
 }
 
+/* FEEDBACK MESSAGES */
+
 .auth-success p {
   color: #c4d6b8;
   line-height: 1.6;
@@ -119,6 +139,8 @@
   line-height: 1.5;
 }
 
+/* MOBILE RESPONSIVENESS */
+
 @media (max-width: 480px) {
   .auth-shell {
     padding: 16px;
@@ -133,12 +155,16 @@
   }
 }
 
+/* REDUCED MOTION FOR BUTTONS */
+
 @media (prefers-reduced-motion: reduce) {
   .auth-form button,
   .auth-success button {
     transition: none;
   }
 }
+
+/* ACCOUNT NAVIGATION */
 
 .auth-nav {
   display: flex;
@@ -164,7 +190,9 @@
   line-height: 1.5;
 }
 
-/* Subtle CRT screen texture */
+/* ==========================================
+   SUBTLE CRT SCREEN TEXTURE
+   ========================================== */
 
 .auth-window {
   position: relative;
@@ -187,7 +215,9 @@
   opacity: 0.3;
 }
 
-/* Occasional retro screen glitch */
+/* ==========================================
+   OCCASIONAL RETRO SCREEN GLITCH
+   ========================================== */
 
 .auth-titlebar {
   position: relative;
@@ -230,7 +260,7 @@
   }
 }
 
-/* Accessibility: respect reduced motion preferences */
+/* ACCESSIBILITY */
 
 @media (prefers-reduced-motion: reduce) {
   .auth-titlebar::after {
@@ -238,9 +268,71 @@
   }
 }
 
-/* Keep account navigation accessible on smaller screens */
+/* SMALLER SCREEN NAVIGATION */
 
 .auth-nav {
   flex-wrap: wrap;
   gap: 12px;
+}
+
+/* ==========================================
+   ADVENTURE FILES
+   RETRO LOGIN SCREEN REVEAL
+   ========================================== */
+
+/*
+ * Dark background behind the animation.
+ *
+ * The login will expand from the center,
+ * revealing the interface gradually.
+ */
+
+#root {
+  background-color: #030d09;
+}
+
+/*
+ * REVERSE IRIS ANIMATION
+ *
+ * START:
+ * Corners -> Center
+ *
+ * LOGIN:
+ * Center -> Corners
+ *
+ * Duration: 1600ms
+ */
+
+.auth-shell--reveal {
+  animation: auth-iris-open 1600ms steps(32, end) both;
+}
+
+/*
+ * RETRO SCREEN OPENING
+ *
+ * The visible area starts at the center
+ * and expands until the whole screen
+ * becomes visible.
+ */
+
+@keyframes auth-iris-open {
+  from {
+    clip-path: circle(0% at 50% 50%);
+  }
+
+  to {
+    clip-path: circle(150% at 50% 50%);
+  }
+}
+
+/*
+ * ACCESSIBILITY
+ *
+ * Respect users who prefer reduced motion.
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-shell--reveal {
+    animation: none;
+  }
 }

@@ -84,12 +84,14 @@ function mockSessionEvent(
 describe('Authentication sessions and errors', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.stubGlobal('matchMedia', () => ({ matches: true }))
     window.history.replaceState(null, '', '/')
     mockSessionEvent('INITIAL_SESSION', null)
   })
 
   afterEach(() => {
     cleanup()
+    vi.unstubAllGlobals()
     window.history.replaceState(null, '', '/')
   })
 
@@ -117,6 +119,7 @@ describe('Authentication sessions and errors', () => {
     })
 
     render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
 
     fireEvent.change(screen.getByLabelText('Email'), {
       target: { value: 'adventurer@example.com' },

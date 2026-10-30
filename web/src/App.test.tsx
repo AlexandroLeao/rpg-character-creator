@@ -32,6 +32,7 @@ vi.mock('./lib/auth', () => ({
 describe('Authentication interface', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.stubGlobal('matchMedia', () => ({ matches: true }))
 
     window.history.replaceState(null, '', '/')
 
@@ -52,11 +53,15 @@ describe('Authentication interface', () => {
 
   afterEach(() => {
     cleanup()
+    vi.unstubAllGlobals()
     window.history.replaceState(null, '', '/')
   })
 
   it('shows the sign-in screen to guests', () => {
     render(<App />)
+
+    expect(screen.getByRole('heading', { name: 'ADVENTURE FILES' })).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
 
     expect(
       screen.getByRole('heading', { name: 'Create Your Legend' }),
@@ -76,6 +81,7 @@ describe('Authentication interface', () => {
 
   it('prevents registration when passwords do not match', async () => {
     render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
 
     fireEvent.click(
       screen.getByRole('button', { name: 'Create Account' }),
@@ -114,6 +120,7 @@ describe('Authentication interface', () => {
     })
 
     render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
 
     fireEvent.click(
       screen.getByRole('button', { name: 'Forgot Password?' }),
