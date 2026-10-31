@@ -1,0 +1,287 @@
+/* ==========================================
+   ADVENTURE FILES
+   CHARACTER CREATOR — JOURNEY
+   STEP 05 / 06
+   ========================================== */
+
+.character-journey-step {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  gap: 22px;
+}
+
+/* ==========================================
+   GROUPS
+   ========================================== */
+
+.character-journey-step__groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  width: 100%;
+  min-width: 0;
+  gap: clamp(18px, 2.4vw, 30px);
+}
+
+.character-journey-step__group {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* ==========================================
+   GROUP TITLES
+   ========================================== */
+
+.character-journey-step__title {
+  display: block;
+  width: 100%;
+  margin: 0 0 16px;
+  padding: 0;
+  color: #f5efd2;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 1.85;
+  letter-spacing: 0.1px;
+}
+
+/* ==========================================
+   OPTIONS
+   ========================================== */
+
+.character-journey-step__choices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  width: 100%;
+  min-width: 0;
+}
+
+.character-journey-step__choice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  min-height: 54px;
+  padding: 10px 6px;
+  border: 2px solid #618b5a;
+  border-radius: 6px;
+  background: #0b170f;
+  color: #f5efd2;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  font-weight: normal;
+  line-height: 1.5;
+  text-align: center;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+/* ==========================================
+   HOVER AND SELECTED STATES
+   ========================================== */
+
+.character-journey-step__choice:hover {
+  border-color: #a4ed86;
+  background: #14291a;
+}
+
+.character-journey-step__choice.is-selected {
+  border-color: #a4ed86;
+  background: #24462c;
+  color: #a4ed86;
+}
+
+.character-journey-step__choice.is-selected:hover {
+  background: #2a5133;
+}
+
+.character-journey-step__choice:focus-visible {
+  outline: 3px solid #a4ed86;
+  outline-offset: 3px;
+}
+
+/* ==========================================
+   NAVIGATION
+   ========================================== */
+
+.character-journey-step__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 0;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.character-journey-step__actions button {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 46px;
+  padding: 12px 10px;
+  border: 2px solid #a4ed86;
+  border-radius: 6px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  font-weight: normal;
+  line-height: 1.5;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+.character-journey-step__back {
+  background: transparent;
+  color: #a4ed86;
+}
+
+.character-journey-step__back:hover:not(:disabled) {
+  background: #1c3522;
+}
+
+.character-journey-step__continue {
+  background: #a4ed86;
+  color: #07120a;
+}
+
+.character-journey-step__continue:hover:not(:disabled) {
+  background: #c9ffb1;
+}
+
+.character-journey-step__actions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.character-journey-step__actions button:focus-visible {
+  outline: 3px solid #a4ed86;
+  outline-offset: 3px;
+}
+
+/* ==========================================
+   DESKTOP DIVIDER
+   ========================================== */
+
+@media (min-width: 761px) {
+  .character-journey-step__choice {
+    min-height: 60px;
+    height: 60px;
+  }
+
+  .character-journey-step__group:first-child
+  .character-journey-step__choices {
+    position: relative;
+  }
+
+  .character-journey-step__group:first-child
+  .character-journey-step__choices::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(100% + clamp(9px, 1.2vw, 15px));
+    width: 2px;
+    background: #3f6744;
+    pointer-events: none;
+  }
+}
+
+/* ==========================================
+   LARGE DESKTOP
+   ========================================== */
+
+@media (min-width: 1100px) {
+  .character-journey-step__choice {
+    min-height: 64px;
+    height: 64px;
+    padding: 6px 5px;
+  }
+}
+
+/* ==========================================
+   MOBILE
+   ========================================== */
+
+@media (max-width: 760px) {
+  .character-journey-step {
+    gap: 24px;
+  }
+
+  .character-journey-step__groups {
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+
+  .character-journey-step__title {
+    margin-bottom: 14px;
+    font-size: 11px;
+  }
+
+  .character-journey-step__choices {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .character-journey-step__choice {
+    min-height: 60px;
+    font-size: clamp(8px, 2.5vw, 10px);
+  }
+
+  .character-journey-step__actions {
+    gap: 12px;
+  }
+
+  .character-journey-step__actions button {
+    min-height: 48px;
+    font-size: clamp(9px, 2.5vw, 11px);
+  }
+}
+
+/* ==========================================
+   VERY SMALL SCREENS
+   ========================================== */
+
+@media (max-width: 360px) {
+  .character-journey-step__choice {
+    padding: 10px 5px;
+    font-size: 8px;
+  }
+
+  .character-journey-step__actions {
+    gap: 8px;
+  }
+
+  .character-journey-step__actions button {
+    padding: 10px 6px;
+    font-size: 9px;
+  }
+}
+
+/* ==========================================
+   REDUCED MOTION
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .character-journey-step__choice,
+  .character-journey-step__actions button {
+    transition: none;
+  }
+}

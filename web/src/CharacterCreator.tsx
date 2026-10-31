@@ -30,6 +30,14 @@ import {
   type EssenceStepData,
 } from './CharacterEssenceStep'
 
+import {
+  CharacterJourneyStep,
+  type CharacterCompanion,
+  type CharacterMotivation,
+  type JourneyStepSelection,
+  type JourneyStepData,
+} from './CharacterJourneyStep'
+
 type CharacterCreatorProps = {
   language: Language
   onCancel: () => void
@@ -53,11 +61,11 @@ type CharacterCreatorProps = {
 /*
  * CHARACTER DRAFT
  *
- * Stores selections until the character
- * is explicitly saved.
+ * Stores all customization selections
+ * until the character is explicitly saved.
  *
- * Journey fields will be introduced
- * when Step 05 is implemented.
+ * The sixth stage will provide the
+ * review and save functionality.
  */
 
 type CharacterDraft = {
@@ -72,6 +80,9 @@ type CharacterDraft = {
 
   personality: CharacterPersonality | null
   aura: CharacterAura | null
+
+  companion: CharacterCompanion | null
+  motivation: CharacterMotivation | null
 }
 
 export function CharacterCreator({
@@ -101,6 +112,9 @@ export function CharacterCreator({
 
     personality: null,
     aura: null,
+
+    companion: null,
+    motivation: null,
   })
 
   /*
@@ -114,8 +128,6 @@ export function CharacterCreator({
 
   /*
    * STEP 01 — IDENTITY
-   *
-   * Character class and name.
    */
 
   if (step === 1) {
@@ -139,8 +151,6 @@ export function CharacterCreator({
 
   /*
    * STEP 02 — ORIGINS
-   *
-   * Ancestry and background.
    */
 
   if (step === 2) {
@@ -173,9 +183,6 @@ export function CharacterCreator({
    * STEP 03 — EQUIPMENT
    *
    * Weapon and artifact.
-   *
-   * Companion will be selected
-   * in Step 05 — Journey.
    */
 
   if (step === 3) {
@@ -208,9 +215,6 @@ export function CharacterCreator({
    * STEP 04 — ESSENCE
    *
    * Personality and aura.
-   *
-   * Preserve partial selections
-   * when returning to Equipment.
    */
 
   if (step === 4) {
@@ -242,29 +246,66 @@ export function CharacterCreator({
   /*
    * STEP 05 — JOURNEY
    *
+   * Companion and motivation.
+   *
+   * Partial selections are preserved
+   * when returning to Essence.
+   */
+
+  if (step === 5) {
+    return (
+      <CharacterJourneyStep
+        language={language}
+        initialCompanion={draft.companion}
+        initialMotivation={draft.motivation}
+        onBack={(data: JourneyStepSelection) => {
+          setDraft((current) => ({
+            ...current,
+            ...data,
+          }))
+
+          goToStep(4)
+        }}
+        onNext={(data: JourneyStepData) => {
+          setDraft((current) => ({
+            ...current,
+            ...data,
+          }))
+
+          goToStep(6)
+        }}
+      />
+    )
+  }
+
+  /*
+   * STEP 06 — FINAL REVIEW
+   *
    * Temporary screen.
    *
-   * Companion and Motivation will
-   * be implemented in this step.
+   * The review and explicit save action
+   * will be implemented separately.
+   *
+   * No character is saved automatically.
    */
 
   return (
     <div className="character-creator-next">
       <h3>
         {language === 'pt'
-          ? 'JORNADA'
-          : 'JOURNEY'}
+          ? 'REVISÃO FINAL'
+          : 'FINAL REVIEW'}
       </h3>
 
       <p>
         {language === 'pt'
-          ? 'A próxima etapa do criador será implementada em seguida.'
-          : 'The next character creation step will be implemented next.'}
+          ? 'A revisão e o salvamento do personagem serão implementados em seguida.'
+          : 'Character review and saving will be implemented next.'}
       </p>
 
       <button
         type="button"
-        onClick={() => goToStep(4)}
+        onClick={() => goToStep(5)}
       >
         {language === 'pt' ? 'VOLTAR' : 'BACK'}
       </button>

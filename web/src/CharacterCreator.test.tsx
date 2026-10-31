@@ -20,6 +20,7 @@ import type { Language } from './lib/authTranslations'
 import { CharacterCreator } from './CharacterCreator'
 import { CharacterEquipmentStep } from './CharacterEquipmentStep'
 import { CharacterEssenceStep } from './CharacterEssenceStep'
+import { CharacterJourneyStep } from './CharacterJourneyStep'
 
 /*
  * ADVENTURE FILES
@@ -29,7 +30,8 @@ import { CharacterEssenceStep } from './CharacterEssenceStep'
  * Step 02 — Origins
  * Step 03 — Equipment
  * Step 04 — Essence
- * Step 05 — Journey placeholder
+ * Step 05 — Journey
+ * Step 06 — Final Review placeholder
  */
 
 afterEach(() => {
@@ -119,6 +121,19 @@ function advanceToEssence(language: Language = 'pt') {
   clickButton(
     language === 'pt' ? 'Selo Arcano' : 'Arcane Seal',
   )
+
+  clickButton(
+    language === 'pt' ? 'CONTINUAR' : 'CONTINUE',
+  )
+
+  return callbacks
+}
+
+function advanceToJourney(language: Language = 'pt') {
+  const callbacks = advanceToEssence(language)
+
+  clickButton(language === 'pt' ? 'Corajoso' : 'Brave')
+  clickButton(language === 'pt' ? 'Fogo' : 'Fire')
 
   clickButton(
     language === 'pt' ? 'CONTINUAR' : 'CONTINUE',
@@ -587,9 +602,8 @@ describe('Character creator', () => {
     clickButton('Sombra')
     clickButton('CONTINUAR')
 
-    expect(
-      screen.getByRole('heading', { name: 'JORNADA' }),
-    ).toBeTruthy()
+    expect(screen.getByText('COMPANHEIRO')).toBeTruthy()
+    expect(screen.getByText('MOTIVAÇÃO')).toBeTruthy()
 
     expect(onStepChange).toHaveBeenCalledWith(5)
 
@@ -657,6 +671,193 @@ describe('Character creator', () => {
     expect(onNext).toHaveBeenCalledWith({
       personality: 'mysterious',
       aura: 'void',
+    })
+  })
+
+  /*
+   * TEST 19
+   * JOURNEY OPTIONS
+   */
+
+  it('displays eight companions and eight motivations', () => {
+    advanceToJourney()
+
+    expect(screen.getByText('COMPANHEIRO')).toBeTruthy()
+    expect(screen.getByText('MOTIVAÇÃO')).toBeTruthy()
+
+    const companions = [
+      'Nenhum',
+      'Lobo',
+      'Coruja',
+      'Gato',
+      'Raposa',
+      'Corvo',
+      'Tartaruga',
+      'Dragão',
+    ]
+
+    const motivations = [
+      'Proteção',
+      'Liberdade',
+      'Justiça',
+      'Redenção',
+      'Glória',
+      'Conhecimento',
+      'Vingança',
+      'Aventura',
+    ]
+
+    for (const option of [...companions, ...motivations]) {
+      expect(getButton(option)).toBeTruthy()
+    }
+
+    expect(
+      screen.queryByRole('button', {
+        name: 'Filhote de Dragão',
+      }),
+    ).toBeNull()
+  })
+
+  /*
+   * TEST 20
+   * JOURNEY VALIDATION
+   */
+
+  it('requires a companion and a motivation before continuing', () => {
+    advanceToJourney()
+
+    const continueButton = getContinueButton()
+
+    expect(continueButton.disabled).toBe(true)
+
+    clickButton('Nenhum')
+
+    expect(isSelected('Nenhum')).toBe('true')
+    expect(continueButton.disabled).toBe(true)
+
+    clickButton('Proteção')
+
+    expect(isSelected('Proteção')).toBe('true')
+    expect(continueButton.disabled).toBe(false)
+  })
+
+  /*
+   * TEST 21
+   * PRESERVE UNFINISHED JOURNEY
+   */
+
+  it('preserves partial Journey selections when returning to Essence', () => {
+    advanceToJourney()
+
+    clickButton('Dragão')
+    clickButton('VOLTAR')
+
+    expect(screen.getByText('PERSONALIDADE')).toBeTruthy()
+    expect(isSelected('Corajoso')).toBe('true')
+    expect(isSelected('Fogo')).toBe('true')
+
+    clickButton('CONTINUAR')
+
+    expect(isSelected('Dragão')).toBe('true')
+    expect(getContinueButton().disabled).toBe(true)
+
+    clickButton('Liberdade')
+
+    expect(getContinueButton().disabled).toBe(false)
+  })
+
+  /*
+   * TEST 22
+   * JOURNEY TO FINAL REVIEW
+   */
+
+  it('advances to Final Review and preserves Journey on return', () => {
+    const { onStepChange } = advanceToJourney()
+
+    expect(onStepChange).toHaveBeenCalledWith(5)
+
+    clickButton('Coruja')
+    clickButton('Aventura')
+    clickButton('CONTINUAR')
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'REVISÃO FINAL',
+      }),
+    ).toBeTruthy()
+
+    expect(onStepChange).toHaveBeenCalledWith(6)
+
+    clickButton('VOLTAR')
+
+    expect(isSelected('Coruja')).toBe('true')
+    expect(isSelected('Aventura')).toBe('true')
+  })
+
+  /*
+   * TEST 23
+   * ENGLISH JOURNEY
+   */
+
+  it('displays Journey options in English', () => {
+    advanceToJourney('en')
+
+    expect(screen.getByText('COMPANION')).toBeTruthy()
+    expect(screen.getByText('MOTIVATION')).toBeTruthy()
+
+    const options = [
+      'None',
+      'Wolf',
+      'Owl',
+      'Cat',
+      'Fox',
+      'Raven',
+      'Turtle',
+      'Dragon',
+      'Protection',
+      'Freedom',
+      'Justice',
+      'Redemption',
+      'Glory',
+      'Knowledge',
+      'Revenge',
+      'Adventure',
+    ]
+
+    for (const option of options) {
+      expect(getButton(option)).toBeTruthy()
+    }
+
+    expect(
+      screen.queryByRole('button', {
+        name: 'Dragonling',
+      }),
+    ).toBeNull()
+  })
+
+  /*
+   * TEST 24
+   * STABLE JOURNEY IDENTIFIERS
+   */
+
+  it('submits stable companion and motivation identifiers', () => {
+    const onNext = vi.fn()
+
+    render(
+      <CharacterJourneyStep
+        language="pt"
+        onBack={vi.fn()}
+        onNext={onNext}
+      />,
+    )
+
+    clickButton('Nenhum')
+    clickButton('Proteção')
+    clickButton('CONTINUAR')
+
+    expect(onNext).toHaveBeenCalledWith({
+      companion: 'none',
+      motivation: 'protection',
     })
   })
 })
