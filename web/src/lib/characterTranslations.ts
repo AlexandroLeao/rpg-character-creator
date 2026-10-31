@@ -1,5 +1,15 @@
 import type { Language } from './authTranslations'
 
+import {
+  motivationIds,
+  translateMotivationOption,
+} from './motivationTranslations'
+
+/* ==========================================
+   ADVENTURE FILES
+   CHARACTER TRANSLATIONS
+   ========================================== */
+
 export const characterFieldKeys = [
   'characterClass',
   'ancestry',
@@ -9,17 +19,23 @@ export const characterFieldKeys = [
   'personality',
   'aura',
   'companion',
+  'motivation',
 ] as const
 
 export type CharacterField =
   (typeof characterFieldKeys)[number]
+
+/* ==========================================
+   INTERFACE TRANSLATIONS
+   ========================================== */
 
 export const characterTranslations = {
   en: {
     title: 'My Character',
     loading: 'Loading character...',
     empty: 'You have not created a character yet.',
-    upcoming: 'Soon, you will be able to begin your adventure!',
+    upcoming:
+      'Soon, you will be able to begin your adventure!',
     sessionError:
       'Your session could not be verified. Please sign in again.',
     loadError: 'Unable to load your character.',
@@ -34,6 +50,7 @@ export const characterTranslations = {
       personality: 'Personality',
       aura: 'Aura',
       companion: 'Companion',
+      motivation: 'Motivation',
     },
   },
 
@@ -45,7 +62,8 @@ export const characterTranslations = {
       'Em breve, você poderá começar sua aventura!',
     sessionError:
       'Sua sessão não pôde ser validada. Entre novamente.',
-    loadError: 'Não foi possível carregar seu personagem.',
+    loadError:
+      'Não foi possível carregar seu personagem.',
     retry: 'Tentar novamente',
 
     fields: {
@@ -57,12 +75,17 @@ export const characterTranslations = {
       personality: 'Personalidade',
       aura: 'Aura',
       companion: 'Companheiro',
+      motivation: 'Motivação',
     },
   },
 } as const
 
+/* ==========================================
+   PORTUGUESE OPTION LABELS
+   ========================================== */
+
 const portugueseOptionLabels: Record<
-  CharacterField,
+  Exclude<CharacterField, 'motivation'>,
   Record<string, string>
 > = {
   characterClass: {
@@ -116,11 +139,8 @@ const portugueseOptionLabels: Record<
     'sun-relic': 'Relíquia Solar',
 
     /*
-     * LEGACY ARTIFACT LABELS
-     *
-     * These values are no longer selectable.
-     * They remain available for displaying
-     * previously saved characters.
+     * Legacy values remain available
+     * for previously saved characters.
      */
 
     none: 'Nenhum',
@@ -160,28 +180,71 @@ const portugueseOptionLabels: Record<
     dragon: 'Dragão',
 
     /*
-     * LEGACY COMPANION LABEL
-     *
-     * Preserved for previously saved characters.
+     * Legacy companion value.
      */
 
     dragonling: 'Filhote de Dragão',
   },
 }
 
+/* ==========================================
+   TRANSLATE CHARACTER OPTION
+   ========================================== */
+
 export function translateCharacterOption(
   language: Language,
   field: CharacterField,
-  slug: string,
+  slug: string | null,
 ): string {
+  /*
+   * Characters saved before the six-stage
+   * creator may not have a motivation.
+   */
+
+  if (slug == null) {
+    return language === 'pt'
+      ? 'Não informada'
+      : 'Not provided'
+  }
+
+  /*
+   * Reuse the official motivation
+   * translations from Step 05.
+   */
+
+  if (field === 'motivation') {
+    const motivation = motivationIds.find(
+      (id) => id === slug,
+    )
+
+    return motivation
+      ? translateMotivationOption(
+          language,
+          motivation,
+        )
+      : slug
+  }
+
+  /*
+   * Portuguese option labels.
+   */
+
   if (language === 'pt') {
     return portugueseOptionLabels[field][slug] ?? slug
   }
 
+  /*
+   * English labels are derived from
+   * their stable identifiers.
+   */
+
   return slug
     .split('-')
     .map((word) => {
-      return word.charAt(0).toUpperCase() + word.slice(1)
+      return (
+        word.charAt(0).toUpperCase() +
+        word.slice(1)
+      )
     })
     .join(' ')
 }
