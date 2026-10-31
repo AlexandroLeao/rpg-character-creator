@@ -439,9 +439,15 @@ The interface should remain simple and consistent with the other authentication 
 
 After authentication, the application checks whether the account already owns a character.
 
-If no character exists, the user can begin character creation.
+If no character exists, the interface shows the uppercase "MY CHARACTER" / "MEU PERSONAGEM" header and the PT/EN selector, followed only by two actions: Create Character and Sign Out.
 
-If a saved character exists, the user enters the saved-character dashboard.
+No explanatory empty-state paragraphs or duplicate page headings are displayed.
+
+The Create Character action is visually primary.
+
+Sign Out uses a subdued dark-green secondary treatment within the approved palette.
+
+If a saved character exists, the user enters the saved-character dashboard with its relevant character-management actions.
 
 ### 8.2. Main navigation
 
@@ -477,7 +483,7 @@ The interface must remain intuitive and visually focused.
 
 The user completes a small number of choices at a time.
 
-A central illustration reinforces the current selection.
+In the first stage, a central illustration reinforces the current class selection.
 
 ### 9.2. Layout
 
@@ -485,12 +491,14 @@ The creator should contain:
 
 - A compact header.
 - A visible current step.
-- A prominent illustration area.
-- Clearly labeled options.
+- A prominent class illustration in step one.
+- Clearly labeled options in each stage.
 - Back and Next controls.
 - A clear final save action.
 
 Desktop and mobile layouts may arrange these elements differently.
+
+The compact header displays the current step (01 / 04 through 04 / 04) on the left and PT/EN on the right while creating a character.
 
 ### 9.3. Four-step structure
 
@@ -506,6 +514,18 @@ The approved creator contains four stages.
 Each stage should show only the options relevant to that stage.
 
 The user must be able to go backward without losing previous selections.
+
+Origins use two side-by-side groups on desktop with a short vertical divider between the option grids.
+
+On mobile, the groups are stacked without the divider.
+
+Equipment uses three equally sized groups (Weapon, Artifact, Companion) on desktop, each with eight consistently sized options and subtle short dividers between their grids.
+
+On mobile, the groups are stacked without those dividers.
+
+The artifact choice is mandatory and excludes `none`.
+
+Only Companion offers `none` as an explicit selection.
 
 ### 9.4. Class selection
 
@@ -530,18 +550,13 @@ This is the default state.
 
 The illustration should remain original, minimalist, and consistent with the title-screen art direction.
 
-### 9.6. Temporary class preview
+### 9.6. Class illustration interaction
 
-When the user hovers over a class option, the illustration changes temporarily to that class.
+Artwork changes only when the user explicitly selects a class with mouse, keyboard, or touch.
 
-Keyboard focus should provide an equivalent preview.
+Hovering over or focusing an unselected class does not change the illustration or the selected value.
 
-For example:
-
-- Hover over Mage: show Mage artwork.
-- Move away without selecting: restore the eight-class group illustration.
-
-A temporary preview is not a saved selection.
+Before selection, the eight-class ensemble illustration remains visible.
 
 ### 9.7. Persistent class selection
 
@@ -554,7 +569,7 @@ Once selected:
 - Moving the pointer away does not remove the selection.
 - Selecting another class updates the active option and illustration.
 
-Hovering a different class may preview it temporarily, but the confirmed selection must remain intact until the user explicitly changes it.
+The confirmed selection changes only when the user explicitly activates another class.
 
 ### 9.8. Character representation
 
@@ -738,8 +753,8 @@ The planned artwork system includes:
 |---|---:|---|
 | Desktop title-screen artwork | 1 | Landscape start-screen composition |
 | Mobile title-screen artwork | 1 | Portrait start-screen composition |
-| Eight-class ensemble illustration | 1 | Default creator preview |
-| Class-specific illustration | 8 | Preview for each class |
+| Eight-class ensemble illustration | 1 | Default creator artwork |
+| Class-specific illustration | 8 | Artwork for explicit class selections |
 | Retro interface icons | As needed | Support labeled actions |
 
 The start-screen artwork must remain separate from its title and prompt.
@@ -765,7 +780,7 @@ The mobile interface should:
 - Preserve the blinking "PRESS START" prompt.
 - Display authentication forms without horizontal scrolling.
 - Keep important buttons within comfortable reach.
-- Reorganize character previews and options vertically when necessary.
+- Reorganize class artwork and selection options vertically when necessary.
 - Allow the complete creation and editing experience.
 - Support PDF export.
 
@@ -850,21 +865,31 @@ The product experience described here represents the approved direction.
 - Separate desktop and mobile start-screen artwork.
 - "PRESS START" interaction.
 - Retro transition into authentication.
-- Authentication foundations.
-- Basic authenticated character dashboard.
+- Authentication foundations and PT/EN interface support.
+- Basic authenticated character dashboard and simplified empty state.
 - Protected backend character API.
+- Character creator step 01: class and name.
+- Character creator step 02: ancestry and background.
+- Character creator step 03: weapon, artifact, and companion.
+- Draft selections preserved when navigating backward between implemented steps.
+- Responsive layouts for the first three creator stages.
+- Frontend lint, build, and automated tests for the implemented stages.
 
 ### Still requiring implementation or refinement
 
-- Final minimalist authentication-window design.
-- Portuguese/English interface localization.
-- Four-stage character creator.
-- Interactive class illustration previews.
-- Draft management and review.
+- Step 04: personality, aura, full review, and explicit save.
+- Alignment of backend/database artifact validation with the revised catalog.
 - Frontend character save/edit/delete workflows.
 - Final illustrated character dashboard.
 - Illustrated PDF export.
 - Final responsive and accessibility refinements.
+- End-to-end production validation.
+
+The approved artifact catalog contains eight mandatory artifact choices, including Shadow Crown (`shadow-crown`) and Chaos Orb (`chaos-orb`).
+
+`none` remains available only for Companions.
+
+Backend and database compatibility must be verified before enabling character saving with these revised slugs.
 
 Approved designs must not be described as completed features until their implementation is verified.
 
@@ -893,7 +918,7 @@ The visual and interaction design is successful when:
 - The start transition feels deliberate and nostalgic.
 - Authentication is simple and visually consistent.
 - Users can understand the next action without lengthy instructions.
-- Class previews make character creation more engaging.
+- Explicit class selection and original artwork make character creation more engaging.
 - The four-stage wizard remains easy to navigate.
 - Saved characters are easy to view and manage.
 - The final PDF feels like a natural extension of the project.

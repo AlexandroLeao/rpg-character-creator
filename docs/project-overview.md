@@ -203,12 +203,12 @@ The available classes are:
 The class-selection illustration follows these interaction rules:
 
 - Before any class is selected, the illustration shows the complete group of eight adventurers.
-- Hovering over or focusing a class temporarily previews its artwork.
-- Each class preview represents two different-looking adventurers rather than forcing a single character appearance.
-- Moving away without selecting a class restores the group illustration.
-- Clicking or otherwise confirming a class keeps that class selected.
-- The chosen class remains visible as the active selection.
-- Selecting another class replaces the previous selection.
+- Each class-specific illustration represents two different-looking adventurers.
+- Hovering over a class does not change the displayed illustration.
+- Keyboard focus alone does not change the selected class.
+- Clicking or activating a class selects it and displays its corresponding illustration.
+- The selected class remains active until another class is explicitly chosen.
+- Selecting another class updates the active option and illustration.
 
 The illustration is a visual representation of the class, not a separate avatar or gender-selection system.
 
@@ -225,11 +225,31 @@ These options establish the character's fictional origin and history.
 
 The user chooses:
 
-- Weapon.
-- Artifact.
-- Companion.
+- One weapon.
+- One artifact.
+- One companion.
 
-Optional "none" values are available where defined in the customization catalog.
+Every category requires an explicit selection.
+
+The approved catalog contains:
+
+- 8 weapons.
+- 8 artifacts.
+- 8 companions.
+
+An artifact is mandatory. The `none` option is not available for artifacts.
+
+The companion category includes `none`, allowing users to explicitly choose not to have a companion.
+
+The desktop interface displays three equally sized groups, separated by subtle vertical dividers.
+
+On mobile, the three categories are arranged vertically.
+
+All selection buttons follow consistent dimensions and typography.
+
+Previous selections remain preserved when navigating between character creation steps.
+
+The approved artifact options include Shadow Crown (`shadow-crown`) and Chaos Orb (`chaos-orb`).
 
 #### Step 4 — Essence and Review
 
@@ -288,7 +308,7 @@ PDF generation must not expose private account credentials or unrelated personal
 
 ## 4. Character Customization Scope
 
-The backend customization catalog defines the accepted values and stored identifiers.
+The approved customization catalog defines the intended values and stored identifiers. Backend validation must be aligned before character saving is enabled.
 
 The initial release includes:
 
@@ -298,7 +318,7 @@ The initial release includes:
 | Ancestry | 6 |
 | Background | 6 |
 | Weapon | 8 |
-| Artifact | 9 |
+| Artifact | 8 |
 | Personality | 8 |
 | Aura | 8 |
 | Companion | 8 |
@@ -369,7 +389,7 @@ Production hosting and deployment details must be validated during the deploymen
 
 ## 7. Current Implementation Status
 
-The repository already includes several working foundations.
+Adventure Files is under active development.
 
 ### Implemented foundations
 
@@ -379,30 +399,69 @@ The repository already includes several working foundations.
 - Authentication session handling.
 - Protected character API routes.
 - PostgreSQL character storage and Row Level Security.
-- Character validation.
+- Character API validation.
 - Basic authenticated character dashboard.
 - Adventure Files start screen.
 - Separate desktop and mobile start-screen artwork.
 - Animated "PRESS START" interaction.
 - Retro transition into authentication.
-- Automated frontend and backend test foundations.
+- Automated frontend and backend tests.
 - GitHub Actions workflows.
 
-### Planned or incomplete product features
+### Character Creator Progress
 
-- Final compact authentication-window redesign.
-- Consistent PT/EN localization throughout the interface.
-- Character creation wizard.
-- Class illustration previews.
-- Character draft management.
-- Character editing and deletion controls in the frontend.
-- Final illustrated character dashboard.
-- Illustrated PDF export.
-- End-to-end production deployment validation.
+The character creator follows four stages.
 
-The existing backend API provides a foundation for character operations, but the corresponding frontend experience still needs to be completed.
+**Step 01 — Class and Name: Implemented**
 
-This distinction is important: approved designs and documented requirements do not necessarily mean that their implementations are finished.
+- Eight selectable classes.
+- Character name validation.
+- Default class illustration.
+- Class-specific illustrations.
+- Persistent class selection.
+- Responsive desktop and mobile layouts.
+
+**Step 02 — Origins: Implemented**
+
+- Six ancestry options.
+- Six background options.
+- Required selections.
+- Preserved selections when navigating backward.
+- Responsive desktop and mobile layouts.
+
+**Step 03 — Equipment: Implemented**
+
+- Eight weapon options.
+- Eight artifact options.
+- Eight companion options.
+- Required selections in all three categories.
+- Optional `none` value only for companions.
+- Preserved selections when navigating backward.
+- Portuguese and English labels.
+- Responsive desktop and mobile layouts.
+
+The revised frontend artifact options still require backend and database validation alignment before character saving is enabled.
+
+**Step 04 — Essence and Review: Pending**
+
+- Personality selection.
+- Aura selection.
+- Complete character review.
+- Explicit character saving.
+
+### Additional Pending Features
+
+- Complete frontend character editing.
+- Character deletion controls and confirmation.
+- Final illustrated saved-character dashboard.
+- Client-side PDF export.
+- Backend and database alignment with revised artifact options.
+- End-to-end production validation.
+- Final accessibility review.
+
+The backend already provides character management endpoints, but the complete frontend creation and management workflow is still in development.
+
+Implemented interfaces and passing frontend tests do not replace the need for API integration, database compatibility, and production validation.
 
 ## 8. Security and Privacy Requirements
 
@@ -477,7 +536,7 @@ Adventure Files is ready for its initial completed release when:
 3. Account registration, verification, sign-in, recovery, and sign-out work.
 4. Users can select Portuguese or English in the interface.
 5. The complete four-stage character creator is functional.
-6. Class previews behave correctly before and after selection.
+6. Class artwork and selection states respond correctly to explicit user choices.
 7. Users can review and revise their draft before saving.
 8. Each account can store no more than one saved character.
 9. Users can view, edit, and delete their own character.
@@ -516,7 +575,7 @@ The project should advance through small, reviewable stages.
 ### Phase 4 — Character Creation
 
 - Four-stage creator.
-- Class previews and illustrations.
+- Class-specific illustrations and persistent selection.
 - Catalog-based option selection.
 - Draft navigation and review.
 - Character save integration.

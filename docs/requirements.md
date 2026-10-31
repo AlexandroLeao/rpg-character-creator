@@ -81,7 +81,7 @@ Each user can access only their own data.
 |---|---|
 | FR-08 | Each authenticated account can store exactly one character at a time. Duplicate creation must not produce a second character row. |
 | FR-09 | The character name is mandatory and must contain 2–32 characters after trimming. |
-| FR-10 | The class selector provides eight predefined classes, accessible text labels, and original class-specific illustration previews. |
+| FR-10 | The class selector provides eight predefined classes, accessible text labels, and original class-specific illustrations that update only on explicit selection. |
 | FR-11 | The creator provides ancestry, background, weapon, artifact, personality, aura, and companion selections from the version-controlled customization catalog. |
 | FR-12 | No sex or gender field is presented or persisted. Class illustrations show different-looking examples without requiring a separate visual-identity selection. |
 | FR-13 | Character creation contains four grouped stages: Class & Name, Origins, Equipment, and Essence & Review. Back/Next navigation preserves draft selections. |
@@ -102,7 +102,7 @@ Each user can access only their own data.
 | FR-23 | The authentication interface includes a compact PT/EN language selector in its upper-right area. The selected language affects user-facing interface labels and messages without changing stored catalog identifiers. |
 | FR-24 | The start screen supports mouse click, touch, and Enter. Its title and "PRESS START" prompt are rendered separately from the illustration. Desktop and mobile use appropriately composed artwork. |
 | FR-25 | Starting the experience triggers a retro iris-closing transition, a brief black-screen pause, and a reverse iris-opening transition that reveals authentication. Reduced-motion preferences must be respected. |
-| FR-26 | Before class selection, the creator displays an eight-class ensemble illustration. Hover or keyboard focus temporarily previews a class; leaving an unselected option restores the default illustration. A confirmed class selection remains active until explicitly changed. |
+| FR-26 | Before class selection, the creator displays an eight-class ensemble illustration. Hover and focus do not change the displayed artwork. Activating a class selects it and displays the corresponding illustration until another class is explicitly selected. |
 | FR-27 | All important interactions remain accessible through keyboard, mouse, and touch. Hover is not the only way to access or confirm information. |
 
 ## 4. Approved User Navigation
@@ -144,7 +144,7 @@ These values correspond to the backend's approved catalog.
 
 ### 5.2. Class Illustration Behavior
 
-The creator must implement three distinct visual states.
+The creator uses two visual states.
 
 **Default state**
 
@@ -152,27 +152,15 @@ No class is selected.
 
 The illustration shows a group representing all eight classes.
 
-**Temporary preview**
-
-The user hovers over or focuses a class.
-
-The illustration temporarily changes to the corresponding class artwork.
-
-If no class has been selected, leaving the option restores the eight-class illustration.
+Hovering or focusing a class does not change the artwork or select a class.
 
 **Confirmed selection**
 
-The user activates a class option.
+The user activates a class option using mouse, keyboard, or touch.
 
-That class becomes the selected value.
+That class becomes the selected value and its illustration remains visible until another class is explicitly chosen.
 
-Its illustration remains visible after the pointer leaves the option.
-
-A later temporary preview must not overwrite the confirmed selection.
-
-Selecting another class explicitly replaces the previous selection.
-
-Each class artwork should show two different-looking adventurers.
+Each class-specific illustration shows two different-looking adventurers.
 
 These illustrations are representative only and do not introduce gender, body-type, or avatar-selection fields.
 
@@ -219,7 +207,7 @@ The authoritative option identifiers are defined in [Customization Catalog](./cu
 | Ancestry | 6 |
 | Background | 6 |
 | Weapon | 8 |
-| Artifact | 9 |
+| Artifact | 8 |
 | Personality | 8 |
 | Aura | 8 |
 | Companion | 8 |
@@ -227,7 +215,7 @@ The authoritative option identifiers are defined in [Customization Catalog](./cu
 ### Business Rules
 
 - **BR-01:** Each authenticated user's `user_id` is unique in the `characters` table and references the authentication provider's user identifier.
-- **BR-02:** Class and all seven enumerated customization fields must match approved catalog slugs. Artifact and companion support `none`.
+- **BR-02:** Class and all seven enumerated customization fields must match approved catalog slugs. Every category requires an explicit selection; only companion supports `none`. An artifact is required.
 - **BR-03:** Character name length is validated at the API and database boundaries. Character names are safely rendered.
 - **BR-04:** No class and customization combination is prohibited by gameplay restrictions.
 - **BR-05:** Character operations derive record ownership from the authenticated session rather than accepting an arbitrary user identifier from the request.
@@ -238,6 +226,8 @@ The authoritative option identifiers are defined in [Customization Catalog](./cu
 - **BR-10:** Introducing new option slugs requires coordinated catalog, frontend, API validation, and test updates.
 - **BR-11:** Translating interface labels must not change database identifiers or break validation.
 - **BR-12:** Character deletion does not automatically delete the user's authentication account.
+
+**Implementation alignment:** The frontend uses eight mandatory artifact choices, including `shadow-crown` and `chaos-orb`. The backend allowlist and database constraints must be updated and compatibility-tested before saving these new values is enabled.
 
 ## 7. Non-Functional Requirements
 
@@ -295,21 +285,24 @@ The authoritative option identifiers are defined in [Customization Catalog](./cu
 - Registration requests only the approved account fields.
 - Email confirmation works according to the configured provider flow.
 - Invalid login credentials receive safe feedback.
-- Password-recovery requests do not reveal whether an account exists.
+- Password-recovery requests do not reveal whether an email exists.
 - Unauthenticated users cannot access protected character data.
 
 ### 8.4. Character Creation
 
 - An authenticated user without a character can enter the creator.
 - The default class illustration shows all eight classes.
-- Hovering or focusing Mage temporarily shows Mage artwork.
-- Leaving an unselected class restores the default artwork.
-- Selecting Mage keeps Mage active after the pointer leaves.
-- Selecting another class updates the confirmed choice.
+- Hovering or focusing Mage does not change the illustration or selected value.
+- Activating Mage displays its class-specific illustration.
+- Moving the pointer away does not change the confirmed choice.
+- Selecting another class updates the confirmed choice and artwork.
 - All eight approved classes are available.
 - All catalog options use valid backend identifiers.
 - The creator follows the four approved stages.
 - Back/Next preserves the current draft.
+- The equipment stage provides eight options per category.
+- Every equipment category requires an explicit selection.
+- Only companion offers `none`.
 - Final review shows every selected value.
 - Invalid data is rejected without deleting the user's draft.
 - Saving requires an explicit action.
@@ -400,7 +393,7 @@ The intended delivery sequence is:
 
 - Four-stage guided workflow.
 - Default eight-class illustration.
-- Interactive class previews.
+- Class-specific illustrations activated by explicit selection.
 - Catalog-based selections.
 - Draft persistence.
 - Final review and save.
