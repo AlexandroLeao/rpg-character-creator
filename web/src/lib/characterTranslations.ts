@@ -106,8 +106,7 @@ const portugueseOptionLabels: Record<
   },
 
   artifact: {
-    none: 'Nenhum',
-    'emerald-amulet': 'Amuleto de Esmeralda',
+    'arcane-seal': 'Selo Arcano',
     'ancient-ring': 'Anel Antigo',
     'moon-crystal': 'Cristal Lunar',
     'runic-compass': 'Bússola Rúnica',
@@ -115,6 +114,17 @@ const portugueseOptionLabels: Record<
     'phoenix-feather': 'Pena de Fênix',
     'chaos-orb': 'Orbe do Caos',
     'sun-relic': 'Relíquia Solar',
+
+    /*
+     * LEGACY ARTIFACT LABELS
+     *
+     * These values are no longer selectable.
+     * They remain available for displaying
+     * previously saved characters.
+     */
+
+    none: 'Nenhum',
+    'emerald-amulet': 'Amuleto de Esmeralda',
   },
 
   personality: {
@@ -147,6 +157,14 @@ const portugueseOptionLabels: Record<
     fox: 'Raposa',
     raven: 'Corvo',
     turtle: 'Tartaruga',
+    dragon: 'Dragão',
+
+    /*
+     * LEGACY COMPANION LABEL
+     *
+     * Preserved for previously saved characters.
+     */
+
     dragonling: 'Filhote de Dragão',
   },
 }

@@ -18,7 +18,6 @@ import {
   CharacterEquipmentStep,
   type CharacterWeapon,
   type CharacterArtifact,
-  type CharacterCompanion,
   type EquipmentStepSelection,
   type EquipmentStepData,
 } from './CharacterEquipmentStep'
@@ -32,8 +31,11 @@ type CharacterCreatorProps = {
 /*
  * CHARACTER DRAFT
  *
- * Stores all selections until the
- * character is explicitly saved.
+ * Stores selections until the character
+ * is explicitly saved.
+ *
+ * Additional fields will be introduced
+ * as the six-stage creator is implemented.
  */
 
 type CharacterDraft = {
@@ -45,7 +47,6 @@ type CharacterDraft = {
 
   weapon: CharacterWeapon | null
   artifact: CharacterArtifact | null
-  companion: CharacterCompanion | null
 }
 
 export function CharacterCreator({
@@ -72,7 +73,6 @@ export function CharacterCreator({
 
     weapon: null,
     artifact: null,
-    companion: null,
   })
 
   /*
@@ -139,6 +139,11 @@ export function CharacterCreator({
 
   /*
    * STEP 03 — EQUIPMENT
+   *
+   * Weapon and Artifact only.
+   *
+   * Companion will be introduced
+   * in Step 05 — Journey.
    */
 
   if (step === 3) {
@@ -147,7 +152,6 @@ export function CharacterCreator({
         language={language}
         initialWeapon={draft.weapon}
         initialArtifact={draft.artifact}
-        initialCompanion={draft.companion}
         onBack={(data: EquipmentStepSelection) => {
           setDraft((current) => ({
             ...current,
@@ -169,24 +173,28 @@ export function CharacterCreator({
   }
 
   /*
-   * STEP 04 — ESSENCE AND REVIEW
+   * STEP 04 — ESSENCE
    *
-   * Temporary screen until the final
-   * creation step is implemented.
+   * Temporary screen until the
+   * Personality and Aura selections
+   * are implemented.
+   *
+   * The final review will become
+   * a separate sixth stage.
    */
 
   return (
     <div className="character-creator-next">
       <h3>
         {language === 'pt'
-          ? 'ESSÊNCIA E REVISÃO'
-          : 'ESSENCE AND REVIEW'}
+          ? 'ESSÊNCIA'
+          : 'ESSENCE'}
       </h3>
 
       <p>
         {language === 'pt'
-          ? 'A última etapa do criador será implementada em seguida.'
-          : 'The final character creation step will be implemented next.'}
+          ? 'A próxima etapa do criador será implementada em seguida.'
+          : 'The next character creation step will be implemented next.'}
       </p>
 
       <button

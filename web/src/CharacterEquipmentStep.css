@@ -1,7 +1,7 @@
 /* ==========================================
    ADVENTURE FILES
    CHARACTER CREATOR — EQUIPMENT
-   STEP 03 / 04
+   TARGET STEP 03 / 06
    ========================================== */
 
 .character-equipment-step {
@@ -22,14 +22,14 @@
   display: grid;
 
   grid-template-columns:
-    repeat(3, minmax(0, 1fr));
+    repeat(2, minmax(0, 1fr));
 
   align-items: start;
 
   width: 100%;
   min-width: 0;
 
-  gap: clamp(14px, 1.8vw, 24px);
+  gap: clamp(18px, 2.4vw, 30px);
 }
 
 /* ==========================================
@@ -258,51 +258,26 @@
 }
 
 /* ==========================================
-   DESKTOP — EQUAL OPTION SIZES
+   DESKTOP — EQUAL OPTION SIZES AND DIVIDER
    ========================================== */
 
-@media (min-width: 1100px) {
-  /*
-   * Three equal-width categories.
-   */
-
-  .character-equipment-step__groups {
-    grid-template-columns:
-      repeat(3, minmax(0, 1fr));
-  }
-
-  /*
-   * Every option has the same dimensions.
-   *
-   * Four rows in each category.
-   */
-
+@media (min-width: 761px) {
   .character-equipment-step__choice {
-    height: 64px;
-    min-height: 64px;
-
-    padding: 6px 5px;
-
-    font-size: 10px;
-    line-height: 1.5;
+    min-height: 60px;
+    height: 60px;
   }
 
   /*
-   * Position the two dividers relative
-   * to the option grids.
+   * The divider spans only the option rows,
+   * not the category headings or actions.
    */
 
-  .character-equipment-step__group:not(:last-child)
+  .character-equipment-step__group:first-child
   .character-equipment-step__choices {
     position: relative;
   }
 
-  /*
-   * Dividers begin at the first row
-   * and end at the last row.
-   */
-
-  .character-equipment-step__group:not(:last-child)
+  .character-equipment-step__group:first-child
   .character-equipment-step__choices::after {
     content: '';
 
@@ -311,7 +286,7 @@
     top: 0;
     bottom: 0;
 
-    left: calc(100% + clamp(7px, 0.9vw, 12px));
+    left: calc(100% + clamp(9px, 1.2vw, 15px));
 
     width: 2px;
 
@@ -322,23 +297,15 @@
 }
 
 /* ==========================================
-   MEDIUM SCREENS
+   LARGE DESKTOP
    ========================================== */
 
-@media (min-width: 761px) and (max-width: 1099px) {
-  .character-equipment-step__groups {
-    grid-template-columns:
-      repeat(2, minmax(0, 1fr));
-  }
+@media (min-width: 1100px) {
+  .character-equipment-step__choice {
+    min-height: 64px;
+    height: 64px;
 
-  .character-equipment-step__group:last-child {
-    grid-column: 1 / -1;
-  }
-
-  .character-equipment-step__group:last-child
-  .character-equipment-step__choices {
-    grid-template-columns:
-      repeat(3, minmax(0, 1fr));
+    padding: 6px 5px;
   }
 }
 

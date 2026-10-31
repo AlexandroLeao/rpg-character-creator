@@ -86,10 +86,12 @@ function App() {
    * CHARACTER CREATOR PROGRESS
    *
    * null = creator is closed
-   * 1    = class and name
-   * 2    = origins
-   * 3    = equipment
-   * 4    = final review
+   * 1    = identity (class and name)
+   * 2    = origins (ancestry and background)
+   * 3    = equipment (weapon and artifact)
+   * 4    = essence (personality and aura)
+   * 5    = journey (companion and motivation)
+   * 6    = final review and save
    */
 
   const [creatorStep, setCreatorStep] =
@@ -411,6 +413,8 @@ function App() {
    * During character creation, show
    * the current step on the left.
    *
+   * The creator contains six stages.
+   *
    * PT / EN remains on the right.
    *
    * The dashboard title uses uppercase.
@@ -419,7 +423,7 @@ function App() {
   const heading = isDashboard
     ? creatorStep === null
       ? copy.myCharacter.toUpperCase()
-      : `${String(creatorStep).padStart(2, '0')} / 04`
+      : `${String(creatorStep).padStart(2, '0')} / 06`
     : copy.titles[mode]
 
   /*

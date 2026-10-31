@@ -8,13 +8,15 @@ import './CharacterEquipmentStep.css'
 
 /*
  * ADVENTURE FILES
- * STEP 03 / 04 — EQUIPMENT
+ * EQUIPMENT SELECTION
  *
- * Approved equipment options.
+ * Current implementation: Step 03 / 04
+ * Approved target: Step 03 / 06
  *
  * Weapon: 8 options
  * Artifact: 8 options
- * Companion: 8 options
+ *
+ * Companion will be selected in Journey.
  */
 
 /*
@@ -40,7 +42,7 @@ const weapons = [
  */
 
 const artifacts = [
-  'emerald-amulet',
+  'arcane-seal',
   'ancient-ring',
   'moon-crystal',
   'runic-compass',
@@ -48,23 +50,6 @@ const artifacts = [
   'phoenix-feather',
   'chaos-orb',
   'sun-relic',
-] as const
-
-/*
- * COMPANIONS
- *
- * The "none" option remains available.
- */
-
-const companions = [
-  'none',
-  'wolf',
-  'owl',
-  'cat',
-  'fox',
-  'raven',
-  'turtle',
-  'dragonling',
 ] as const
 
 /*
@@ -77,9 +62,6 @@ export type CharacterWeapon =
 export type CharacterArtifact =
   (typeof artifacts)[number]
 
-export type CharacterCompanion =
-  (typeof companions)[number]
-
 /*
  * COMPLETE STEP DATA
  */
@@ -87,20 +69,18 @@ export type CharacterCompanion =
 export type EquipmentStepData = {
   weapon: CharacterWeapon
   artifact: CharacterArtifact
-  companion: CharacterCompanion
 }
 
 /*
  * PARTIAL STEP DATA
  *
  * Preserves unfinished selections
- * when returning to step 02.
+ * when returning to Origins.
  */
 
 export type EquipmentStepSelection = {
   weapon: CharacterWeapon | null
   artifact: CharacterArtifact | null
-  companion: CharacterCompanion | null
 }
 
 type CharacterEquipmentStepProps = {
@@ -113,8 +93,6 @@ type CharacterEquipmentStepProps = {
   initialWeapon?: CharacterWeapon | null
 
   initialArtifact?: CharacterArtifact | null
-
-  initialCompanion?: CharacterCompanion | null
 }
 
 export function CharacterEquipmentStep({
@@ -123,7 +101,6 @@ export function CharacterEquipmentStep({
   onNext,
   initialWeapon = null,
   initialArtifact = null,
-  initialCompanion = null,
 }: CharacterEquipmentStepProps) {
   /*
    * SELECTED EQUIPMENT
@@ -139,44 +116,36 @@ export function CharacterEquipmentStep({
       initialArtifact,
     )
 
-  const [selectedCompanion, setSelectedCompanion] =
-    useState<CharacterCompanion | null>(
-      initialCompanion,
-    )
-
   /*
    * VALIDATION
    *
-   * All three categories require
+   * Both categories require
    * an explicit selection.
    */
 
   const canContinue =
     selectedWeapon !== null &&
-    selectedArtifact !== null &&
-    selectedCompanion !== null
+    selectedArtifact !== null
 
   /*
-   * RETURN TO STEP 02
+   * RETURN TO ORIGINS
    */
 
   function handleBack() {
     onBack({
       weapon: selectedWeapon,
       artifact: selectedArtifact,
-      companion: selectedCompanion,
     })
   }
 
   /*
-   * CONTINUE TO STEP 04
+   * CONTINUE TO ESSENCE
    */
 
   function handleContinue() {
     if (
       selectedWeapon === null ||
-      selectedArtifact === null ||
-      selectedCompanion === null
+      selectedArtifact === null
     ) {
       return
     }
@@ -184,7 +153,6 @@ export function CharacterEquipmentStep({
     onNext({
       weapon: selectedWeapon,
       artifact: selectedArtifact,
-      companion: selectedCompanion,
     })
   }
 
@@ -197,14 +165,12 @@ export function CharacterEquipmentStep({
       ? {
           weapon: 'ARMA',
           artifact: 'ARTEFATO',
-          companion: 'COMPANHEIRO',
           back: 'VOLTAR',
           continue: 'CONTINUAR',
         }
       : {
           weapon: 'WEAPON',
           artifact: 'ARTIFACT',
-          companion: 'COMPANION',
           back: 'BACK',
           continue: 'CONTINUE',
         }
@@ -289,42 +255,6 @@ export function CharacterEquipmentStep({
                   language,
                   'artifact',
                   artifact,
-                )}
-              </button>
-            ))}
-          </div>
-        </fieldset>
-
-        {/*
-         * COMPANION
-         */}
-
-        <fieldset className="character-equipment-step__group">
-          <legend className="character-equipment-step__title">
-            {copy.companion}
-          </legend>
-
-          <div className="character-equipment-step__choices">
-            {companions.map((companion) => (
-              <button
-                key={companion}
-                type="button"
-                className={
-                  selectedCompanion === companion
-                    ? 'character-equipment-step__choice is-selected'
-                    : 'character-equipment-step__choice'
-                }
-                aria-pressed={
-                  selectedCompanion === companion
-                }
-                onClick={() =>
-                  setSelectedCompanion(companion)
-                }
-              >
-                {translateCharacterOption(
-                  language,
-                  'companion',
-                  companion,
                 )}
               </button>
             ))}
