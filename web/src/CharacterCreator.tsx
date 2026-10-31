@@ -38,6 +38,11 @@ import {
   type JourneyStepData,
 } from './CharacterJourneyStep'
 
+import {
+  CharacterReviewStep,
+  type CharacterReviewData,
+} from './CharacterReviewStep'
+
 type CharacterCreatorProps = {
   language: Language
   onCancel: () => void
@@ -47,8 +52,6 @@ type CharacterCreatorProps = {
 /*
  * ADVENTURE FILES
  * CHARACTER CREATOR
- *
- * Approved six-stage structure:
  *
  * 01 — Identity
  * 02 — Origins
@@ -60,12 +63,6 @@ type CharacterCreatorProps = {
 
 /*
  * CHARACTER DRAFT
- *
- * Stores all customization selections
- * until the character is explicitly saved.
- *
- * The sixth stage will provide the
- * review and save functionality.
  */
 
 type CharacterDraft = {
@@ -83,6 +80,35 @@ type CharacterDraft = {
 
   companion: CharacterCompanion | null
   motivation: CharacterMotivation | null
+}
+
+/*
+ * COMPLETE CHARACTER VALIDATION
+ *
+ * The Final Review requires all ten fields.
+ *
+ * "none" remains a valid companion selection,
+ * but null is never a valid completed selection.
+ */
+
+function isCompleteDraft(
+  draft: CharacterDraft,
+): draft is CharacterReviewData {
+  const trimmedName = draft.name.trim()
+
+  return (
+    draft.characterClass !== null &&
+    trimmedName.length >= 2 &&
+    trimmedName.length <= 32 &&
+    draft.ancestry !== null &&
+    draft.background !== null &&
+    draft.weapon !== null &&
+    draft.artifact !== null &&
+    draft.personality !== null &&
+    draft.aura !== null &&
+    draft.companion !== null &&
+    draft.motivation !== null
+  )
 }
 
 export function CharacterCreator({
@@ -181,8 +207,6 @@ export function CharacterCreator({
 
   /*
    * STEP 03 — EQUIPMENT
-   *
-   * Weapon and artifact.
    */
 
   if (step === 3) {
@@ -213,8 +237,6 @@ export function CharacterCreator({
 
   /*
    * STEP 04 — ESSENCE
-   *
-   * Personality and aura.
    */
 
   if (step === 4) {
@@ -245,11 +267,6 @@ export function CharacterCreator({
 
   /*
    * STEP 05 — JOURNEY
-   *
-   * Companion and motivation.
-   *
-   * Partial selections are preserved
-   * when returning to Essence.
    */
 
   if (step === 5) {
@@ -281,34 +298,34 @@ export function CharacterCreator({
   /*
    * STEP 06 — FINAL REVIEW
    *
-   * Temporary screen.
-   *
-   * The review and explicit save action
-   * will be implemented separately.
-   *
-   * No character is saved automatically.
+   * The review is displayed only when
+   * all required fields are complete.
    */
 
+  if (!isCompleteDraft(draft)) {
+    return (
+      <div className="character-creator-next">
+        <p role="alert">
+          {language === 'pt'
+            ? 'Existem informações pendentes. Volte para revisar suas escolhas.'
+            : 'Some information is missing. Go back to review your selections.'}
+        </p>
+
+        <button
+          type="button"
+          onClick={() => goToStep(5)}
+        >
+          {language === 'pt' ? 'VOLTAR' : 'BACK'}
+        </button>
+      </div>
+    )
+  }
+
   return (
-    <div className="character-creator-next">
-      <h3>
-        {language === 'pt'
-          ? 'REVISÃO FINAL'
-          : 'FINAL REVIEW'}
-      </h3>
-
-      <p>
-        {language === 'pt'
-          ? 'A revisão e o salvamento do personagem serão implementados em seguida.'
-          : 'Character review and saving will be implemented next.'}
-      </p>
-
-      <button
-        type="button"
-        onClick={() => goToStep(5)}
-      >
-        {language === 'pt' ? 'VOLTAR' : 'BACK'}
-      </button>
-    </div>
+    <CharacterReviewStep
+      language={language}
+      data={draft}
+      onBack={() => goToStep(5)}
+    />
   )
 }
