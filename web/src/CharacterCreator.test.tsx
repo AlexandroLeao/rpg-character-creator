@@ -19,12 +19,17 @@ import type { Language } from './lib/authTranslations'
 
 import { CharacterCreator } from './CharacterCreator'
 import { CharacterEquipmentStep } from './CharacterEquipmentStep'
+import { CharacterEssenceStep } from './CharacterEssenceStep'
 
 /*
  * ADVENTURE FILES
  * CHARACTER CREATOR TESTS
  *
- * Steps 01, 02 and 03.
+ * Step 01 — Identity
+ * Step 02 — Origins
+ * Step 03 — Equipment
+ * Step 04 — Essence
+ * Step 05 — Journey placeholder
  */
 
 afterEach(() => {
@@ -32,8 +37,26 @@ afterEach(() => {
 })
 
 /*
- * HELPERS
+ * TEST HELPERS
  */
+
+function getButton(name: string) {
+  return screen.getByRole('button', { name })
+}
+
+function clickButton(name: string) {
+  fireEvent.click(getButton(name))
+}
+
+function getContinueButton(language: Language = 'pt') {
+  return getButton(
+    language === 'pt' ? 'CONTINUAR' : 'CONTINUE',
+  ) as HTMLButtonElement
+}
+
+function isSelected(name: string) {
+  return getButton(name).getAttribute('aria-pressed')
+}
 
 function advanceToOrigins(language: Language = 'pt') {
   const onCancel = vi.fn()
@@ -47,11 +70,7 @@ function advanceToOrigins(language: Language = 'pt') {
     />,
   )
 
-  fireEvent.click(
-    screen.getByRole('button', {
-      name: language === 'pt' ? 'Mago' : 'Mage',
-    }),
-  )
+  clickButton(language === 'pt' ? 'Mago' : 'Mage')
 
   fireEvent.change(
     screen.getByLabelText(
@@ -66,13 +85,8 @@ function advanceToOrigins(language: Language = 'pt') {
     },
   )
 
-  fireEvent.click(
-    screen.getByRole('button', {
-      name:
-        language === 'pt'
-          ? 'CONTINUAR'
-          : 'CONTINUE',
-    }),
+  clickButton(
+    language === 'pt' ? 'CONTINUAR' : 'CONTINUE',
   )
 
   return {
@@ -84,28 +98,30 @@ function advanceToOrigins(language: Language = 'pt') {
 function advanceToEquipment(language: Language = 'pt') {
   const callbacks = advanceToOrigins(language)
 
-  fireEvent.click(
-    screen.getByRole('button', {
-      name: language === 'pt' ? 'Elfo' : 'Elf',
-    }),
+  clickButton(language === 'pt' ? 'Elfo' : 'Elf')
+
+  clickButton(
+    language === 'pt' ? 'Estudioso' : 'Scholar',
   )
 
-  fireEvent.click(
-    screen.getByRole('button', {
-      name:
-        language === 'pt'
-          ? 'Estudioso'
-          : 'Scholar',
-    }),
+  clickButton(
+    language === 'pt' ? 'CONTINUAR' : 'CONTINUE',
   )
 
-  fireEvent.click(
-    screen.getByRole('button', {
-      name:
-        language === 'pt'
-          ? 'CONTINUAR'
-          : 'CONTINUE',
-    }),
+  return callbacks
+}
+
+function advanceToEssence(language: Language = 'pt') {
+  const callbacks = advanceToEquipment(language)
+
+  clickButton(language === 'pt' ? 'Espada' : 'Sword')
+
+  clickButton(
+    language === 'pt' ? 'Selo Arcano' : 'Arcane Seal',
+  )
+
+  clickButton(
+    language === 'pt' ? 'CONTINUAR' : 'CONTINUE',
   )
 
   return callbacks
@@ -118,7 +134,7 @@ function advanceToEquipment(language: Language = 'pt') {
 describe('Character creator', () => {
   /*
    * TEST 01
-   * CLASS AND NAME VALIDATION
+   * IDENTITY VALIDATION
    */
 
   it('requires a class and a valid name before continuing', () => {
@@ -129,20 +145,11 @@ describe('Character creator', () => {
       />,
     )
 
-    const continueButton = screen.getByRole(
-      'button',
-      {
-        name: 'CONTINUAR',
-      },
-    ) as HTMLButtonElement
+    const continueButton = getContinueButton()
 
     expect(continueButton.disabled).toBe(true)
 
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: 'Mago',
-      }),
-    )
+    clickButton('Mago')
 
     expect(continueButton.disabled).toBe(true)
 
@@ -151,17 +158,13 @@ describe('Character creator', () => {
     )
 
     fireEvent.change(nameInput, {
-      target: {
-        value: 'L',
-      },
+      target: { value: 'L' },
     })
 
     expect(continueButton.disabled).toBe(true)
 
     fireEvent.change(nameInput, {
-      target: {
-        value: 'Luna',
-      },
+      target: { value: 'Luna' },
     })
 
     expect(continueButton.disabled).toBe(false)
@@ -175,24 +178,16 @@ describe('Character creator', () => {
   it('displays all ancestry and background options', () => {
     advanceToOrigins()
 
-    expect(
-      screen.getByText('ANCESTRALIDADE'),
-    ).toBeTruthy()
+    expect(screen.getByText('ANCESTRALIDADE')).toBeTruthy()
+    expect(screen.getByText('ORIGEM')).toBeTruthy()
 
-    expect(
-      screen.getByText('ORIGEM'),
-    ).toBeTruthy()
-
-    const ancestryOptions = [
+    const options = [
       'Humano',
       'Elfo',
       'Anão',
       'Orc',
       'Feérico',
       'Construto',
-    ]
-
-    const backgroundOptions = [
       'Nobre',
       'Estudioso',
       'Andarilho',
@@ -201,20 +196,8 @@ describe('Character creator', () => {
       'Fora da lei',
     ]
 
-    for (const option of ancestryOptions) {
-      expect(
-        screen.getByRole('button', {
-          name: option,
-        }),
-      ).toBeTruthy()
-    }
-
-    for (const option of backgroundOptions) {
-      expect(
-        screen.getByRole('button', {
-          name: option,
-        }),
-      ).toBeTruthy()
+    for (const option of options) {
+      expect(getButton(option)).toBeTruthy()
     }
   })
 
@@ -226,75 +209,34 @@ describe('Character creator', () => {
   it('requires both origins selections before continuing', () => {
     advanceToOrigins()
 
-    const continueButton = screen.getByRole(
-      'button',
-      {
-        name: 'CONTINUAR',
-      },
-    ) as HTMLButtonElement
+    const continueButton = getContinueButton()
 
     expect(continueButton.disabled).toBe(true)
 
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: 'Elfo',
-      }),
-    )
+    clickButton('Elfo')
 
     expect(continueButton.disabled).toBe(true)
 
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: 'Nobre',
-      }),
-    )
+    clickButton('Nobre')
 
     expect(continueButton.disabled).toBe(false)
 
-    expect(
-      screen
-        .getByRole('button', {
-          name: 'Elfo',
-        })
-        .getAttribute('aria-pressed'),
-    ).toBe('true')
-
-    expect(
-      screen
-        .getByRole('button', {
-          name: 'Nobre',
-        })
-        .getAttribute('aria-pressed'),
-    ).toBe('true')
+    expect(isSelected('Elfo')).toBe('true')
+    expect(isSelected('Nobre')).toBe('true')
   })
 
   /*
    * TEST 04
-   * PRESERVE ORIGINS WHEN GOING BACK
+   * PRESERVE ORIGINS
    */
 
-  it('preserves unfinished origins selections when returning to step one', () => {
+  it('preserves unfinished origins selections when returning to identity', () => {
     advanceToOrigins()
 
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: 'Anão',
-      }),
-    )
+    clickButton('Anão')
+    clickButton('VOLTAR')
 
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: 'VOLTAR',
-      }),
-    )
-
-    expect(
-      screen
-        .getByRole('button', {
-          name: 'Mago',
-        })
-        .getAttribute('aria-pressed'),
-    ).toBe('true')
+    expect(isSelected('Mago')).toBe('true')
 
     const nameInput = screen.getByLabelText(
       'NOME DO PERSONAGEM',
@@ -302,28 +244,10 @@ describe('Character creator', () => {
 
     expect(nameInput.value).toBe('Luna')
 
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: 'CONTINUAR',
-      }),
-    )
+    clickButton('CONTINUAR')
 
-    expect(
-      screen
-        .getByRole('button', {
-          name: 'Anão',
-        })
-        .getAttribute('aria-pressed'),
-    ).toBe('true')
-
-    const continueButton = screen.getByRole(
-      'button',
-      {
-        name: 'CONTINUAR',
-      },
-    ) as HTMLButtonElement
-
-    expect(continueButton.disabled).toBe(true)
+    expect(isSelected('Anão')).toBe('true')
+    expect(getContinueButton().disabled).toBe(true)
   })
 
   /*
@@ -336,57 +260,21 @@ describe('Character creator', () => {
 
     expect(onStepChange).toHaveBeenCalledWith(2)
 
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: 'Feérico',
-      }),
-    )
+    clickButton('Feérico')
+    clickButton('Guardião')
+    clickButton('CONTINUAR')
 
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: 'Guardião',
-      }),
-    )
-
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: 'CONTINUAR',
-      }),
-    )
-
-    expect(
-      screen.getByText('ARMA'),
-    ).toBeTruthy()
-
-    expect(
-      screen.getByText('ARTEFATO'),
-    ).toBeTruthy()
+    expect(screen.getByText('ARMA')).toBeTruthy()
+    expect(screen.getByText('ARTEFATO')).toBeTruthy()
 
     expect(screen.queryByText('COMPANHEIRO')).toBeNull()
 
     expect(onStepChange).toHaveBeenCalledWith(3)
 
-    fireEvent.click(
-      screen.getByRole('button', {
-        name: 'VOLTAR',
-      }),
-    )
+    clickButton('VOLTAR')
 
-    expect(
-      screen
-        .getByRole('button', {
-          name: 'Feérico',
-        })
-        .getAttribute('aria-pressed'),
-    ).toBe('true')
-
-    expect(
-      screen
-        .getByRole('button', {
-          name: 'Guardião',
-        })
-        .getAttribute('aria-pressed'),
-    ).toBe('true')
+    expect(isSelected('Feérico')).toBe('true')
+    expect(isSelected('Guardião')).toBe('true')
   })
 
   /*
@@ -397,13 +285,8 @@ describe('Character creator', () => {
   it('displays origins options in English', () => {
     advanceToOrigins('en')
 
-    expect(
-      screen.getByText('ANCESTRY'),
-    ).toBeTruthy()
-
-    expect(
-      screen.getByText('BACKGROUND'),
-    ).toBeTruthy()
+    expect(screen.getByText('ANCESTRY')).toBeTruthy()
+    expect(screen.getByText('BACKGROUND')).toBeTruthy()
 
     for (const option of [
       'Human',
@@ -411,11 +294,7 @@ describe('Character creator', () => {
       'Scholar',
       'Outlaw',
     ]) {
-      expect(
-        screen.getByRole('button', {
-          name: option,
-        }),
-      ).toBeTruthy()
+      expect(getButton(option)).toBeTruthy()
     }
   })
 
@@ -431,7 +310,7 @@ describe('Character creator', () => {
     expect(screen.getByText('ARTEFATO')).toBeTruthy()
     expect(screen.queryByText('COMPANHEIRO')).toBeNull()
 
-    const weaponOptions = [
+    const weapons = [
       'Espada',
       'Arco',
       'Cajado',
@@ -442,7 +321,7 @@ describe('Character creator', () => {
       'Varinha',
     ]
 
-    const artifactOptions = [
+    const artifacts = [
       'Selo Arcano',
       'Anel Antigo',
       'Cristal Lunar',
@@ -453,10 +332,8 @@ describe('Character creator', () => {
       'Relíquia Solar',
     ]
 
-    for (const option of [...weaponOptions, ...artifactOptions]) {
-      expect(
-        screen.getByRole('button', { name: option }),
-      ).toBeTruthy()
+    for (const option of [...weapons, ...artifacts]) {
+      expect(getButton(option)).toBeTruthy()
     }
 
     for (const removed of [
@@ -480,32 +357,20 @@ describe('Character creator', () => {
   it('requires a weapon and an artifact before continuing', () => {
     advanceToEquipment()
 
-    const continueButton = screen.getByRole(
-      'button',
-      { name: 'CONTINUAR' },
-    ) as HTMLButtonElement
+    const continueButton = getContinueButton()
 
     expect(continueButton.disabled).toBe(true)
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Espada' }),
-    )
+    clickButton('Espada')
 
     expect(continueButton.disabled).toBe(true)
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Coroa Sombria' }),
-    )
+    clickButton('Coroa Sombria')
 
     expect(continueButton.disabled).toBe(false)
 
-    for (const option of ['Espada', 'Coroa Sombria']) {
-      expect(
-        screen
-          .getByRole('button', { name: option })
-          .getAttribute('aria-pressed'),
-      ).toBe('true')
-    }
+    expect(isSelected('Espada')).toBe('true')
+    expect(isSelected('Coroa Sombria')).toBe('true')
   })
 
   /*
@@ -513,41 +378,22 @@ describe('Character creator', () => {
    * PRESERVE UNFINISHED EQUIPMENT
    */
 
-  it('preserves an unfinished equipment selection when returning to origins', () => {
+  it('preserves unfinished equipment when returning to origins', () => {
     advanceToEquipment()
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Cajado' }),
-    )
-
-    fireEvent.click(
-      screen.getByRole('button', { name: 'VOLTAR' }),
-    )
+    clickButton('Cajado')
+    clickButton('VOLTAR')
 
     expect(screen.getByText('ANCESTRALIDADE')).toBeTruthy()
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'CONTINUAR' }),
-    )
+    clickButton('CONTINUAR')
 
-    expect(
-      screen
-        .getByRole('button', { name: 'Cajado' })
-        .getAttribute('aria-pressed'),
-    ).toBe('true')
+    expect(isSelected('Cajado')).toBe('true')
+    expect(getContinueButton().disabled).toBe(true)
 
-    const continueButton = screen.getByRole(
-      'button',
-      { name: 'CONTINUAR' },
-    ) as HTMLButtonElement
+    clickButton('Orbe do Caos')
 
-    expect(continueButton.disabled).toBe(true)
-
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Orbe do Caos' }),
-    )
-
-    expect(continueButton.disabled).toBe(false)
+    expect(getContinueButton().disabled).toBe(false)
   })
 
   /*
@@ -558,35 +404,19 @@ describe('Character creator', () => {
   it('advances to Essence and preserves equipment when returning', () => {
     const { onStepChange } = advanceToEquipment()
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Arco' }),
-    )
+    clickButton('Arco')
+    clickButton('Coroa Sombria')
+    clickButton('CONTINUAR')
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Coroa Sombria' }),
-    )
-
-    fireEvent.click(
-      screen.getByRole('button', { name: 'CONTINUAR' }),
-    )
-
-    expect(
-      screen.getByRole('heading', { name: 'ESSÊNCIA' }),
-    ).toBeTruthy()
+    expect(screen.getByText('PERSONALIDADE')).toBeTruthy()
+    expect(screen.getByText('AURA')).toBeTruthy()
 
     expect(onStepChange).toHaveBeenCalledWith(4)
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'VOLTAR' }),
-    )
+    clickButton('VOLTAR')
 
-    for (const option of ['Arco', 'Coroa Sombria']) {
-      expect(
-        screen
-          .getByRole('button', { name: option })
-          .getAttribute('aria-pressed'),
-      ).toBe('true')
-    }
+    expect(isSelected('Arco')).toBe('true')
+    expect(isSelected('Coroa Sombria')).toBe('true')
   })
 
   /*
@@ -608,9 +438,7 @@ describe('Character creator', () => {
       'Chaos Orb',
       'Arcane Seal',
     ]) {
-      expect(
-        screen.getByRole('button', { name: option }),
-      ).toBeTruthy()
+      expect(getButton(option)).toBeTruthy()
     }
 
     for (const removed of [
@@ -625,10 +453,6 @@ describe('Character creator', () => {
         screen.queryByRole('button', { name: removed }),
       ).toBeNull()
     }
-
-    expect(
-      screen.getByRole('button', { name: 'BACK' }),
-    ).toBeTruthy()
   })
 
   /*
@@ -647,21 +471,192 @@ describe('Character creator', () => {
       />,
     )
 
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Espada' }),
-    )
-
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Selo Arcano' }),
-    )
-
-    fireEvent.click(
-      screen.getByRole('button', { name: 'CONTINUAR' }),
-    )
+    clickButton('Espada')
+    clickButton('Selo Arcano')
+    clickButton('CONTINUAR')
 
     expect(onNext).toHaveBeenCalledWith({
       weapon: 'sword',
       artifact: 'arcane-seal',
+    })
+  })
+
+  /*
+   * TEST 13
+   * ESSENCE OPTIONS
+   */
+
+  it('displays eight personalities and eight auras', () => {
+    advanceToEssence()
+
+    expect(screen.getByText('PERSONALIDADE')).toBeTruthy()
+    expect(screen.getByText('AURA')).toBeTruthy()
+    expect(screen.queryByText('COMPANHEIRO')).toBeNull()
+
+    const personalities = [
+      'Corajoso',
+      'Curioso',
+      'Leal',
+      'Astuto',
+      'Gentil',
+      'Estoico',
+      'Rebelde',
+      'Misterioso',
+    ]
+
+    const auras = [
+      'Fogo',
+      'Gelo',
+      'Natureza',
+      'Sombra',
+      'Luz',
+      'Tempestade',
+      'Arcana',
+      'Vazio',
+    ]
+
+    for (const option of [...personalities, ...auras]) {
+      expect(getButton(option)).toBeTruthy()
+    }
+  })
+
+  /*
+   * TEST 14
+   * ESSENCE VALIDATION
+   */
+
+  it('requires both personality and aura before continuing', () => {
+    advanceToEssence()
+
+    const continueButton = getContinueButton()
+
+    expect(continueButton.disabled).toBe(true)
+
+    clickButton('Corajoso')
+
+    expect(continueButton.disabled).toBe(true)
+
+    clickButton('Fogo')
+
+    expect(continueButton.disabled).toBe(false)
+
+    expect(isSelected('Corajoso')).toBe('true')
+    expect(isSelected('Fogo')).toBe('true')
+  })
+
+  /*
+   * TEST 15
+   * PRESERVE UNFINISHED ESSENCE
+   */
+
+  it('preserves partial essence selections when returning to equipment', () => {
+    advanceToEssence()
+
+    clickButton('Curioso')
+    clickButton('VOLTAR')
+
+    expect(screen.getByText('ARMA')).toBeTruthy()
+
+    expect(isSelected('Espada')).toBe('true')
+    expect(isSelected('Selo Arcano')).toBe('true')
+
+    clickButton('CONTINUAR')
+
+    expect(isSelected('Curioso')).toBe('true')
+
+    const continueButton = getContinueButton()
+
+    expect(continueButton.disabled).toBe(true)
+
+    clickButton('Arcana')
+
+    expect(continueButton.disabled).toBe(false)
+  })
+
+  /*
+   * TEST 16
+   * ESSENCE TO JOURNEY
+   */
+
+  it('advances to Journey and preserves essence selections on return', () => {
+    const { onStepChange } = advanceToEssence()
+
+    expect(onStepChange).toHaveBeenCalledWith(4)
+
+    clickButton('Rebelde')
+    clickButton('Sombra')
+    clickButton('CONTINUAR')
+
+    expect(
+      screen.getByRole('heading', { name: 'JORNADA' }),
+    ).toBeTruthy()
+
+    expect(onStepChange).toHaveBeenCalledWith(5)
+
+    clickButton('VOLTAR')
+
+    expect(isSelected('Rebelde')).toBe('true')
+    expect(isSelected('Sombra')).toBe('true')
+  })
+
+  /*
+   * TEST 17
+   * ENGLISH ESSENCE
+   */
+
+  it('displays personality and aura options in English', () => {
+    advanceToEssence('en')
+
+    expect(screen.getByText('PERSONALITY')).toBeTruthy()
+    expect(screen.getByText('AURA')).toBeTruthy()
+
+    const options = [
+      'Brave',
+      'Curious',
+      'Loyal',
+      'Cunning',
+      'Kind',
+      'Stoic',
+      'Rebellious',
+      'Mysterious',
+      'Fire',
+      'Ice',
+      'Nature',
+      'Shadow',
+      'Light',
+      'Storm',
+      'Arcane',
+      'Void',
+    ]
+
+    for (const option of options) {
+      expect(getButton(option)).toBeTruthy()
+    }
+  })
+
+  /*
+   * TEST 18
+   * STABLE ESSENCE IDENTIFIERS
+   */
+
+  it('submits stable personality and aura identifiers', () => {
+    const onNext = vi.fn()
+
+    render(
+      <CharacterEssenceStep
+        language="pt"
+        onBack={vi.fn()}
+        onNext={onNext}
+      />,
+    )
+
+    clickButton('Misterioso')
+    clickButton('Vazio')
+    clickButton('CONTINUAR')
+
+    expect(onNext).toHaveBeenCalledWith({
+      personality: 'mysterious',
+      aura: 'void',
     })
   })
 })

@@ -22,6 +22,14 @@ import {
   type EquipmentStepData,
 } from './CharacterEquipmentStep'
 
+import {
+  CharacterEssenceStep,
+  type CharacterPersonality,
+  type CharacterAura,
+  type EssenceStepSelection,
+  type EssenceStepData,
+} from './CharacterEssenceStep'
+
 type CharacterCreatorProps = {
   language: Language
   onCancel: () => void
@@ -29,13 +37,27 @@ type CharacterCreatorProps = {
 }
 
 /*
+ * ADVENTURE FILES
+ * CHARACTER CREATOR
+ *
+ * Approved six-stage structure:
+ *
+ * 01 — Identity
+ * 02 — Origins
+ * 03 — Equipment
+ * 04 — Essence
+ * 05 — Journey
+ * 06 — Final Review
+ */
+
+/*
  * CHARACTER DRAFT
  *
  * Stores selections until the character
  * is explicitly saved.
  *
- * Additional fields will be introduced
- * as the six-stage creator is implemented.
+ * Journey fields will be introduced
+ * when Step 05 is implemented.
  */
 
 type CharacterDraft = {
@@ -47,6 +69,9 @@ type CharacterDraft = {
 
   weapon: CharacterWeapon | null
   artifact: CharacterArtifact | null
+
+  personality: CharacterPersonality | null
+  aura: CharacterAura | null
 }
 
 export function CharacterCreator({
@@ -73,6 +98,9 @@ export function CharacterCreator({
 
     weapon: null,
     artifact: null,
+
+    personality: null,
+    aura: null,
   })
 
   /*
@@ -85,7 +113,9 @@ export function CharacterCreator({
   }
 
   /*
-   * STEP 01 — CLASS AND NAME
+   * STEP 01 — IDENTITY
+   *
+   * Character class and name.
    */
 
   if (step === 1) {
@@ -109,6 +139,8 @@ export function CharacterCreator({
 
   /*
    * STEP 02 — ORIGINS
+   *
+   * Ancestry and background.
    */
 
   if (step === 2) {
@@ -140,9 +172,9 @@ export function CharacterCreator({
   /*
    * STEP 03 — EQUIPMENT
    *
-   * Weapon and Artifact only.
+   * Weapon and artifact.
    *
-   * Companion will be introduced
+   * Companion will be selected
    * in Step 05 — Journey.
    */
 
@@ -175,20 +207,53 @@ export function CharacterCreator({
   /*
    * STEP 04 — ESSENCE
    *
-   * Temporary screen until the
-   * Personality and Aura selections
-   * are implemented.
+   * Personality and aura.
    *
-   * The final review will become
-   * a separate sixth stage.
+   * Preserve partial selections
+   * when returning to Equipment.
+   */
+
+  if (step === 4) {
+    return (
+      <CharacterEssenceStep
+        language={language}
+        initialPersonality={draft.personality}
+        initialAura={draft.aura}
+        onBack={(data: EssenceStepSelection) => {
+          setDraft((current) => ({
+            ...current,
+            ...data,
+          }))
+
+          goToStep(3)
+        }}
+        onNext={(data: EssenceStepData) => {
+          setDraft((current) => ({
+            ...current,
+            ...data,
+          }))
+
+          goToStep(5)
+        }}
+      />
+    )
+  }
+
+  /*
+   * STEP 05 — JOURNEY
+   *
+   * Temporary screen.
+   *
+   * Companion and Motivation will
+   * be implemented in this step.
    */
 
   return (
     <div className="character-creator-next">
       <h3>
         {language === 'pt'
-          ? 'ESSÊNCIA'
-          : 'ESSENCE'}
+          ? 'JORNADA'
+          : 'JOURNEY'}
       </h3>
 
       <p>
@@ -199,7 +264,7 @@ export function CharacterCreator({
 
       <button
         type="button"
-        onClick={() => goToStep(3)}
+        onClick={() => goToStep(4)}
       >
         {language === 'pt' ? 'VOLTAR' : 'BACK'}
       </button>
