@@ -13,10 +13,10 @@ The application combines:
 - Account registration and authentication.
 - A minimalist retro game-inspired interface.
 - Original pixel-art illustrations.
-- A guided character creation experience.
+- A guided six-stage character creation experience.
 - Persistent character data.
 - Secure user-specific API operations.
-- PDF character-sheet export.
+- Character-sheet export in PDF and PNG formats.
 
 Adventure Files is not a playable RPG.
 
@@ -56,7 +56,9 @@ An authenticated user can:
 - View their saved character.
 - Edit their character.
 - Delete their character.
-- Export their character as a PDF.
+- Export their character as PDF.
+- Export their character as PNG Story/Status.
+- Export their character as PNG Portrait.
 - Sign out.
 
 Each user can access only their own data.
@@ -79,18 +81,18 @@ Each user can access only their own data.
 
 | ID | Requirement |
 |---|---|
-| FR-08 | Each authenticated account can store exactly one character at a time. Duplicate creation must not produce a second character row. |
+| FR-08 | Each authenticated account can store at most one character at a time. Duplicate creation must not produce a second character row. |
 | FR-09 | The character name is mandatory and must contain 2–32 characters after trimming. |
 | FR-10 | The class selector provides eight predefined classes, accessible text labels, and original class-specific illustrations that update only on explicit selection. |
-| FR-11 | The creator provides ancestry, background, weapon, artifact, personality, aura, and companion selections from the version-controlled customization catalog. |
+| FR-11 | The creator provides ancestry, background, weapon, artifact, personality, aura, companion, and motivation selections from the version-controlled customization catalog. |
 | FR-12 | No sex or gender field is presented or persisted. Class illustrations show different-looking examples without requiring a separate visual-identity selection. |
-| FR-13 | Character creation contains four grouped stages: Class & Name, Origins, Equipment, and Essence & Review. Back/Next navigation preserves draft selections. |
+| FR-13 | Character creation contains six stages: Identity, Origins, Equipment, Essence, Journey, and Final Review. Back/Next navigation preserves draft selections. |
 | FR-14 | If character randomization is provided, it modifies only an editable draft and must never silently overwrite a saved character. |
-| FR-15 | The final review displays all character selections and requires an explicit Save action. |
+| FR-15 | The sixth stage is exclusively dedicated to reviewing all selections. Saving requires an explicit Save action and does not occur automatically when entering the review stage. |
 | FR-16 | Users can retrieve their saved character and view it in the retro-styled My Character dashboard after subsequent logins. |
 | FR-17 | Editing opens the guided creator with the saved values prefilled. Saving updates the existing character rather than creating a second record. |
 | FR-18 | Users can delete their own character after explicit confirmation. Their account remains available for creating another character. |
-| FR-19 | Export PDF generates a readable character sheet containing the character illustration, name, and all selected character fields. It must not include private account credentials or authentication tokens. |
+| FR-19 | The application generates downloadable character sheets containing the character illustration, name, and all selected fields in the three approved export formats. Private account credentials and authentication tokens must never be included. |
 
 ### 3.3. Visual Experience and Interaction
 
@@ -105,6 +107,18 @@ Each user can access only their own data.
 | FR-26 | Before class selection, the creator displays an eight-class ensemble illustration. Hover and focus do not change the displayed artwork. Activating a class selects it and displays the corresponding illustration until another class is explicitly selected. |
 | FR-27 | All important interactions remain accessible through keyboard, mouse, and touch. Hover is not the only way to access or confirm information. |
 
+### 3.4. Character Creator Layout and Exports
+
+| ID | Requirement |
+|---|---|
+| FR-28 | The creator header displays progress from 01 / 06 through 06 / 06 on the left, with the PT/EN language selector on the right. |
+| FR-29 | Customization stages organize their fields into pairs. Desktop layouts use side-by-side categories with subtle visual dividers. Mobile layouts stack categories vertically without those dividers. |
+| FR-30 | The available export formats are PDF A4, PNG Story/Status at 1080 × 1920 pixels, and PNG Portrait at 1080 × 1350 pixels. |
+| FR-31 | All export formats use the authenticated user's saved character data as their source. Each format may use its own layout while preserving the complete character information. |
+| FR-32 | The export interface allows users to select and download a format. Direct publishing to Instagram, WhatsApp, or other social platforms is not required. |
+| FR-33 | Character creation requires an explicit valid selection for every customization category. Companion supports the explicit value `none`, while artifact does not. |
+| FR-34 | Invalid or failed save operations preserve the user's draft and provide recoverable feedback. A failed request must not silently create duplicate records. |
+
 ## 4. Approved User Navigation
 
 The primary experience follows this order:
@@ -114,8 +128,8 @@ The primary experience follows this order:
 3. Sign in or create account.
 4. Email verification or password recovery when required.
 5. Authenticated character area.
-6. Character creation or saved-character dashboard.
-7. Character review and explicit save.
+6. Six-stage character creation or saved-character dashboard.
+7. Final character review and explicit save.
 8. View, edit, delete, or export the saved character.
 9. Sign out when desired.
 
@@ -124,6 +138,8 @@ Account registration and character creation are separate processes.
 A user does not create a character as part of the account-registration form.
 
 The user must be authenticated before saving persistent character data.
+
+The creator must preserve draft selections when navigating between stages.
 
 ## 5. Character Creation Requirements
 
@@ -140,7 +156,7 @@ The available classes are:
 7. Cleric
 8. Bard
 
-These values correspond to the backend's approved catalog.
+These values correspond to the approved customization catalog.
 
 ### 5.2. Class Illustration Behavior
 
@@ -166,12 +182,20 @@ These illustrations are representative only and do not introduce gender, body-ty
 
 ### 5.3. Guided Stages
 
-| Stage | Selections |
-|---|---|
-| 1 — Class & Name | Class and character name |
-| 2 — Origins | Ancestry and background |
-| 3 — Equipment | Weapon, artifact, and companion |
-| 4 — Essence & Review | Personality, aura, and final review |
+The approved character creator contains six stages.
+
+| Stage | Name | Selections |
+|---|---|---|
+| 01 / 06 | Identity | Class and character name |
+| 02 / 06 | Origins | Ancestry and background |
+| 03 / 06 | Equipment | Weapon and artifact |
+| 04 / 06 | Essence | Personality and aura |
+| 05 / 06 | Journey | Companion and motivation |
+| 06 / 06 | Final Review | Review and explicit save |
+
+The first five stages define the character.
+
+The sixth stage introduces no new customization categories.
 
 Users can:
 
@@ -185,7 +209,45 @@ Navigating between stages must not discard the draft.
 
 Validation errors must preserve entered values.
 
-### 5.4. Editing Existing Characters
+The final review must display:
+
+1. Character name.
+2. Class.
+3. Ancestry.
+4. Background.
+5. Weapon.
+6. Artifact.
+7. Personality.
+8. Aura.
+9. Companion.
+10. Motivation.
+
+The user must be able to return to previous stages before saving.
+
+### 5.4. Stage Validation
+
+The following rules apply:
+
+- A class must be explicitly selected.
+- Character names contain 2–32 characters after trimming.
+- Ancestry is required.
+- Background is required.
+- Weapon is required.
+- Artifact is required.
+- Personality is required.
+- Aura is required.
+- Companion requires an explicit selection.
+- Motivation is required.
+
+Companion may use the explicit identifier `none`.
+
+Artifact must use one of its eight approved artifact identifiers.
+
+The creator must not automatically assign an equipment selection simply to satisfy validation.
+
+The Continue button may remain disabled until the current stage is valid.
+
+### 5.5. Editing Existing Characters
 
 Editing must:
 
@@ -193,7 +255,8 @@ Editing must:
 2. Populate the creator with existing values.
 3. Allow the user to modify selections.
 4. Preserve changes within the draft.
-5. Update the saved record only after explicit confirmation.
+5. Display the updated draft in Final Review.
+6. Update the saved record only after explicit confirmation.
 
 Canceling the edit must leave the previously saved character unchanged.
 
@@ -211,23 +274,90 @@ The authoritative option identifiers are defined in [Customization Catalog](./cu
 | Personality | 8 |
 | Aura | 8 |
 | Companion | 8 |
+| Motivation | 8 |
 
-### Business Rules
+The character also has a user-defined name.
+
+### 6.1. Approved Catalog Changes
+
+The following changes are part of the approved six-stage specification:
+
+| Category | Previous value | Approved value | Approved identifier |
+|---|---|---|---|
+| Artifact | Emerald Amulet / Amuleto de Esmeralda | Arcane Seal / Selo Arcano | `arcane-seal` |
+| Companion | Dragonling / Filhote de Dragão | Dragon / Dragão | `dragon` |
+
+Previously approved artifact replacements remain:
+
+- Shadow Crown / Coroa Sombria — `shadow-crown`.
+- Chaos Orb / Orbe do Caos — `chaos-orb`.
+
+The artifact category contains eight options.
+
+The artifact `none` option is not available.
+
+The companion category retains eight options, including `none`.
+
+### 6.2. Motivation Catalog
+
+Motivation is a new required customization category introduced in Step 05 — Journey.
+
+Its approved options are:
+
+| Identifier | English | Portuguese |
+|---|---|---|
+| `protection` | Protection | Proteção |
+| `freedom` | Freedom | Liberdade |
+| `justice` | Justice | Justiça |
+| `redemption` | Redemption | Redenção |
+| `glory` | Glory | Glória |
+| `knowledge` | Knowledge | Conhecimento |
+| `revenge` | Revenge | Vingança |
+| `adventure` | Adventure | Aventura |
+
+Motivation describes the character's primary reason for beginning an adventure.
+
+It does not introduce combat mechanics, statistics, or gameplay restrictions.
+
+### 6.3. Business Rules
 
 - **BR-01:** Each authenticated user's `user_id` is unique in the `characters` table and references the authentication provider's user identifier.
-- **BR-02:** Class and all seven enumerated customization fields must match approved catalog slugs. Every category requires an explicit selection; only companion supports `none`. An artifact is required.
+- **BR-02:** Class and all eight enumerated customization fields must match approved catalog slugs. Every category requires an explicit selection; only companion supports `none`.
 - **BR-03:** Character name length is validated at the API and database boundaries. Character names are safely rendered.
 - **BR-04:** No class and customization combination is prohibited by gameplay restrictions.
 - **BR-05:** Character operations derive record ownership from the authenticated session rather than accepting an arbitrary user identifier from the request.
 - **BR-06:** Editing updates an existing character instead of creating a duplicate.
 - **BR-07:** Randomization, when available, modifies only an unsaved draft until the user explicitly saves.
-- **BR-08:** PDF export contains fictional character details and does not require storing PDF bytes on the server.
+- **BR-08:** Character-sheet exports contain fictional character details and do not require storing generated PDF or PNG files on the server.
 - **BR-09:** Class illustrations do not determine or persist a sex or gender attribute.
-- **BR-10:** Introducing new option slugs requires coordinated catalog, frontend, API validation, and test updates.
+- **BR-10:** Introducing new option slugs requires coordinated catalog, frontend, API validation, database compatibility, and test updates.
 - **BR-11:** Translating interface labels must not change database identifiers or break validation.
 - **BR-12:** Character deletion does not automatically delete the user's authentication account.
+- **BR-13:** The final review does not create or update a character until the user explicitly saves.
+- **BR-14:** The complete character record must include motivation after the new data model is deployed.
+- **BR-15:** Previously saved records must be handled safely when catalog identifiers or required fields change.
+- **BR-16:** Export generation must use saved character data rather than unsaved creator drafts.
+- **BR-17:** Character export formats may use different presentation layouts but must preserve the same underlying character information.
 
-**Implementation alignment:** The frontend uses eight mandatory artifact choices, including `shadow-crown` and `chaos-orb`. The backend allowlist and database constraints must be updated and compatibility-tested before saving these new values is enabled.
+### 6.4. Implementation Alignment
+
+The approved catalog and current implementation are not yet fully aligned.
+
+Before enabling the revised save workflow:
+
+1. Update frontend identifiers and translations.
+2. Update shared character types.
+3. Update API input validation.
+4. Update database constraints and the character schema.
+5. Add support for the new motivation field.
+6. Review existing saved records for compatibility.
+7. Introduce safe migrations where required.
+8. Update automated frontend and backend tests.
+9. Verify authenticated create, read, update, and delete operations.
+
+Existing records must not be deleted or silently overwritten simply because an approved identifier has changed.
+
+A compatibility strategy must be verified before enforcing any new mandatory database constraints.
 
 ## 7. Non-Functional Requirements
 
@@ -245,14 +375,18 @@ The authoritative option identifiers are defined in [Customization Catalog](./cu
 | NFR-10 — Responsiveness | Provide a complete usable experience on desktop and mobile without horizontal scrolling or unreadably small controls. |
 | NFR-11 — Maintainability | Keep frontend, API, authentication, and persistence concerns separated. Maintain stable identifiers and accurate documentation. |
 | NFR-12 — Reliability | Support loading, empty, success, and error states. Avoid accidental draft or saved-character loss. |
-| NFR-13 — Testability | Include automated checks for authentication, validation, ownership, CRUD, record uniqueness, critical frontend flows, and PDF generation. |
+| NFR-13 — Testability | Include automated checks for authentication, validation, ownership, CRUD, record uniqueness, the six-stage creator, critical frontend flows, and all three export formats. |
 | NFR-14 — CI/CD | Use GitHub Actions to run applicable builds, linting, tests, and configured security checks before integration or deployment. |
 | NFR-15 — Production email | Configure suitable production email delivery for account verification and password recovery before public registration. |
 | NFR-16 — Security review | Test cross-user access, missing or expired credentials, spoofed identifiers, invalid catalog values, and accidental secret exposure before public release. |
-| NFR-17 — Visual consistency | Maintain the approved fixed dark palette, pixel typography, and retro interface design across all application screens. |
+| NFR-17 — Visual consistency | Maintain the approved fixed dark palette, pixel typography, and retro interface design across all application screens and exported sheets. |
 | NFR-18 — Motion safety | Respect reduced-motion preferences and prevent transitions or overlays from blocking later interactions. |
 | NFR-19 — Localization | Support Portuguese and English for user-facing interface text while retaining stable language-independent stored values. |
 | NFR-20 — Original artwork | Use original or appropriately licensed illustration assets and avoid reproducing protected third-party characters, interfaces, and game artwork. |
+| NFR-21 — Export quality | Generate PNG files at the exact approved pixel dimensions and PDF files in A4 format with readable text and artwork. |
+| NFR-22 — Export privacy | Exclude authentication tokens, passwords, account identifiers, and unrelated personal information from every export format. |
+| NFR-23 — Data compatibility | Apply catalog and schema changes through reviewed migrations that protect existing character records. |
+| NFR-24 — Draft preservation | Preserve current creator selections during stage navigation, language changes, validation failures, and recoverable save failures. |
 
 ## 8. Detailed Acceptance Scenarios
 
@@ -298,14 +432,22 @@ The authoritative option identifiers are defined in [Customization Catalog](./cu
 - Selecting another class updates the confirmed choice and artwork.
 - All eight approved classes are available.
 - All catalog options use valid backend identifiers.
-- The creator follows the four approved stages.
+- The creator follows the six approved stages.
+- The progress indicator displays the correct stage out of six.
 - Back/Next preserves the current draft.
-- The equipment stage provides eight options per category.
-- Every equipment category requires an explicit selection.
-- Only companion offers `none`.
-- Final review shows every selected value.
+- Switching between Portuguese and English does not discard selections.
+- Step 02 provides ancestry and background.
+- Step 03 provides weapon and artifact.
+- Step 04 provides personality and aura.
+- Step 05 provides companion and motivation.
+- The sixth stage is exclusively dedicated to final review.
+- Every required category has an explicit selected value.
+- The artifact category provides eight options and does not include `none`.
+- The companion category includes the selectable value `none`.
+- The motivation category provides eight approved options.
 - Invalid data is rejected without deleting the user's draft.
 - Saving requires an explicit action.
+- Failed save requests provide recoverable feedback.
 
 ### 8.5. Character Persistence
 
@@ -315,18 +457,48 @@ The authoritative option identifiers are defined in [Customization Catalog](./cu
 - Editing starts with the current saved selections.
 - Canceling an edit does not modify the saved record.
 - Saving an edit updates the existing character.
+- The saved record contains the motivation field.
+- Previously stored data is handled safely during catalog and schema changes.
 - Deleting requires confirmation.
 - After deletion, the account remains active and can create another character.
 
-### 8.6. PDF Export
+### 8.6. Character Sheet Export
 
-- The exported PDF contains the character illustration.
+The application supports three formats.
+
+**PDF A4**
+
+- The exported PDF uses A4 page dimensions.
+- The character illustration is included.
 - The character name is prominently displayed.
 - Class and all selected customization fields are included.
 - Labels remain readable in the generated document.
 - The document uses the project's retro design language.
 - The PDF can be downloaded and opened successfully.
+
+**PNG Story/Status**
+
+- The image dimensions are exactly 1080 × 1920 pixels.
+- The layout is optimized for vertical social-media stories.
+- It can be used for Instagram Stories and WhatsApp Status.
+- Important character information remains visible and readable.
+- The image can be downloaded as a valid PNG file.
+
+**PNG Portrait**
+
+- The image dimensions are exactly 1080 × 1350 pixels.
+- The layout is optimized for portrait social-media posts.
+- Important character information remains visible and readable.
+- The image can be downloaded as a valid PNG file.
+
+**Shared export requirements**
+
+- All formats use the same saved character data.
+- All ten character values are represented.
+- The approved illustration is included.
+- Export generation does not modify saved character data.
 - Private account credentials and authentication data are excluded.
+- Direct social-media publishing integrations are not required.
 
 ### 8.7. Authorization
 
@@ -348,6 +520,10 @@ The authoritative option identifiers are defined in [Customization Catalog](./cu
 - Pixel typography remains readable.
 - Reduced-motion settings are respected.
 - The interface remains usable when animations are disabled.
+- Paired customization groups appear side by side on desktop.
+- Desktop dividers remain subtle and do not interfere with controls.
+- Mobile customization groups stack vertically without desktop dividers.
+- Export controls remain accessible on mobile devices.
 
 ### 8.9. Production Readiness
 
@@ -358,7 +534,11 @@ The authoritative option identifiers are defined in [Customization Catalog](./cu
 - Authentication and email verification work in production.
 - Password recovery works in production.
 - Database authorization works in the deployed environment.
-- The character lifecycle and PDF export are validated.
+- New catalog identifiers are accepted by the API and database.
+- Existing character data remains compatible with approved migrations.
+- The complete six-stage creator works with the backend.
+- Saved-character creation, editing, and deletion are validated.
+- All three export formats are generated successfully.
 - Documentation accurately reflects the released functionality.
 
 ## 9. Implementation and Delivery Priorities
@@ -389,33 +569,53 @@ The intended delivery sequence is:
 - Registration and recovery styling.
 - PT/EN localization.
 
-### Phase 4 — Character Creator
+### Phase 4 — Six-Stage Character Creator
 
-- Four-stage guided workflow.
-- Default eight-class illustration.
-- Class-specific illustrations activated by explicit selection.
-- Catalog-based selections.
-- Draft persistence.
-- Final review and save.
+- Update the approved catalog identifiers.
+- Implement the six-stage guided workflow.
+- Preserve the existing class illustrations and selection behavior.
+- Reorganize Equipment into Weapon and Artifact.
+- Implement Essence with Personality and Aura.
+- Implement Journey with Companion and Motivation.
+- Implement a separate Final Review stage.
+- Preserve selections across stage navigation.
+- Integrate explicit character saving.
+- Validate the complete workflow on desktop and mobile.
 
-### Phase 5 — Character Management
+### Phase 5 — Backend and Data Alignment
 
-- Final character dashboard.
-- Editing.
-- Deletion with confirmation.
+- Update API validation.
+- Update shared character types.
+- Add the motivation field.
+- Align database constraints with the approved catalog.
+- Review existing saved character data.
+- Apply safe database migrations.
+- Verify ownership and record uniqueness.
+- Extend frontend and backend tests.
+
+### Phase 6 — Character Management
+
+- Final illustrated character dashboard.
+- Display all saved customization fields.
+- Edit character.
+- Delete character with confirmation.
 - Returning-user experience.
 
-### Phase 6 — PDF Export
+### Phase 7 — Character Sheet Export
 
+- Shared export data preparation.
 - Character illustration integration.
-- Character sheet layout.
-- PDF generation and download.
+- PDF A4 generation and download.
+- PNG Story/Status 1080 × 1920 generation and download.
+- PNG Portrait 1080 × 1350 generation and download.
+- Export readability and privacy tests.
 
-### Phase 7 — Final Verification
+### Phase 8 — Final Verification
 
 - Responsive review.
 - Accessibility checks.
 - Security testing.
+- Integration testing.
 - Production deployment.
 - Final documentation and portfolio presentation.
 
@@ -433,6 +633,7 @@ The initial release excludes:
 - Multiplayer.
 - Multiple saved characters per account.
 - Public character sharing.
+- Direct social-media publishing integrations.
 - Social profiles or feeds.
 - Composite avatar generation.
 - Detailed body or facial customization.
@@ -460,11 +661,15 @@ Requirements should remain synchronized with:
 
 - Approved product decisions.
 - Existing backend validation.
+- Database constraints and migrations.
 - The customization catalog.
 - Frontend interaction behavior.
 - Automated tests.
 - Implementation status.
+- Character export specifications.
 
 Changes to established scope should be reviewed before implementation.
+
+The approved six-stage creator and three export formats define the target product behavior. They must not be described as completed until their implementations have been integrated and tested.
 
 Adventure Files should prioritize a complete, secure, accessible, and visually coherent character-creation experience over unnecessary feature expansion.

@@ -10,7 +10,7 @@
 
 Adventure Files is a personal full-stack development project that combines practical software engineering with the visual identity of classic adventure games and early computer interfaces.
 
-The application allows users to create an account, design a fictional RPG character, save their selections, and export a character sheet as a PDF.
+The application allows users to create an account, design a fictional RPG character, save their selections, and export a character sheet as PDF or PNG.
 
 Although its presentation resembles a retro video game, Adventure Files is not a playable RPG.
 
@@ -27,7 +27,7 @@ The project demonstrates:
 - Responsive interface design.
 - Pixel-art-inspired visual design.
 - Character customization.
-- PDF generation.
+- PDF and PNG export.
 - Automated testing and GitHub workflows.
 
 The final result should be technically meaningful, visually distinctive, intuitive, and small enough to remain maintainable as a personal portfolio project.
@@ -67,7 +67,7 @@ Adventure Files uses one carefully designed dark theme.
 
 A light/dark theme switch is not part of the product.
 
-The visual palette should remain consistent across the title screen, authentication interface, character creator, dashboard, and PDF design.
+The visual palette should remain consistent across the title screen, authentication interface, character creator, dashboard, and exported character sheets.
 
 ### 2.4. Accessibility and responsiveness
 
@@ -175,19 +175,23 @@ If a character exists, the user sees their saved character dashboard.
 
 The authenticated area must provide a clear way to sign out.
 
-The initial product supports exactly one saved character per account.
+The initial product supports at most one saved character per account.
 
 ### Stage 5 — Character Creation
 
-Character creation uses a guided, four-stage interface.
+Character creation follows the newly approved six-stage target flow.
 
-The goal is to make customization approachable, visual, and easy to review.
+Five stages contain the character's customization fields. The sixth stage is reserved for reviewing and saving the character.
 
-Only a small group of decisions appears at each stage.
+The existing frontend currently implements the first three stages of the previous four-stage flow; the six-stage reorganization remains pending.
 
-#### Step 1 — Class and Name
+The compact creator header displays progress (01 / 06 through 06 / 06) on the left and PT/EN on the right.
 
-The user chooses a class and enters a character name.
+On desktop, paired selection categories use the approved compact layout with subtle dividers between option grids. On mobile, categories stack vertically without those dividers.
+
+#### Step 01 / 06 — Identity
+
+The user chooses one class and enters a character name.
 
 The available classes are:
 
@@ -210,59 +214,63 @@ The class-selection illustration follows these interaction rules:
 - The selected class remains active until another class is explicitly chosen.
 - Selecting another class updates the active option and illustration.
 
-The illustration is a visual representation of the class, not a separate avatar or gender-selection system.
+Character names contain 2–32 characters after trimming.
 
-#### Step 2 — Origins
+The illustration represents the selected class, not an avatar or gender-selection system.
+
+#### Step 02 / 06 — Origins
 
 The user chooses:
 
-- Ancestry.
-- Background.
+- One ancestry.
+- One background.
 
-These options establish the character's fictional origin and history.
+Both selections are required. These options describe the character's fictional past.
 
-#### Step 3 — Equipment
+#### Step 03 / 06 — Equipment
 
 The user chooses:
 
 - One weapon.
 - One artifact.
-- One companion.
 
-Every category requires an explicit selection.
+Both selections are required. No artifact `none` option is offered.
 
-The approved catalog contains:
+The approved artifact catalog includes Arcane Seal (`arcane-seal`), Shadow Crown (`shadow-crown`), and Chaos Orb (`chaos-orb`).
 
-- 8 weapons.
-- 8 artifacts.
-- 8 companions.
+Companion is moved out of this stage.
 
-An artifact is mandatory. The `none` option is not available for artifacts.
-
-The companion category includes `none`, allowing users to explicitly choose not to have a companion.
-
-The desktop interface displays three equally sized groups, separated by subtle vertical dividers.
-
-On mobile, the three categories are arranged vertically.
-
-All selection buttons follow consistent dimensions and typography.
-
-Previous selections remain preserved when navigating between character creation steps.
-
-The approved artifact options include Shadow Crown (`shadow-crown`) and Chaos Orb (`chaos-orb`).
-
-#### Step 4 — Essence and Review
+#### Step 04 / 06 — Essence
 
 The user chooses:
 
-- Personality.
-- Aura.
+- One personality.
+- One aura.
 
-The application then presents a review of the complete character.
+Both selections are required.
 
-The user can navigate backward, change previous decisions, and return to the review without losing the current draft.
+#### Step 05 / 06 — Journey
 
-Saving occurs only after an explicit confirmation.
+The user chooses:
+
+- One companion.
+- One motivation.
+
+Both selections require an explicit choice.
+
+Companion includes `none`, representing a character without a companion. Dragon (`dragon`) replaces Dragonling (`dragonling`) in the approved catalog.
+
+Motivation describes why the character starts an adventure. Eight short motivations are defined in the customization catalog.
+
+#### Step 06 / 06 — Final Review
+
+This stage does not introduce any new customization fields.
+
+The review displays all ten values: name, class, ancestry, background, weapon, artifact, personality, aura, companion, and motivation.
+
+Users can return to any previous stage to revise their choices without losing the draft.
+
+Saving occurs only after an explicit confirmation. Failed requests preserve the draft and must not silently create duplicates.
 
 ### Stage 6 — Saved Character Dashboard
 
@@ -270,41 +278,32 @@ After saving, the character becomes available in the authenticated dashboard.
 
 The dashboard presents:
 
-- Character name.
-- Character class.
-- Character illustration.
-- All saved customization fields.
+- Character name and class illustration.
+- All saved customization fields, including motivation.
 - Edit character.
 - Delete character.
-- Export PDF.
+- Export character sheet.
 - Sign out.
 
-Editing opens the existing character data for modification.
+Editing reopens the saved values in the creator. Deleting requires explicit confirmation and does not delete the user account. Signing out does not delete the character.
 
-Deleting requires explicit confirmation.
+### Stage 7 — Character Sheet Export
 
-Signing out must not delete the saved character.
+Users can export their saved character in three approved formats:
 
-### Stage 7 — PDF Export
+| Format | Size | Purpose |
+|---|---|---|
+| PDF | A4 | Printable or archival character sheet |
+| PNG Story/Status | 1080 × 1920 | Instagram Stories and WhatsApp Status |
+| PNG Portrait | 1080 × 1350 | Social posts and general sharing |
 
-Users can export their saved character as a printable PDF.
+Each format may use a dedicated layout, but all derive from the same saved character data.
 
-The document should contain:
+The exported character sheet includes the illustration, name, class, ancestry, background, weapon, artifact, personality, aura, companion, and motivation.
 
-1. The character's pixel-art-inspired illustration near the top.
-2. The character's name.
-3. The selected class.
-4. Ancestry.
-5. Background.
-6. Weapon.
-7. Artifact.
-8. Companion.
-9. Personality.
-10. Aura.
+Exports must not reveal passwords, authentication tokens, internal identifiers, or unrelated account information.
 
-The PDF should share the visual identity of Adventure Files while remaining readable and suitable for printing.
-
-PDF generation must not expose private account credentials or unrelated personal information.
+Direct social-media publishing integrations are not required for the initial release.
 
 ## 4. Character Customization Scope
 
@@ -322,6 +321,7 @@ The initial release includes:
 | Personality | 8 |
 | Aura | 8 |
 | Companion | 8 |
+| Motivation | 8 |
 
 The character also has a user-provided name.
 
@@ -395,71 +395,50 @@ Adventure Files is under active development.
 
 - React and TypeScript frontend.
 - Express and TypeScript backend.
-- Supabase authentication integration.
-- Authentication session handling.
+- Supabase authentication integration and session handling.
 - Protected character API routes.
 - PostgreSQL character storage and Row Level Security.
-- Character API validation.
+- Character API validation based on the previous catalog.
 - Basic authenticated character dashboard.
-- Adventure Files start screen.
-- Separate desktop and mobile start-screen artwork.
-- Animated "PRESS START" interaction.
-- Retro transition into authentication.
+- Adventure Files start screen and separate desktop/mobile artwork.
+- Animated "PRESS START" interaction and retro transition.
 - Automated frontend and backend tests.
 - GitHub Actions workflows.
 
-### Character Creator Progress
+### Current Character Creator Implementation
 
-The character creator follows four stages.
+The frontend currently implements:
 
-**Step 01 — Class and Name: Implemented**
-
-- Eight selectable classes.
-- Character name validation.
-- Default class illustration.
-- Class-specific illustrations.
-- Persistent class selection.
+- Class and Name: eight classes, validated name, class illustrations, and persistent selection.
+- Origins: six ancestries and six backgrounds, with required selections.
+- Equipment: eight weapons, eight artifacts, and eight companions in the previous three-category layout.
+- Preserved draft selections when navigating backward.
+- Portuguese and English option labels.
 - Responsive desktop and mobile layouts.
 
-**Step 02 — Origins: Implemented**
+The previously planned fourth step remains a placeholder. The new six-stage flow is an approved target, not a completed implementation.
 
-- Six ancestry options.
-- Six background options.
-- Required selections.
-- Preserved selections when navigating backward.
-- Responsive desktop and mobile layouts.
+### Next Character Creator Milestones
 
-**Step 03 — Equipment: Implemented**
-
-- Eight weapon options.
-- Eight artifact options.
-- Eight companion options.
-- Required selections in all three categories.
-- Optional `none` value only for companions.
-- Preserved selections when navigating backward.
-- Portuguese and English labels.
-- Responsive desktop and mobile layouts.
-
-The revised frontend artifact options still require backend and database validation alignment before character saving is enabled.
-
-**Step 04 — Essence and Review: Pending**
-
-- Personality selection.
-- Aura selection.
-- Complete character review.
-- Explicit character saving.
+1. Update selected artifact and companion identifiers and related tests.
+2. Move Companion to Step 05, leaving Weapon and Artifact in Step 03.
+3. Implement Step 04 — Personality and Aura.
+4. Implement Step 05 — Companion and Motivation.
+5. Implement Step 06 — Final Review and explicit saving.
+6. Align frontend types, API validation, and database constraints with the new catalog.
+7. Safely address compatibility with previously stored character data.
 
 ### Additional Pending Features
 
-- Complete frontend character editing.
-- Character deletion controls and confirmation.
+- Complete saved-character editing and deletion controls.
 - Final illustrated saved-character dashboard.
-- Client-side PDF export.
-- Backend and database alignment with revised artifact options.
+- PDF A4 export.
+- PNG Story/Status (1080 × 1920) export.
+- PNG Portrait (1080 × 1350) export.
 - End-to-end production validation.
 - Final accessibility review.
 
-The backend already provides character management endpoints, but the complete frontend creation and management workflow is still in development.
+The backend already provides character management endpoints, but its catalog and schema must be updated and compatibility-tested before saving the revised character data.
 
 Implemented interfaces and passing frontend tests do not replace the need for API integration, database compatibility, and production validation.
 
@@ -504,7 +483,7 @@ However, layouts may adapt to available screen space.
 - Compact authentication forms.
 - Touch-friendly character options.
 - Character preview adapted to narrow screens.
-- Full access to navigation, editing, and PDF export.
+- Full access to navigation, editing, and PDF/PNG export.
 
 The mobile experience must remain fully functional rather than acting as a simplified demo.
 
@@ -535,12 +514,12 @@ Adventure Files is ready for its initial completed release when:
 2. The retro transition works smoothly and respects reduced-motion preferences.
 3. Account registration, verification, sign-in, recovery, and sign-out work.
 4. Users can select Portuguese or English in the interface.
-5. The complete four-stage character creator is functional.
+5. The complete six-stage character creator is functional.
 6. Class artwork and selection states respond correctly to explicit user choices.
 7. Users can review and revise their draft before saving.
 8. Each account can store no more than one saved character.
 9. Users can view, edit, and delete their own character.
-10. The exported PDF includes the character illustration and complete character details.
+10. PDF and both approved PNG exports include the character illustration and complete character details.
 11. Users cannot access another account's character.
 12. Responsive layouts and keyboard accessibility are verified.
 13. Automated tests and CI checks pass.
@@ -574,7 +553,7 @@ The project should advance through small, reviewable stages.
 
 ### Phase 4 — Character Creation
 
-- Four-stage creator.
+- Six-stage creator with a review-only final step.
 - Class-specific illustrations and persistent selection.
 - Catalog-based option selection.
 - Draft navigation and review.
@@ -587,11 +566,12 @@ The project should advance through small, reviewable stages.
 - Delete character.
 - Persistent user-specific data.
 
-### Phase 6 — PDF Export
+### Phase 6 — Character Sheet Export
 
-- Character sheet layout.
-- Illustration integration.
-- PDF generation and download.
+- Shared character-sheet data and original illustration integration.
+- PDF A4 generation and download.
+- PNG Story/Status 1080 × 1920 generation and download.
+- PNG Portrait 1080 × 1350 generation and download.
 
 ### Phase 7 — Finalization
 

@@ -1,20 +1,21 @@
 # Adventure Files — Customization Catalog
 
-- **Status:** Approved character customization catalog; backend and database alignment for the revised artifact options is pending.
+- **Status:** Approved target catalog and six-step character creation flow; implementation alignment pending.
 - **Language:** Code, technical documentation, and stored identifiers use English. User-facing labels and messages support Portuguese and English.
 
 ## Rules
 
-- Exactly one character per authenticated account.
-- All users can combine any class with any ancestry, background, weapon, artifact, personality, aura, or companion.
+- Each authenticated account can have at most one saved character.
+- All users can combine any class with any ancestry, background, weapon, artifact, personality, aura, companion, or motivation.
 - No gameplay balancing or class restrictions are implemented.
-- Every saved character must have a non-empty name (2–32 characters after trimming) and one valid choice from each field.
+- Every saved character must have a non-empty name (2–32 characters after trimming).
 - Every customization category requires an explicit selection.
 - `None` is a valid option only for companion.
 - An artifact must always be selected from the eight available artifacts.
-- **No gender, sex, gender identity, or visual-body-selection field exists.** The dual-character class illustration is purely representative.
-- Persist stable slugs (e.g., `moon-crystal`) rather than translated labels.
-- The catalog defines the approved values for frontend display and server-side validation.
+- A motivation must be selected from the eight approved motivations.
+- **No gender, sex, gender identity, or visual-body-selection field exists.** The dual-character class illustrations are purely representative.
+- Persist stable English slugs rather than translated labels.
+- The catalog defines the approved target values for frontend display and server-side validation.
 - Never accept arbitrary option strings simply because the client displays them.
 
 ## Classes (8)
@@ -48,7 +49,7 @@ An artifact is required. There is no `none` option in this category.
 
 | Slug | English label | Portuguese label |
 |---|---|---|
-| `emerald-amulet` | Emerald Amulet | Amuleto de Esmeralda |
+| `arcane-seal` | Arcane Seal | Selo Arcano |
 | `ancient-ring` | Ancient Ring | Anel Antigo |
 | `moon-crystal` | Moon Crystal | Cristal Lunar |
 | `runic-compass` | Runic Compass | Bússola Rúnica |
@@ -67,27 +68,73 @@ Fire (`fire`), Ice (`ice`), Nature (`nature`), Shadow (`shadow`), Light (`light`
 
 ## Companion (8)
 
-None (`none`), Wolf (`wolf`), Owl (`owl`), Cat (`cat`), Fox (`fox`), Raven (`raven`), Turtle (`turtle`), Dragonling (`dragonling`).
+| Slug | English label | Portuguese label |
+|---|---|---|
+| `none` | None | Nenhum |
+| `wolf` | Wolf | Lobo |
+| `owl` | Owl | Coruja |
+| `cat` | Cat | Gato |
+| `fox` | Fox | Raposa |
+| `raven` | Raven | Corvo |
+| `turtle` | Turtle | Tartaruga |
+| `dragon` | Dragon | Dragão |
 
 The `none` option represents a character who does not have a companion.
 
 Users must explicitly select this option if they do not want a companion.
 
+## Motivation (8)
+
+Motivation represents the character's primary reason for beginning an adventure.
+
+It is distinct from background and personality:
+
+- Background describes the character's past.
+- Personality describes the character's behavior.
+- Motivation describes the character's purpose.
+
+| Slug | English label | Portuguese label |
+|---|---|---|
+| `protection` | Protection | Proteção |
+| `freedom` | Freedom | Liberdade |
+| `justice` | Justice | Justiça |
+| `redemption` | Redemption | Redenção |
+| `glory` | Glory | Glória |
+| `knowledge` | Knowledge | Conhecimento |
+| `revenge` | Revenge | Vingança |
+| `adventure` | Adventure | Aventura |
+
+Motivation is required.
+
+No motivation option grants gameplay bonuses, restrictions, or mechanical advantages.
+
 ## Character Creator
 
-The character creator follows four stages.
+The approved character creator follows six stages.
 
-### Step 01 — Class and Name
+Five stages contain character customization choices.
 
-Users select one of eight classes and enter a character name.
+The sixth stage is dedicated exclusively to reviewing and saving the character.
+
+Each customization stage contains two fields or selection categories.
+
+### Step 01 / 06 — Identity
+
+Users select:
+
+- One character class.
+- One character name.
+
+Rules:
 
 - Class selection is required.
 - Character names must contain 2–32 characters after trimming.
 - The default illustration represents all eight classes.
 - Selecting a class displays its corresponding illustration.
 - The selected class remains active until another class is chosen.
+- Hovering does not change the selected class or artwork.
 
-### Step 02 — Origins
+### Step 02 / 06 — Origins
 
 Users select:
 
@@ -96,48 +143,105 @@ Users select:
 
 Both selections are required.
 
-### Step 03 — Equipment
+On desktop, the categories appear side by side with a subtle vertical divider between their option grids.
+
+On mobile, the categories are arranged vertically without the divider.
+
+### Step 03 / 06 — Equipment
 
 Users select:
 
 - One weapon.
 - One artifact.
-- One companion.
 
-All three categories require an explicit selection.
+Both selections are required.
 
-Only the companion category includes `none`.
+The artifact category does not include `none`.
 
-The interface uses:
+The companion category is no longer part of this stage.
 
-- Eight weapon options.
-- Eight artifact options.
-- Eight companion options.
+On desktop, the two categories are displayed side by side with a subtle vertical divider.
 
-On desktop, the three categories are presented in separate columns with subtle vertical dividers.
+On mobile, the categories are arranged vertically.
 
-On mobile, the categories are arranged vertically for readability and touch interaction.
-
-The selected options must remain preserved when navigating backward or forward.
-
-### Step 04 — Essence and Review
+### Step 04 / 06 — Essence
 
 Users select:
 
 - One personality.
 - One aura.
 
-The application then presents the complete character draft for review.
+Both selections are required.
 
-Users must be able to return to earlier steps and modify their selections.
+The interface follows the established responsive character-selection design.
 
-Saving must occur only after explicit confirmation.
+### Step 05 / 06 — Journey
+
+Users select:
+
+- One companion.
+- One motivation.
+
+Both selections require an explicit choice.
+
+The companion category includes `none`.
+
+The motivation category does not include `none`.
+
+Companion and motivation choices are independent of the character's class, ancestry, background, and equipment.
+
+### Step 06 / 06 — Final Review
+
+This stage does not introduce any new customization fields.
+
+The application displays the complete character draft, including:
+
+1. Name.
+2. Class.
+3. Ancestry.
+4. Background.
+5. Weapon.
+6. Artifact.
+7. Personality.
+8. Aura.
+9. Companion.
+10. Motivation.
+
+Users can return to previous stages to modify selections.
+
+All existing draft values must remain preserved.
+
+Saving requires an explicit action.
+
+The application must not save a character automatically when the user enters the review stage.
+
+Validation errors and failed save requests must preserve the current draft.
+
+## Character Creator Navigation
+
+The character creator displays the current stage in the upper-left corner.
+
+The Portuguese/English language selector appears in the upper-right corner.
+
+Progress indicators follow this sequence:
+
+- `01 / 06`
+- `02 / 06`
+- `03 / 06`
+- `04 / 06`
+- `05 / 06`
+- `06 / 06`
+
+Navigation between stages must preserve the character draft.
+
+Changing the interface language must not modify stored identifiers or selected values.
 
 ## Display and Validation
 
 - Each customization option has a stable English slug.
 - Portuguese and English labels are displayed according to the selected interface language.
-- Stored values must remain independent of the interface language.
+- Stored values remain independent of the interface language.
+- The frontend validates required selections before allowing users to continue.
 - The backend must independently validate submitted values against the approved catalog.
 - The database must enforce compatible constraints.
 - The frontend must not be considered the sole source of validation.
@@ -146,32 +250,85 @@ Saving must occur only after explicit confirmation.
 
 ## Implementation Alignment
 
-The approved artifact catalog has been revised.
+This document defines the newly approved target catalog.
 
-The following options have been removed from the intended artifact selection:
+The current frontend implementation still follows the previous four-stage structure.
+
+The six-stage structure and the newly approved catalog changes must be implemented before enabling the complete character-saving workflow.
+
+### Artifact Changes
+
+The following legacy artifact identifiers are not available in the approved new-character selection interface:
 
 - `none`
+- `emerald-amulet`
 - `forgotten-tome`
 - `timeworn-key`
 
-The following options have been added:
+The approved artifact identifiers include:
 
+- `arcane-seal`
 - `shadow-crown`
 - `chaos-orb`
 
-The frontend character creator uses the revised catalog.
+The existing artifact identifiers that remain valid must be preserved.
 
-Before enabling character saving with the revised artifacts, the following components must be aligned:
+### Companion Changes
 
-1. Backend artifact allowlist validation.
-2. Database constraints and applicable migrations.
-3. API validation tests.
-4. Database security and compatibility tests.
-5. Existing character data compatibility, if applicable.
+The previous companion identifier:
+
+- `dragonling`
+
+Is replaced in the approved catalog by:
+
+- `dragon`
+
+### New Motivation Field
+
+The character model must include a motivation field.
+
+The field must accept exactly one of the eight approved motivation identifiers.
+
+### Required Backend and Database Alignment
+
+Before enabling character saving with the revised catalog, the following components must be aligned:
+
+1. Frontend character data types.
+2. Backend request and response types.
+3. Backend catalog allowlist validation.
+4. Database schema and applicable migrations.
+5. API validation tests.
+6. Database security and compatibility tests.
+7. Existing character data compatibility.
+8. Saved-character display and editing behavior.
 
 Existing stored character values must not be deleted or invalidated without reviewing their compatibility and migration requirements.
 
+Legacy values may require compatibility handling or guided user reselection.
+
+New values must not be accepted only through frontend validation.
+
 The API and database changes must be verified before the completed character creator is released.
+
+## Character Export
+
+Character export becomes available after the character has been successfully saved.
+
+The approved export formats are:
+
+| Format | Dimensions | Intended use |
+|---|---|---|
+| PDF | A4 | Archiving and printing |
+| PNG Story/Status | 1080 × 1920 | Instagram Stories and WhatsApp Status |
+| PNG Portrait | 1080 × 1350 | Social posts and general sharing |
+
+Each format may use a dedicated visual layout.
+
+All formats must use the saved character data.
+
+Exports must not include authentication credentials, tokens, or internal account identifiers.
+
+Direct publishing integrations with Instagram or WhatsApp are not required for the initial release.
 
 ## Future Considerations
 
@@ -180,3 +337,4 @@ The API and database changes must be verified before the completed character cre
 - Character randomization may select only valid catalog options.
 - New customization options must be introduced through reviewed, version-controlled changes.
 - Future catalog revisions must remain compatible with the application's persistence and validation requirements.
+- Additional export templates may be considered after the initial three formats are implemented.

@@ -18,7 +18,7 @@ The complete journey is:
 2. Retro transition into authentication.
 3. Sign in or create an account.
 4. Enter the authenticated character area.
-5. Create a character through four guided steps.
+5. Create a character through six guided stages.
 6. Review and save the character.
 7. View, edit, delete, or export the saved character.
 8. Return to the saved character after future logins.
@@ -491,41 +491,54 @@ The creator should contain:
 
 - A compact header.
 - A visible current step.
-- A prominent class illustration in step one.
-- Clearly labeled options in each stage.
-- Back and Next controls.
-- A clear final save action.
+- A prominent class illustration in Step 01.
+- Clearly labeled option groups in each customization stage.
+- Back and Continue controls.
+- A dedicated final review and explicit Save action.
 
-Desktop and mobile layouts may arrange these elements differently.
+The compact header displays the current step (01 / 06 through 06 / 06) on the left and PT/EN on the right.
 
-The compact header displays the current step (01 / 04 through 04 / 04) on the left and PT/EN on the right while creating a character.
+The desktop layout prioritizes a balanced, compact composition. Mobile layouts reorganize content vertically without reducing functionality.
 
-### 9.3. Four-step structure
+### 9.3. Six-stage structure
 
-The approved creator contains four stages.
+The approved creator contains six stages:
 
 | Step | Name | Choices |
 |---|---|---|
-| 1 | Class & Name | Class, character name |
-| 2 | Origins | Ancestry, background |
-| 3 | Equipment | Weapon, artifact, companion |
-| 4 | Essence & Review | Personality, aura, complete review |
+| 01 / 06 | Identity | Class and character name |
+| 02 / 06 | Origins | Ancestry and background |
+| 03 / 06 | Equipment | Weapon and artifact |
+| 04 / 06 | Essence | Personality and aura |
+| 05 / 06 | Journey | Companion and motivation |
+| 06 / 06 | Final Review | Review all values and explicitly save |
 
-Each stage should show only the options relevant to that stage.
+The first five stages have two fields each. The sixth contains no new customization choices.
 
-The user must be able to go backward without losing previous selections.
+Stage-specific behavior:
 
-Origins use two side-by-side groups on desktop with a short vertical divider between the option grids.
+- **Identity:** Preserve the existing eight-class artwork, active selection behavior, and name validation.
+- **Origins:** Show the two existing option grids side by side on desktop, with the approved short divider limited to their button area.
+- **Equipment:** Show Weapon and Artifact as two equal-width groups on desktop. Move Companion out of this stage. Both categories offer eight options and require a selection.
+- **Essence:** Show Personality and Aura as two paired categories, each with eight options.
+- **Journey:** Show Companion and Motivation as two paired categories, each with eight options. Companion includes an explicit `none` choice.
+- **Final Review:** Show every selected value clearly and allow users to return to previous stages before saving.
 
-On mobile, the groups are stacked without the divider.
+For Steps 02–05, desktop displays paired option grids separated by a short, subtle line confined to the option area. The divider must not run through the headings, buttons, or outer window border.
 
-Equipment uses three equally sized groups (Weapon, Artifact, Companion) on desktop, each with eight consistently sized options and subtle short dividers between their grids.
+On mobile, the paired groups stack vertically, and desktop divider lines are removed. Preserve the existing mobile visual style.
 
-On mobile, the groups are stacked without those dividers.
+All option buttons within a category must have consistent dimensions, alignment, spacing, and clear selected states. Long translated labels must not break the grid.
 
-The artifact choice is mandatory and excludes `none`.
+The artifact category excludes `none`, and its approved eight options include Arcane Seal (`arcane-seal`), Shadow Crown (`shadow-crown`), and Chaos Orb (`chaos-orb`).
 
-Only Companion offers `none` as an explicit selection.
+Companion includes the updated Dragon (`dragon`) option instead of Dragonling (`dragonling`).
+
+Motivation uses eight approved values: Protection, Freedom, Justice, Redemption, Glory, Knowledge, Revenge, and Adventure.
+
+All stage values must use stable language-independent identifiers defined in the customization catalog.
+
+The user must be able to go backward without losing selections.
 
 ### 9.4. Class selection
 
@@ -605,11 +618,15 @@ Avoid unlabeled icon-only choices.
 
 ### 9.10. Draft persistence
 
-Selections are held in an editable draft throughout the wizard.
+Selections are held in an editable draft throughout all six stages.
 
-Navigating between stages must not discard those choices.
+Navigating backward and forward must not discard those choices.
 
-The user can return to earlier stages and make changes before the final save.
+The user can return to earlier stages, change selections, and revisit Final Review before saving.
+
+Changing between Portuguese and English updates visible labels without changing the selected identifiers or losing the draft.
+
+Validation errors and recoverable API failures must preserve entered values.
 
 ### 9.11. Optional randomization
 
@@ -621,20 +638,37 @@ Any random result remains editable before saving.
 
 This feature is secondary to the guided creation flow and should not visually dominate the interface.
 
-### 9.12. Review and save
+### 9.12. Final Review and Save
 
-The final step shows the complete character summary.
+Step 06 / 06 is exclusively a review and save screen. It must not introduce another customization category.
+
+The summary displays all ten values:
+
+1. Character name.
+2. Class.
+3. Ancestry.
+4. Background.
+5. Weapon.
+6. Artifact.
+7. Personality.
+8. Aura.
+9. Companion.
+10. Motivation.
 
 The user can:
 
-- Review all selected values.
+- Review the complete character.
 - Return to previous stages.
-- Correct information.
+- Correct information without losing other selections.
 - Explicitly save the character.
 
-Validation errors must preserve the current draft.
+The Save action is separate from Continue on earlier stages.
 
-Saving should show a loading state and prevent duplicate submissions.
+Saving shows a loading state and prevents duplicate submissions.
+
+A failed request must preserve the draft and provide helpful, safe feedback.
+
+A character must not be shown as saved until the API confirms persistence.
 
 ## 10. Screen G — My Character
 
@@ -655,9 +689,10 @@ The view contains:
 - Background.
 - Weapon.
 - Artifact.
-- Companion.
 - Personality.
 - Aura.
+- Companion.
+- Motivation.
 
 Use clear labels and avoid unnecessary statistics or fictional gameplay values.
 
@@ -666,19 +701,21 @@ Use clear labels and avoid unnecessary statistics or fictional gameplay values.
 The dashboard provides:
 
 - Edit Character.
-- Export PDF.
+- Export Character Sheet.
 - Delete Character.
 - Sign Out.
+
+The export action offers the three approved formats: PDF A4, PNG Story/Status, and PNG Portrait.
 
 Account-related options may be included when the corresponding functionality is implemented.
 
 ### 10.4. Editing
 
-Editing loads the saved character into the creator.
+Editing loads the saved character into the six-stage creator.
 
 The user can move between stages and update selections.
 
-Changes must remain a draft until explicitly saved.
+Changes must remain a draft until explicitly saved in Final Review.
 
 If the user cancels editing, the previously saved character must remain unchanged.
 
@@ -698,52 +735,118 @@ After future logins, users with an existing character should see their saved cha
 
 They should not be forced to repeat the creation flow.
 
-## 11. Screen H — PDF Export
+## 11. Screen H — Character Sheet Export
 
 ### 11.1. Purpose
 
-PDF export turns the character into a portable, printable document.
+Character-sheet export turns the saved character into a portable, readable, and shareable artifact.
 
-It is one of the main outcomes of the application.
+The user chooses a format from the saved-character dashboard. All formats use the same saved character data, with layouts adapted to their intended use.
 
-### 11.2. Layout
+The application does not publish directly to social networks.
 
-The PDF should contain:
+### 11.2. Approved formats
 
-1. The character illustration at the top.
-2. The character name as a prominent heading.
-3. The character class.
-4. The remaining selected character information below.
+| Format | Dimensions | Intended use |
+|---|---|---|
+| PDF | A4 | Printable or archival character sheet |
+| PNG Story/Status | 1080 × 1920 pixels | Instagram Stories and WhatsApp Status |
+| PNG Portrait | 1080 × 1350 pixels | Portrait social posts and sharing |
 
-The document should resemble a simple retro character sheet.
+### 11.3. Shared content
 
-### 11.3. Visual direction
+Each export includes:
 
-Use:
+1. Original character illustration.
+2. Character name as a prominent heading.
+3. Class.
+4. Ancestry.
+5. Background.
+6. Weapon.
+7. Artifact.
+8. Personality.
+9. Aura.
+10. Companion.
+11. Motivation.
+
+Content must remain faithful to the saved record, including an explicit `none` companion selection.
+
+All layouts preserve the project's dark-green, cream, mint, and pixel-art visual identity.
+
+### 11.4. PDF A4
+
+The PDF resembles a compact retro character sheet.
+
+Preferred design:
 
 - Original pixel-art illustration.
 - Clear pixel-inspired headings.
 - Readable body text.
 - Consistent borders.
 - A restrained color palette.
-- Balanced spacing.
-
-The PDF must be readable when printed.
+- Balanced spacing suitable for printing.
 
 Avoid elaborate backgrounds, excessive decoration, and tiny text.
 
-### 11.4. Data and privacy
+The PDF must open and print correctly at A4 size.
 
-The exported document contains only the fictional character information needed for the sheet.
+### 11.5. PNG Story/Status — 1080 × 1920
 
-It must not contain:
+The vertical image is designed for Instagram Stories and WhatsApp Status.
+
+It should:
+
+- Use the exact dimensions of 1080 × 1920 pixels.
+- Present the character illustration prominently.
+- Keep the name and class easy to identify.
+- Include the complete selected character information.
+- Maintain comfortable margins and readable labels.
+- Avoid placing essential information against the outer edges.
+
+The image is downloaded as a standard PNG file. Direct social-network integration is not part of the initial release.
+
+### 11.6. PNG Portrait — 1080 × 1350
+
+The portrait image is intended for social-media posts and general sharing.
+
+It should:
+
+- Use the exact dimensions of 1080 × 1350 pixels.
+- Preserve the character illustration and complete selected information.
+- Use a layout specifically composed for the shorter aspect ratio.
+- Maintain readability and consistent visual hierarchy.
+
+The portrait layout must not simply crop the Story/Status image.
+
+### 11.7. Export interaction
+
+The interface should allow the user to:
+
+1. Open the Export Character Sheet action.
+2. Choose PDF A4, PNG Story/Status, or PNG Portrait.
+3. Generate and download the selected file.
+4. Return to the saved-character view without losing state.
+
+Provide loading and failure feedback where generation is not immediate.
+
+Do not claim a download succeeded if generation failed.
+
+### 11.8. Data, privacy, and implementation
+
+Exports contain only the fictional information needed for the character sheet.
+
+They must not include:
 
 - Account passwords.
 - Authentication tokens.
 - Internal user identifiers.
-- Private authentication data.
+- Private account metadata.
 
-Client-side PDF generation is preferred for the initial release if it meets the quality and functionality requirements.
+Client-side export generation is preferred for the initial release if it meets quality, accessibility, and device-performance requirements.
+
+Generated PDF or PNG bytes do not need to be stored as additional server records.
+
+Changes to the catalog and schema must be compatible with saved-character retrieval before export is enabled.
 
 ## 12. Artwork Inventory
 
@@ -761,7 +864,7 @@ The start-screen artwork must remain separate from its title and prompt.
 
 Class illustrations should share a consistent style, proportions, and palette.
 
-When feasible, the same class illustrations can be reused in the character dashboard and PDF.
+When feasible, the same class illustrations can be reused in the character dashboard, PDF, and PNG exports.
 
 ## 13. Responsive Behavior
 
@@ -782,7 +885,7 @@ The mobile interface should:
 - Keep important buttons within comfortable reach.
 - Reorganize class artwork and selection options vertically when necessary.
 - Allow the complete creation and editing experience.
-- Support PDF export.
+- Support all three character-sheet export formats.
 
 Mobile users must have access to the same functional choices as desktop users.
 
@@ -796,7 +899,7 @@ Both layouts must support:
 - Character review.
 - Character editing.
 - Character deletion.
-- PDF export.
+- PDF A4 and both PNG exports.
 - Sign out.
 
 ## 14. Motion and Interaction Guidelines
@@ -857,7 +960,7 @@ The following rules apply across the entire application:
 
 ## 17. Implementation Status
 
-The product experience described here represents the approved direction.
+The product experience described here represents the approved target design, not a claim that every screen is complete.
 
 ### Already implemented
 
@@ -868,28 +971,35 @@ The product experience described here represents the approved direction.
 - Authentication foundations and PT/EN interface support.
 - Basic authenticated character dashboard and simplified empty state.
 - Protected backend character API.
-- Character creator step 01: class and name.
-- Character creator step 02: ancestry and background.
-- Character creator step 03: weapon, artifact, and companion.
+- Previous creator step 01: class and name.
+- Previous creator step 02: ancestry and background.
+- Previous creator step 03: weapon, artifact, and companion.
 - Draft selections preserved when navigating backward between implemented steps.
 - Responsive layouts for the first three creator stages.
 - Frontend lint, build, and automated tests for the implemented stages.
 
-### Still requiring implementation or refinement
+### Approved next implementation milestones
 
-- Step 04: personality, aura, full review, and explicit save.
-- Alignment of backend/database artifact validation with the revised catalog.
-- Frontend character save/edit/delete workflows.
-- Final illustrated character dashboard.
-- Illustrated PDF export.
-- Final responsive and accessibility refinements.
-- End-to-end production validation.
+1. Replace Emerald Amulet (`emerald-amulet`) with Arcane Seal (`arcane-seal`) and Dragonling (`dragonling`) with Dragon (`dragon`).
+2. Reorganize Equipment into Weapon and Artifact only.
+3. Implement Essence with Personality and Aura.
+4. Implement Journey with Companion and the eight new Motivation options.
+5. Implement an exclusive Step 06 Final Review with explicit Save.
+6. Update progress indicators to 01 / 06 through 06 / 06.
+7. Preserve desktop paired layouts and mobile stacked layouts.
+8. Align shared types, translations, API validation, database schema, and tests with the revised catalog.
+9. Safely handle any existing records using older identifiers or missing Motivation.
+10. Complete character saving, editing, deletion, and the illustrated dashboard.
+11. Implement PDF A4, PNG Story/Status, and PNG Portrait export.
+12. Complete integration, responsive, accessibility, and production validation.
 
-The approved artifact catalog contains eight mandatory artifact choices, including Shadow Crown (`shadow-crown`) and Chaos Orb (`chaos-orb`).
+The previous fourth step remains a placeholder. The new six-stage flow has not yet been fully implemented.
 
-`none` remains available only for Companions.
+The approved artifact catalog contains eight mandatory artifact choices, including Arcane Seal (`arcane-seal`), Shadow Crown (`shadow-crown`), and Chaos Orb (`chaos-orb`).
 
-Backend and database compatibility must be verified before enabling character saving with these revised slugs.
+Only Companion offers `none` as an explicit selection.
+
+Backend and database compatibility must be verified before saving with newly approved values or the Motivation field.
 
 Approved designs must not be described as completed features until their implementation is verified.
 
@@ -919,9 +1029,9 @@ The visual and interaction design is successful when:
 - Authentication is simple and visually consistent.
 - Users can understand the next action without lengthy instructions.
 - Explicit class selection and original artwork make character creation more engaging.
-- The four-stage wizard remains easy to navigate.
+- The six-stage wizard remains easy to navigate, with a dedicated final review.
 - Saved characters are easy to view and manage.
-- The final PDF feels like a natural extension of the project.
+- PDF A4 and both PNG layouts feel like natural extensions of the project.
 - Desktop and mobile experiences remain coherent.
 - The application's creativity supports its technical purpose.
 

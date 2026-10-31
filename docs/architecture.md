@@ -1,12 +1,16 @@
 # Adventure Files — System Architecture
 
-- **Status:** Partially implemented; remaining product features are documented below.
+- **Status:** Partially implemented; six-stage creator and expanded exports are approved targets.
 - **Product name:** Adventure Files
 - **Linked specs:** [Requirements](./requirements.md), [Catalog](./customization-catalog.md), [Product Experience](./product-experience.md).
 
 ## 1. System Context
 
-This full-stack application is a retro-themed creator for **one fictional RPG character per registered account**. It does not contain gameplay. The frontend and API are intentionally separate so the project demonstrates authentic client/server boundaries.
+Adventure Files is a retro-themed full-stack application for creating and managing **at most one fictional RPG character per registered account**.
+
+It is not a playable RPG.
+
+The frontend and API are separate so the project demonstrates authentic client/server boundaries, authentication, authorization, persistence, and data validation.
 
 ```mermaid
 flowchart TD
@@ -16,8 +20,14 @@ flowchart TD
     B -->|Validate token| A
     B -->|User-scoped requests| D[(Supabase PostgreSQL)]
     D -->|RLS ownership rules| D
-    F -->|Local export only| P[Retro PDF]
+    F -->|Client-side generation| E[PDF A4 / PNG Exports]
 ```
+
+The frontend owns the interactive character creation experience and export presentation.
+
+The API owns authenticated character operations and server-side validation.
+
+PostgreSQL owns persistent character records, database constraints, and Row Level Security.
 
 ## 2. Technology Stack
 
@@ -27,40 +37,148 @@ flowchart TD
 | Backend | Node.js + Express 5 + TypeScript |
 | Authentication | Supabase Auth (email/password) |
 | Database | Supabase PostgreSQL with Row Level Security |
-| Testing | Vitest, Supertest, integration/ownership checks |
+| Frontend testing | Vitest + React Testing Library |
+| API testing | Vitest + Supertest + integration/ownership checks |
+| Version control | Git + GitHub |
 | CI/CD | GitHub Actions |
 | Deployment | Vercel frontend; API deployment mode validated before release |
-| Development | Google Cloud Shell Editor, Git/GitHub |
+| Development | Google Cloud Shell Editor |
+
+PDF and PNG generation will use a client-side implementation selected and validated during the export phase.
+
+No export library is considered finalized until its output quality, compatibility, and maintenance requirements are verified.
 
 ## 3. User and Navigation Flows
 
-1. **Public entry:** The Adventure Files start screen displays the title, original responsive pixel-art illustration, and blinking "PRESS START" prompt. After activation, a retro iris transition reveals the authentication interface, which provides sign-in, registration, password recovery, and PT/EN language selection.
-2. **Registration:** Display name, email, password, and password confirmation. Supabase Auth creates an account and sends an email-confirmation link.
-3. **Session:** The app resolves user state after a confirmed sign-in. An authenticated account with no character enters the four-stage creator; an account with an existing character enters My Character.
-4. **Character creation:** Class & Name → Origins → Equipment → Essence & Review → explicit Save.
-5. **Returning user:** My Character displays the single saved record with Edit, Export PDF, Delete Character, Sign Out, and Account Settings.
-6. **Reset:** Forgot Password displays generic feedback, uses a provider-managed recovery link, and leads to a secure password-reset screen.
-7. **Export:** The browser creates a PDF locally from the authorized character record; the server does not store PDF files.
+1. **Public entry:** The Adventure Files start screen displays the title, original responsive pixel-art illustration, and blinking "PRESS START" prompt. A retro iris transition reveals authentication.
+2. **Registration:** The user provides a display name, email, password, and password confirmation. Supabase Auth manages account creation and email verification.
+3. **Session:** The application resolves authentication state. An account without a saved character can enter the creator; an account with a saved character enters My Character.
+4. **Character creation:** Identity → Origins → Equipment → Essence → Journey → Final Review.
+5. **Explicit save:** The sixth stage displays the complete draft and saves only after user confirmation.
+6. **Returning user:** My Character displays the saved character with editing, deletion, export, and sign-out actions.
+7. **Password recovery:** The application uses Supabase Auth's managed recovery flow and safe feedback.
+8. **Export:** The browser generates the selected PDF or PNG file locally from the authorized saved character record.
 
-**Google OAuth is deferred.** No gender/sex field is collected for characters.
+### 3.1. Approved Six-Stage Creator
+
+| Stage | Name | Fields |
+|---|---|---|
+| 01 / 06 | Identity | Class and character name |
+| 02 / 06 | Origins | Ancestry and background |
+| 03 / 06 | Equipment | Weapon and artifact |
+| 04 / 06 | Essence | Personality and aura |
+| 05 / 06 | Journey | Companion and motivation |
+| 06 / 06 | Final Review | Review and explicit save |
+
+The first five stages contain two fields each.
+
+The sixth stage contains no new customization fields.
+
+All required selections must be valid before saving.
+
+The frontend must preserve the character draft when navigating between stages.
+
+### 3.2. Approved Export Formats
+
+| Format | Dimensions | Purpose |
+|---|---|---|
+| PDF | A4 | Printable character sheet |
+| PNG Story/Status | 1080 × 1920 | Instagram Stories and WhatsApp Status |
+| PNG Portrait | 1080 × 1350 | Portrait social posts and sharing |
+
+The application provides file downloads.
+
+Direct social-media publishing is outside the initial scope.
+
+Google OAuth remains deferred.
+
+No sex or gender field is collected for fictional characters.
 
 ## 4. Frontend Responsibilities
 
-- Maintain guest/authenticated/loading states and route guards.
-- Render the private My Character screen, the approved fixed dark theme, localized interface labels, validation errors, and loading/empty/error states.
-- Render the responsive Adventure Files start screen with separate desktop and mobile artwork, independently animated title and "PRESS START" prompt, and the approved closing/opening iris transition.
-- Support Portuguese and English interface labels while preserving stable English catalog slugs and backend data contracts.
-- Keep an editable character draft through grouped steps; preserve entered data on Back/Next.
-- Render an ensemble of eight original class sprites before class selection and one original pair illustration for the chosen class.
-- Load the class/attribute catalog by stable slug and label; show concise descriptions and selection feedback.
-- Randomize only the draft, not the database or account profile.
-- Use explicit actions to Save, Discard Edits, Delete Character, and Export PDF.
-- Generate the retro PDF locally and keep it free of personally identifying account details.
-- Never trust client-side route guards as the only authorization control.
+The React application must:
+
+- Maintain guest, authenticated, loading, and error states.
+- Protect authenticated frontend views.
+- Render the approved dark retro visual identity.
+- Support Portuguese and English interface labels.
+- Preserve language-independent catalog identifiers.
+- Render the Adventure Files start screen with separate desktop and mobile artwork.
+- Provide the approved "PRESS START" and iris-transition interactions.
+- Render the authenticated My Character area.
+- Support the complete six-stage creator.
+- Preserve draft selections during Back/Continue navigation.
+- Preserve the draft during language changes and recoverable failures.
+- Render the eight-class ensemble before class selection.
+- Display the corresponding class illustration after explicit selection.
+- Keep hover and keyboard focus separate from confirmed selection.
+- Validate the current stage before continuing.
+- Display all character values in Final Review.
+- Require an explicit Save action.
+- Prevent duplicate save submissions.
+- Display safe loading, validation, success, and error feedback.
+- Load saved character values before editing.
+- Support character deletion with explicit confirmation.
+- Generate and download the approved PDF and PNG exports.
+- Keep authentication credentials and private account information out of exports.
+
+Client-side validation improves usability but does not replace API validation.
+
+Frontend route guards are not the final authorization boundary.
+
+### 4.1. Character Draft
+
+The draft represents the character currently being created or edited.
+
+Its target structure contains:
+
+- Name.
+- Class.
+- Ancestry.
+- Background.
+- Weapon.
+- Artifact.
+- Personality.
+- Aura.
+- Companion.
+- Motivation.
+
+The draft may contain incomplete selections while the user navigates through the creator.
+
+The saved character must satisfy the complete validation rules.
+
+When editing, initial draft values come from the saved record.
+
+Canceling an edit does not persist the draft.
+
+### 4.2. Responsive Creator Layout
+
+The first stage retains the approved class artwork and form arrangement.
+
+Stages 02–05 contain two customization groups each.
+
+On desktop:
+
+- Paired groups appear side by side.
+- Option buttons use consistent dimensions.
+- A short, subtle divider separates the option grids.
+- The divider does not extend through category headings or navigation buttons.
+
+On mobile:
+
+- Paired groups stack vertically.
+- Desktop divider lines are removed.
+- Existing approved mobile spacing and interaction patterns are preserved.
+
+The creator header displays progress on the left and PT/EN on the right.
 
 ## 5. API Responsibilities and Contracts
 
-Base path: `/api`. The Express API already implements the health endpoint and authenticated character GET, PUT, and DELETE routes. The corresponding frontend creation, editing, and deletion workflows are still being completed.
+Base path: `/api`.
+
+The Express API already implements the health endpoint and authenticated character GET, PUT, and DELETE routes.
+
+The current backend uses the previous character catalog. The expanded contract below is the approved target and requires implementation and compatibility testing.
 
 | Method | Path | Auth | Response |
 |---|---|---|---|
@@ -69,9 +187,13 @@ Base path: `/api`. The Express API already implements the health endpoint and au
 | PUT | `/api/characters/me` | Required | `201` on creation, `200` on update |
 | DELETE | `/api/characters/me` | Required | `204` after own character removed |
 
-Request: `Authorization: Bearer <access_token>`.
+Protected requests use:
 
-`PUT /api/characters/me` takes exactly the editable character fields:
+`Authorization: Bearer <access_token>`
+
+### 5.1. Target Character Payload
+
+After the schema and validation updates, `PUT /api/characters/me` accepts the complete editable character data:
 
 ```json
 {
@@ -80,152 +202,357 @@ Request: `Authorization: Bearer <access_token>`.
   "ancestry": "elf",
   "background": "scholar",
   "weapon": "staff",
-  "artifact": "moon-crystal",
+  "artifact": "arcane-seal",
   "personality": "curious",
   "aura": "arcane",
-  "companion": "owl"
+  "companion": "dragon",
+  "motivation": "knowledge"
 }
 ```
 
-The caller cannot submit or overwrite `user_id`, `id`, `created_at`, or `updated_at`. The API derives owner ID from the **verified authenticated token** and uses database constraints to avoid duplicates. Allowed slugs and character name constraints are independently checked on the server.
+This is the **planned contract**, not a claim that the current API already accepts `motivation`.
 
-Response conventions:
+The caller cannot submit or overwrite:
 
-- `400` malformed or invalid input.
-- `401` missing, invalid, or expired authentication.
-- `403` forbidden operation when relevant.
-- `404` no character on GET.
-- `409` only where an explicit unique/conflict operation warrants it.
-- `429` rate-limited request.
-- `500` generic unexpected server error, without internal stack traces, secrets, or connection details.
+- `user_id`
+- `id`
+- `created_at`
+- `updated_at`
+
+The API derives ownership from the verified authenticated token.
+
+Character fields must be independently validated on the server.
+
+### 5.2. Catalog Validation
+
+The server must validate:
+
+| Field | Rule |
+|---|---|
+| `name` | Required, trimmed, 2–32 characters |
+| `characterClass` | One of 8 approved classes |
+| `ancestry` | One of 6 approved values |
+| `background` | One of 6 approved values |
+| `weapon` | One of 8 approved values |
+| `artifact` | One of 8 approved values; `none` prohibited |
+| `personality` | One of 8 approved values |
+| `aura` | One of 8 approved values |
+| `companion` | One of 8 approved values; `none` permitted |
+| `motivation` | One of 8 approved values |
+
+Motivation is mandatory in the target character model.
+
+The canonical identifiers are documented in [Customization Catalog](./customization-catalog.md).
+
+Translated display labels must never replace stored catalog identifiers.
+
+### 5.3. Response Conventions
+
+- `400` — Malformed or invalid input.
+- `401` — Missing, invalid, or expired authentication.
+- `403` — Forbidden operation when relevant.
+- `404` — No character found on GET.
+- `409` — Explicit uniqueness or conflict operation where applicable.
+- `429` — Rate-limited request.
+- `500` — Generic unexpected server error.
+
+Server errors must not expose stack traces, credentials, connection details, or other sensitive information.
+
+### 5.4. Character Ownership and Uniqueness
+
+The API must:
+
+- Validate every protected request.
+- Derive the user identifier from the authenticated session.
+- Read and modify only the authenticated user's record.
+- Preserve the one-character-per-account constraint.
+- Reject invalid catalog values.
+- Avoid duplicate records during repeated submissions.
+- Return safe and consistent errors.
+
+The database remains responsible for enforcing uniqueness and ownership constraints.
 
 ## 6. Authentication Design
 
-Supabase Auth owns password hashing, email confirmation, sign-in, sign-out, access/refresh token lifecycle, and password reset. The application **must not** maintain its own password table or password-reset tokens.
+Supabase Auth owns:
 
-- Use a user-friendly `display_name` stored in authenticated-user metadata (or an RLS-protected profile table if future needs justify it).
-- Require verified email before a new user can manage characters.
-- Authentication errors must not distinguish an unknown account from an incorrect password.
-- Password-recovery requests must return the same visible message for existing/non-existing accounts.
-- Configure redirect allowlists, provider email templates, abuse/rate limits, and **custom production SMTP** before inviting the public.
-- API middleware validates access tokens through provider-supported verification, not unverified JWT decoding.
-- When using a Supabase client for API data operations, propagate the **end-user's** identity to database requests so RLS applies; do not use a privileged service-role client for routine character CRUD.
+- Password hashing.
+- Email confirmation.
+- Sign-in and sign-out.
+- Access and refresh token lifecycle.
+- Password recovery.
 
-Reference: [Supabase Password Auth](https://supabase.com/docs/guides/auth/passwords), [OWASP Authentication](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html), [OWASP Forgot Password](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html).
+The application must not maintain a custom password table or password-reset tokens.
+
+Authentication requirements:
+
+- Use a user-friendly `display_name` stored in authenticated-user metadata or a protected profile table if justified later.
+- Require verified email before new users can manage characters when confirmation is configured.
+- Avoid revealing whether an account exists through authentication or recovery messages.
+- Configure redirect allowlists and provider email templates.
+- Configure suitable authentication abuse protections.
+- Prepare production email delivery before public registration.
+- Validate access tokens using provider-supported verification.
+- Avoid relying on unverified JWT decoding.
+- Use end-user identity for ordinary database operations so RLS applies.
+
+Privileged service-role access must not be used for routine character CRUD.
+
+References:
+
+- [Supabase Password Auth](https://supabase.com/docs/guides/auth/passwords)
+- [OWASP Authentication](https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html)
+- [OWASP Forgot Password](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html)
 
 ## 7. Storage and Business Rules
 
-### Supabase-managed users
+### 7.1. Supabase-Managed Users
 
-`auth.users` is managed by Supabase. The app references its UUID to identify the owner and never stores user passwords. The display name is an account property, not part of the fictional character.
+`auth.users` is managed by Supabase.
 
-### Application table: characters
+The application references the authenticated user's UUID.
+
+Passwords are never stored in application-owned tables.
+
+The account display name is not part of the fictional character record.
+
+### 7.2. Application Table: characters
+
+The following table describes the **approved target schema**.
+
+The new `motivation` column and revised catalog constraints are not yet assumed to exist in the deployed database.
 
 | Column | Database type | Notes |
 |---|---|---|
 | `id` | UUID | Primary key, server-generated |
 | `user_id` | UUID | Not null, unique, references `auth.users(id)` |
-| `name` | VARCHAR(32) | Trimmed fictional name, 2–32 chars |
+| `name` | VARCHAR(32) | Trimmed fictional name, 2–32 characters |
 | `character_class` | TEXT | One of 8 class slugs |
-| `ancestry` | TEXT | Valid catalog slug |
-| `background` | TEXT | Valid catalog slug |
-| `weapon` | TEXT | Valid catalog slug |
-| `artifact` | TEXT | Catalog slug, including `none` |
-| `personality` | TEXT | Valid catalog slug |
-| `aura` | TEXT | Valid catalog slug |
-| `companion` | TEXT | Catalog slug, including `none` |
+| `ancestry` | TEXT | One of 6 ancestry slugs |
+| `background` | TEXT | One of 6 background slugs |
+| `weapon` | TEXT | One of 8 weapon slugs |
+| `artifact` | TEXT | One of 8 artifact slugs; `none` excluded |
+| `personality` | TEXT | One of 8 personality slugs |
+| `aura` | TEXT | One of 8 aura slugs |
+| `companion` | TEXT | One of 8 companion slugs, including `none` |
+| `motivation` | TEXT | One of 8 motivation slugs; required in target model |
 | `created_at` | TIMESTAMPTZ | Database-generated |
 | `updated_at` | TIMESTAMPTZ | Updated on write |
 
-- `UNIQUE(user_id)` enforces at most one character per account.
-- `ON DELETE CASCADE` for the auth user FK ensures account deletion also removes the character.
-- Constrain fields using tested validation and versioned database checks or equivalent restrictions.
-- No `gender_identity`, sex, avatar gender, or class-art asset selection column.
-- Class images are static frontend assets and determined by `character_class`.
-- No local PDF copies are persisted on the backend.
-- Database SQL and RLS are committed as reviewed migrations.
+### 7.3. Database Rules
 
-See [Data Model](./uml/data-model.md) and [Customization Catalog](./customization-catalog.md).
+- `UNIQUE(user_id)` enforces at most one character per account.
+- The foreign key to `auth.users(id)` uses the approved account-deletion behavior.
+- Character names must meet the approved length constraints.
+- Enumerated fields must match the approved catalog.
+- Only Companion supports the explicit value `none`.
+- Motivation is required for new records after the target schema is fully deployed.
+- Class illustrations remain static frontend assets determined by `character_class`.
+- No gender, sex, body-type, or class-art selection column is introduced.
+- Generated PDF and PNG files are not persisted as character database columns.
+- SQL changes and RLS policies must be maintained through reviewed migrations.
+
+### 7.4. Catalog Identifier Changes
+
+The approved catalog includes:
+
+| Category | Previous identifier | New identifier |
+|---|---|---|
+| Artifact | `emerald-amulet` | `arcane-seal` |
+| Companion | `dragonling` | `dragon` |
+
+The artifact catalog also includes:
+
+- `shadow-crown`
+- `chaos-orb`
+
+These identifiers must be coordinated across:
+
+- Frontend types.
+- Option translations.
+- API validation.
+- Database constraints.
+- Automated tests.
+- Existing saved-character compatibility.
+
+### 7.5. Safe Migration Strategy
+
+The updated character model introduces new requirements that may be incompatible with previously saved records.
+
+Migration work must begin with an inspection of the actual database schema and existing data.
+
+The implementation must:
+
+1. Identify currently deployed character columns and constraints.
+2. Check whether existing records contain older catalog values.
+3. Add support for `motivation` without invalidating existing records during the transition.
+4. Define how older artifact and companion identifiers will remain readable or be migrated.
+5. Avoid assigning arbitrary motivations to existing characters.
+6. Validate the application and API against transitional data.
+7. Apply stricter constraints only after compatibility is established.
+8. Verify read, create, edit, and delete operations after migration.
+
+An initial nullable `motivation` column may be appropriate during a compatibility transition.
+
+The final model requires Motivation for newly completed characters.
+
+No existing character should be deleted or silently overwritten solely because the catalog changed.
+
+The exact SQL migration must be reviewed before execution.
+
+See:
+
+- [Data Model](./uml/data-model.md)
+- [Customization Catalog](./customization-catalog.md)
 
 ## 8. Security Architecture
 
-### 8.1 Identity and access
+### 8.1. Identity and Access
 
-- Authenticate every protected API request; fail closed.
-- Derive the user UUID from the verified session. Never accept client-provided ownership as an access decision.
-- Enable RLS on every exposed application data table. Create explicit SELECT, INSERT, UPDATE, and DELETE policies scoped to `auth.uid() = user_id`.
-- Require `WITH CHECK` for INSERT and UPDATE; confirm the API's DB access context actually exercises RLS.
-- Verify uniqueness and ownership with direct integration tests for two distinct test accounts.
+- Authenticate every protected API request.
+- Reject missing, invalid, or expired credentials.
+- Derive ownership from the verified user session.
+- Never accept a client-provided user ID as an authorization decision.
+- Enable RLS on exposed application tables.
+- Define SELECT, INSERT, UPDATE, and DELETE policies scoped to the authenticated user.
+- Require appropriate `WITH CHECK` conditions for inserts and updates.
+- Verify the API's database context actually enforces RLS.
+- Test uniqueness and ownership with two separate accounts.
 
-### 8.2 Input and output
+### 8.2. Input and Output
 
-- Validate JSON object shape and each enum string; reject unknown or oversized keys/fields.
-- Enforce character name length/normalization in API and database; encode all user-provided text in rendered HTML and PDF.
-- Avoid untrusted HTML injection and avoid reflecting exceptions to clients.
-- Use schema validation at API boundaries; enforce reasonable body-size limits.
+- Validate JSON object shapes and enumerated strings.
+- Reject invalid and oversized fields.
+- Validate names in both API and database layers.
+- Render user-provided character names safely.
+- Avoid untrusted HTML injection.
+- Do not expose internal exceptions to API consumers.
+- Enforce suitable request body-size limits.
+- Update validation whenever the approved catalog changes.
 
-### 8.3 Credentials and browser
+### 8.3. Credentials and Browser
 
-- Only public Supabase URL/publishable values are allowed in Vite's public environment. Never commit or expose `service_role`, SMTP credentials, database passwords, or other backend secrets.
-- Use managed environment secrets, HTTPS, a restricted CORS origin allowlist, and suitable security headers.
-- Follow Supabase's recommended token/session handling; do not write tokens to logs or URLs.
-- Limit automated abuse on authentication and public endpoints. Do not use a custom homegrown account lockout or recovery mechanism.
-- Ensure exported PDFs do not accidentally contain login email, display name, or token values.
+- Only public Supabase configuration values may be exposed through the frontend.
+- Never expose service-role credentials or database passwords.
+- Keep secrets out of Git history.
+- Use HTTPS in production.
+- Configure restrictive CORS policies.
+- Apply suitable security headers.
+- Follow recommended session and token handling.
+- Never place authentication tokens in logs or exported files.
+- Protect public endpoints against automated abuse.
 
-### 8.4 Operational security and privacy
+### 8.4. Export Privacy
 
-- Keep dependencies updated; review npm audit results and GitHub alerts.
-- Log useful error/security events without passwords, tokens, private profile data, or entire request bodies.
-- Document privacy notice, user data access/correction/deletion procedures, and error reporting before public launch.
-- Perform a security acceptance review; no application can promise perfect security.
+Every export format must exclude:
 
-Reference: [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security) and [Production Checklist](https://supabase.com/docs/guides/deployment/going-into-prod).
+- Account passwords.
+- Authentication tokens.
+- Internal user identifiers.
+- Authentication metadata.
+- Unrelated account information.
+
+Exports must use only the authorized saved character data and approved presentation assets.
+
+The filename may include a sanitized character name, but must not include credentials or internal account identifiers.
+
+### 8.5. Operational Security and Privacy
+
+- Keep dependencies updated.
+- Review dependency advisories and GitHub alerts.
+- Log useful operational events without sensitive credentials.
+- Document user data access, correction, and deletion procedures.
+- Review authentication and authorization before public deployment.
+- Verify production email and account-recovery behavior.
+- Perform security acceptance testing before release.
+
+References:
+
+- [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security)
+- [Supabase Production Checklist](https://supabase.com/docs/guides/deployment/going-into-prod)
 
 ## 9. State Management and UX
 
-- React holds authentication/session state, character data, an editable draft, the current wizard stage, save status, and the selected interface language.
-- Draft changes do not affect persistence until explicit Save.
-- Back/Next never discard valid selections; randomization only updates the draft.
-- Prefer accessible text controls for selection, with decorative icons and class illustrations.
-- The interface uses one fixed dark theme. Language preference may be retained locally, while saved character fields are persisted in PostgreSQL.
-- Keep `My Character` private and prevent flashing stale data from a previous session after sign-out.
+React holds:
+
+- Authentication/session state.
+- Saved character data.
+- Editable character draft.
+- Current creator stage.
+- Validation state.
+- Save status.
+- Selected interface language.
+- Export generation status.
+
+Draft changes do not affect persistent records until explicit Save.
+
+Back and Continue navigation preserve valid selections.
+
+Changing language does not alter stored identifiers.
+
+Optional randomization modifies only the draft.
+
+The sixth stage is reserved for review and saving.
+
+The frontend must avoid displaying stale character data after sign-out.
+
+The application uses one fixed dark theme.
 
 ## 10. Testing Strategy
 
 | Test level | Required checks |
 |---|---|
-| Existing API smoke | Health returns 200; unknown routes return 404 |
-| Schema and validation | Invalid class, malformed/oversized name, missing/invalid enum fields rejected |
-| Auth | No token, invalid token, expired token rejected; email confirmation/recovery work |
-| Authorization | User A cannot GET/PUT/DELETE User B's record; RLS verified independently |
-| Persistence | Single-row invariant, save/update/reload/delete, duplicate-save handling |
-| UX | Start-screen interactions and transitions, PT/EN selection, class preview behavior, wizard draft persistence, Back/Next navigation, and randomization without automatic saving |
-| Export | PDF contains fictional attributes and no account email/token |
-| CI | Frontend and API install/build/lint/test, secrets review, dependency advisories |
+| API smoke | Health returns 200; unknown routes return 404 |
+| Schema and validation | Invalid names, missing Motivation, invalid artifact and companion slugs, malformed fields |
+| Authentication | Missing, invalid, and expired credentials rejected |
+| Authorization | User A cannot access User B's record; RLS independently verified |
+| Persistence | Single-row invariant, create, update, reload, delete, duplicate-save handling |
+| Creator UX | Six stages, required selections, progress indicator, draft preservation, Back/Continue behavior |
+| Localization | PT/EN labels change without altering selected slugs or draft values |
+| Class artwork | Eight-class default, explicit selection, persistent active state |
+| Data migration | Existing records remain readable and safely editable during schema evolution |
+| PDF export | A4 output, complete fictional attributes, valid download, no private account data |
+| Story/Status export | Valid PNG at exactly 1080 × 1920 pixels |
+| Portrait export | Valid PNG at exactly 1080 × 1350 pixels |
+| CI | Frontend and API install, build, lint, tests, and configured security checks |
+
+Passing frontend tests alone does not establish database or API compatibility.
+
+The completed workflow must be validated through integration tests.
 
 ## 11. Deployment and Development
 
-- Development currently runs in **Google Cloud Shell Editor**. Local scripts remain in the `web/` and `api/` directories.
-- Deploy frontend from `web/` to Vercel with environment-specific **public** configuration.
-- Deploy the Express API to a compatible Node runtime (Vercel function configuration or a dedicated service, decided during deployment implementation). Do not assume an ordinary long-running `server.listen` process works as-is in a serverless function.
-- Supabase hosts Auth and PostgreSQL. Configure separate local/test/production credentials and production email delivery.
-- GitHub Actions checks pull requests before merging to `main`.
-- Add secrets only in deployment and GitHub secret management, never in code.
-- Validate auth callback URLs, CORS origins, API URL, cookies/token behavior, email delivery, and RLS on the real deployed domains.
+- Development currently runs in Google Cloud Shell Editor.
+- Frontend and backend scripts remain in `web/` and `api/`.
+- The frontend is intended for deployment to Vercel with environment-specific public configuration.
+- Express API deployment must use a compatible Node runtime.
+- Serverless deployment requires an appropriate handler rather than assuming an ordinary long-running process will work unchanged.
+- Supabase hosts authentication and PostgreSQL.
+- Use appropriately separated development, test, and production credentials.
+- Configure production authentication email delivery.
+- GitHub Actions validates pull requests before merging.
+- Store deployment credentials in approved secret-management systems.
+- Verify authentication callbacks, CORS, API URLs, email delivery, and RLS on deployed domains.
+- Validate export generation in the browsers and devices targeted by the application.
+- Apply reviewed database migrations before enabling incompatible frontend save behavior.
 
 ## 12. Architectural Decisions
 
-- **AD-01:** Separate React UI and Express API to preserve a clear backend boundary.
-- **AD-02:** Managed Supabase email/password Auth; Google OAuth deferred.
-- **AD-03:** `UNIQUE(user_id)` and RLS for one private character per account.
-- **AD-04:** Expanded data-driven customization catalog with seven enumerated choices, eight classes, and no gender/sex field.
-- **AD-05:** Four grouped wizard stages, static pixel art, optional random draft generation, and no combat mechanics.
-- **AD-06:** Local PDF export; no server-generated PDF storage.
-- **AD-07:** Security verification and production email readiness before public signup.
-- **AD-08:** Adventure Files uses a fixed dark visual identity, with no light/dark theme toggle.
-- **AD-09:** The responsive start screen precedes authentication and uses separate artwork compositions, independent interface text, and a retro iris transition.
-- **AD-10:** The interface supports Portuguese and English; stored character values retain stable English slugs.
-- **AD-11:** Character creation uses a four-stage wizard with an eight-class default illustration and temporary versus confirmed class-selection states.
+- **AD-01:** Separate React frontend and Express API to preserve a clear backend boundary.
+- **AD-02:** Use Supabase-managed email/password authentication; defer Google OAuth.
+- **AD-03:** Enforce one private saved character per account using `UNIQUE(user_id)` and RLS.
+- **AD-04:** Use a version-controlled catalog containing eight classes and eight enumerated customization categories, without sex or gender fields.
+- **AD-05:** Use a six-stage guided creator with two fields in each of the first five stages and an exclusive Final Review stage.
+- **AD-06:** Generate PDF A4 and both approved PNG formats from saved character data without server-side file persistence.
+- **AD-07:** Require security verification and production email readiness before public registration.
+- **AD-08:** Preserve a fixed dark visual identity without a light/dark theme toggle.
+- **AD-09:** Place the responsive Adventure Files start screen before authentication, with original artwork and a retro iris transition.
+- **AD-10:** Support Portuguese and English labels while retaining stable English catalog identifiers.
+- **AD-11:** Preserve the eight-class ensemble and explicit class-selection illustration behavior.
+- **AD-12:** Keep desktop paired category layouts and mobile stacked layouts, using subtle desktop-only dividers.
+- **AD-13:** Introduce the Motivation field and changed catalog identifiers through reviewed, compatibility-safe API and database updates.
+- **AD-14:** Require explicit user confirmation before saving changes or deleting a character.
+- **AD-15:** Use the saved character record as the common source for the My Character dashboard and all export formats.
 
 ## 13. Documentation Index
 
