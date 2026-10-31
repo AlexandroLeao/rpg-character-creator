@@ -1,4 +1,5 @@
 import request from 'supertest'
+
 import {
   beforeEach,
   describe,
@@ -6,6 +7,10 @@ import {
   it,
   vi,
 } from 'vitest'
+
+/* ==========================================
+   SUPABASE MOCKS
+   ========================================== */
 
 const mocks = vi.hoisted(() => ({
   getUser: vi.fn(),
@@ -22,27 +27,43 @@ vi.mock('../lib/supabase.js', () => ({
       getUser: mocks.getUser,
     },
   }),
+
   createUserDatabaseClient:
     mocks.createUserDatabaseClient,
 }))
 
 import app from '../app.js'
 
+/* ==========================================
+   EXAMPLE CHARACTER
+   ========================================== */
+
 const exampleCharacter = {
   id: 'character-123',
   user_id: 'verified-user-id',
+
   name: 'Eldrin',
   character_class: 'mage',
+
   ancestry: 'elf',
   background: 'scholar',
+
   weapon: 'staff',
   artifact: 'moon-crystal',
+
   personality: 'curious',
   aura: 'arcane',
+
   companion: 'owl',
+  motivation: 'knowledge',
+
   created_at: '2026-10-29T10:00:00Z',
   updated_at: '2026-10-29T10:00:00Z',
 }
+
+/* ==========================================
+   GET /api/characters/me
+   ========================================== */
 
 describe('GET /api/characters/me', () => {
   beforeEach(() => {
@@ -52,7 +73,8 @@ describe('GET /api/characters/me', () => {
       data: {
         user: {
           id: 'verified-user-id',
-          email_confirmed_at: '2026-10-29T10:00:00Z',
+          email_confirmed_at:
+            '2026-10-29T10:00:00Z',
         },
       },
       error: null,
@@ -80,6 +102,10 @@ describe('GET /api/characters/me', () => {
     })
   })
 
+  /* ========================================
+     AUTHENTICATION
+     ======================================== */
+
   it('rejects unauthenticated requests', async () => {
     const response = await request(app)
       .get('/api/characters/me')
@@ -105,7 +131,10 @@ describe('GET /api/characters/me', () => {
 
     const response = await request(app)
       .get('/api/characters/me')
-      .set('Authorization', 'Bearer invalid-token')
+      .set(
+        'Authorization',
+        'Bearer invalid-token',
+      )
 
     expect(response.status).toBe(401)
 
@@ -127,7 +156,10 @@ describe('GET /api/characters/me', () => {
 
     const response = await request(app)
       .get('/api/characters/me')
-      .set('Authorization', 'Bearer unverified-token')
+      .set(
+        'Authorization',
+        'Bearer unverified-token',
+      )
 
     expect(response.status).toBe(403)
 
@@ -140,10 +172,17 @@ describe('GET /api/characters/me', () => {
     ).not.toHaveBeenCalled()
   })
 
+  /* ========================================
+     CHARACTER NOT FOUND
+     ======================================== */
+
   it('returns 404 when the user has no character', async () => {
     const response = await request(app)
       .get('/api/characters/me')
-      .set('Authorization', 'Bearer valid-token')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
 
     expect(response.status).toBe(404)
 
@@ -151,6 +190,10 @@ describe('GET /api/characters/me', () => {
       error: 'Character not found',
     })
   })
+
+  /* ========================================
+     RETRIEVE CHARACTER
+     ======================================== */
 
   it('returns the authenticated user character', async () => {
     mocks.maybeSingle.mockResolvedValue({
@@ -160,7 +203,10 @@ describe('GET /api/characters/me', () => {
 
     const response = await request(app)
       .get('/api/characters/me')
-      .set('Authorization', 'Bearer valid-token')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
 
     expect(response.status).toBe(200)
 
@@ -168,23 +214,65 @@ describe('GET /api/characters/me', () => {
       character: {
         id: 'character-123',
         name: 'Eldrin',
+
         characterClass: 'mage',
+
         ancestry: 'elf',
         background: 'scholar',
+
         weapon: 'staff',
         artifact: 'moon-crystal',
+
         personality: 'curious',
         aura: 'arcane',
+
         companion: 'owl',
+        motivation: 'knowledge',
+
         createdAt: '2026-10-29T10:00:00Z',
         updatedAt: '2026-10-29T10:00:00Z',
       },
     })
 
-    expect(response.body.character).not.toHaveProperty(
-      'user_id',
-    )
+    expect(
+      response.body.character,
+    ).not.toHaveProperty('user_id')
   })
+
+  /* ========================================
+     LEGACY CHARACTER COMPATIBILITY
+     ======================================== */
+
+  it('supports existing characters without motivation', async () => {
+    mocks.maybeSingle.mockResolvedValue({
+      data: {
+        ...exampleCharacter,
+        motivation: null,
+      },
+      error: null,
+    })
+
+    const response = await request(app)
+      .get('/api/characters/me')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
+
+    expect(response.status).toBe(200)
+
+    expect(
+      response.body.character.motivation,
+    ).toBeNull()
+
+    expect(
+      response.body.character.id,
+    ).toBe('character-123')
+  })
+
+  /* ========================================
+     VERIFIED USER IDENTITY
+     ======================================== */
 
   it('queries the database using the verified identity', async () => {
     mocks.maybeSingle.mockResolvedValue({
@@ -196,7 +284,10 @@ describe('GET /api/characters/me', () => {
       .get(
         '/api/characters/me?userId=another-user-id',
       )
-      .set('Authorization', 'Bearer valid-token')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
 
     expect(response.status).toBe(200)
 
@@ -209,7 +300,15 @@ describe('GET /api/characters/me', () => {
     )
 
     expect(mocks.select).toHaveBeenCalledWith(
-      expect.stringContaining('character_class'),
+      expect.stringContaining(
+        'character_class',
+      ),
+    )
+
+    expect(mocks.select).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'motivation',
+      ),
     )
 
     expect(mocks.eq).toHaveBeenCalledWith(
@@ -217,6 +316,10 @@ describe('GET /api/characters/me', () => {
       'verified-user-id',
     )
   })
+
+  /* ========================================
+     ROW LEVEL SECURITY
+     ======================================== */
 
   it('returns 404 when RLS provides no visible character', async () => {
     mocks.maybeSingle.mockResolvedValue({
@@ -226,7 +329,10 @@ describe('GET /api/characters/me', () => {
 
     const response = await request(app)
       .get('/api/characters/me')
-      .set('Authorization', 'Bearer valid-token')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
 
     expect(response.status).toBe(404)
 
@@ -236,18 +342,26 @@ describe('GET /api/characters/me', () => {
     )
   })
 
+  /* ========================================
+     DATABASE ERRORS
+     ======================================== */
+
   it('handles database errors safely', async () => {
     mocks.maybeSingle.mockResolvedValue({
       data: null,
       error: {
-        message: 'Internal database information',
+        message:
+          'Internal database information',
         code: '42501',
       },
     })
 
     const response = await request(app)
       .get('/api/characters/me')
-      .set('Authorization', 'Bearer valid-token')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
 
     expect(response.status).toBe(503)
 
@@ -262,12 +376,17 @@ describe('GET /api/characters/me', () => {
 
   it('handles unexpected database failures safely', async () => {
     mocks.maybeSingle.mockRejectedValue(
-      new Error('Internal database connection failure'),
+      new Error(
+        'Internal database connection failure',
+      ),
     )
 
     const response = await request(app)
       .get('/api/characters/me')
-      .set('Authorization', 'Bearer valid-token')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
 
     expect(response.status).toBe(503)
 

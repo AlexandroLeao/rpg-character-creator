@@ -1,6 +1,13 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import type { Language } from './lib/authTranslations'
+
+import {
+  CharacterApiError,
+  saveMyCharacter,
+  type Character,
+  type CharacterSaveInput,
+} from './lib/characterApi'
 
 import type { CharacterClass } from './CharacterPreview'
 
@@ -43,12 +50,6 @@ import {
   type CharacterReviewData,
 } from './CharacterReviewStep'
 
-type CharacterCreatorProps = {
-  language: Language
-  onCancel: () => void
-  onStepChange?: (step: number) => void
-}
-
 /*
  * ADVENTURE FILES
  * CHARACTER CREATOR
@@ -61,9 +62,27 @@ type CharacterCreatorProps = {
  * 06 — Final Review
  */
 
-/*
- * CHARACTER DRAFT
- */
+type CharacterCreatorProps = {
+  language: Language
+  onCancel: () => void
+
+  onStepChange?: (step: number) => void
+
+  /*
+   * Optional for compatibility with
+   * existing creator tests.
+   *
+   * The dashboard provides both values
+   * when real saving is available.
+   */
+
+  accessToken?: string
+  onSaved?: (character: Character) => void
+}
+
+/* ==========================================
+   CHARACTER DRAFT
+   ========================================== */
 
 type CharacterDraft = {
   characterClass: CharacterClass | null
@@ -82,14 +101,9 @@ type CharacterDraft = {
   motivation: CharacterMotivation | null
 }
 
-/*
- * COMPLETE CHARACTER VALIDATION
- *
- * The Final Review requires all ten fields.
- *
- * "none" remains a valid companion selection,
- * but null is never a valid completed selection.
- */
+/* ==========================================
+   COMPLETE CHARACTER VALIDATION
+   ========================================== */
 
 function isCompleteDraft(
   draft: CharacterDraft,
@@ -111,20 +125,68 @@ function isCompleteDraft(
   )
 }
 
+/* ==========================================
+   SAVE ERROR TRANSLATIONS
+   ========================================== */
+
+function getSaveErrorMessage(
+  language: Language,
+  error: unknown,
+): string {
+  if (error instanceof CharacterApiError) {
+    if (
+      error.kind === 'unauthorized' ||
+      error.kind === 'forbidden'
+    ) {
+      return language === 'pt'
+        ? 'Sua sessão não pôde ser validada. Entre novamente.'
+        : 'Your session could not be verified. Please sign in again.'
+    }
+
+    if (error.kind === 'invalidRequest') {
+      return language === 'pt'
+        ? 'Alguma informação do personagem é inválida. Revise suas escolhas.'
+        : 'Some character information is invalid. Review your choices.'
+    }
+
+    if (error.kind === 'conflict') {
+      return language === 'pt'
+        ? 'O personagem foi alterado. Tente salvar novamente.'
+        : 'The character has changed. Please try saving again.'
+    }
+
+    if (error.kind === 'invalidResponse') {
+      return language === 'pt'
+        ? 'Não foi possível confirmar o salvamento. Verifique seu personagem antes de tentar novamente.'
+        : 'Unable to confirm saving. Check your character before trying again.'
+    }
+  }
+
+  return language === 'pt'
+    ? 'Não foi possível salvar o personagem. Verifique sua conexão e tente novamente.'
+    : 'Unable to save your character. Check your connection and try again.'
+}
+
+/* ==========================================
+   CHARACTER CREATOR
+   ========================================== */
+
 export function CharacterCreator({
   language,
   onCancel,
   onStepChange,
+  accessToken,
+  onSaved,
 }: CharacterCreatorProps) {
-  /*
-   * CURRENT STEP
-   */
+  /* ========================================
+     CURRENT STEP
+     ======================================== */
 
   const [step, setStep] = useState(1)
 
-  /*
-   * CHARACTER DRAFT
-   */
+  /* ========================================
+     CHARACTER DRAFT
+     ======================================== */
 
   const [draft, setDraft] = useState<CharacterDraft>({
     characterClass: null,
@@ -143,18 +205,94 @@ export function CharacterCreator({
     motivation: null,
   })
 
+  /* ========================================
+     SAVE STATE
+     ======================================== */
+
+  const [saving, setSaving] = useState(false)
+
+  const [saveError, setSaveError] =
+    useState<string | null>(null)
+
   /*
-   * STEP NAVIGATION
+   * Prevent duplicate save requests,
+   * even if two clicks happen before
+   * React updates the button state.
    */
 
+  const saveInProgress = useRef(false)
+
+  /* ========================================
+     STEP NAVIGATION
+     ======================================== */
+
   function goToStep(nextStep: number) {
+    setSaveError(null)
     setStep(nextStep)
     onStepChange?.(nextStep)
   }
 
-  /*
-   * STEP 01 — IDENTITY
-   */
+  /* ========================================
+     SAVE CHARACTER
+     ======================================== */
+
+  async function handleSave() {
+    if (
+      !accessToken ||
+      !onSaved ||
+      !isCompleteDraft(draft) ||
+      saveInProgress.current
+    ) {
+      return
+    }
+
+    saveInProgress.current = true
+
+    setSaving(true)
+    setSaveError(null)
+
+    const input: CharacterSaveInput = {
+      name: draft.name.trim(),
+      characterClass: draft.characterClass,
+
+      ancestry: draft.ancestry,
+      background: draft.background,
+
+      weapon: draft.weapon,
+      artifact: draft.artifact,
+
+      personality: draft.personality,
+      aura: draft.aura,
+
+      companion: draft.companion,
+      motivation: draft.motivation,
+    }
+
+    try {
+      const savedCharacter = await saveMyCharacter(
+        accessToken,
+        input,
+      )
+
+      /*
+       * The dashboard changes only after
+       * the API confirms saving.
+       */
+
+      onSaved(savedCharacter)
+    } catch (error: unknown) {
+      setSaveError(
+        getSaveErrorMessage(language, error),
+      )
+    } finally {
+      saveInProgress.current = false
+      setSaving(false)
+    }
+  }
+
+  /* ========================================
+     STEP 01 — IDENTITY
+     ======================================== */
 
   if (step === 1) {
     return (
@@ -175,9 +313,9 @@ export function CharacterCreator({
     )
   }
 
-  /*
-   * STEP 02 — ORIGINS
-   */
+  /* ========================================
+     STEP 02 — ORIGINS
+     ======================================== */
 
   if (step === 2) {
     return (
@@ -205,9 +343,9 @@ export function CharacterCreator({
     )
   }
 
-  /*
-   * STEP 03 — EQUIPMENT
-   */
+  /* ========================================
+     STEP 03 — EQUIPMENT
+     ======================================== */
 
   if (step === 3) {
     return (
@@ -235,9 +373,9 @@ export function CharacterCreator({
     )
   }
 
-  /*
-   * STEP 04 — ESSENCE
-   */
+  /* ========================================
+     STEP 04 — ESSENCE
+     ======================================== */
 
   if (step === 4) {
     return (
@@ -265,9 +403,9 @@ export function CharacterCreator({
     )
   }
 
-  /*
-   * STEP 05 — JOURNEY
-   */
+  /* ========================================
+     STEP 05 — JOURNEY
+     ======================================== */
 
   if (step === 5) {
     return (
@@ -295,12 +433,9 @@ export function CharacterCreator({
     )
   }
 
-  /*
-   * STEP 06 — FINAL REVIEW
-   *
-   * The review is displayed only when
-   * all required fields are complete.
-   */
+  /* ========================================
+     STEP 06 — FINAL REVIEW
+     ======================================== */
 
   if (!isCompleteDraft(draft)) {
     return (
@@ -322,10 +457,24 @@ export function CharacterCreator({
   }
 
   return (
-    <CharacterReviewStep
-      language={language}
-      data={draft}
-      onBack={() => goToStep(5)}
-    />
+    <>
+      <CharacterReviewStep
+        language={language}
+        data={draft}
+        onBack={() => goToStep(5)}
+        onSave={
+          accessToken && onSaved
+            ? handleSave
+            : undefined
+        }
+        saving={saving}
+      />
+
+      {saveError && (
+        <p role="alert">
+          {saveError}
+        </p>
+      )}
+    </>
   )
 }

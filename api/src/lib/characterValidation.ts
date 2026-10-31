@@ -39,15 +39,24 @@ export const characterOptions = {
     'wand',
   ],
 
+  /*
+   * CURRENT ARTIFACT CATALOG
+   *
+   * Legacy artifact identifiers remain
+   * supported by the database for reading
+   * existing characters.
+   *
+   * New saves use the current catalog.
+   */
+
   artifact: [
-    'none',
-    'emerald-amulet',
+    'arcane-seal',
     'ancient-ring',
     'moon-crystal',
     'runic-compass',
-    'forgotten-tome',
+    'shadow-crown',
     'phoenix-feather',
-    'timeworn-key',
+    'chaos-orb',
     'sun-relic',
   ],
 
@@ -81,20 +90,50 @@ export const characterOptions = {
     'fox',
     'raven',
     'turtle',
-    'dragonling',
+    'dragon',
+  ],
+
+  motivation: [
+    'protection',
+    'freedom',
+    'justice',
+    'redemption',
+    'glory',
+    'knowledge',
+    'revenge',
+    'adventure',
   ],
 } as const
 
 export type CharacterInput = {
   name: string
-  characterClass: (typeof characterOptions.characterClass)[number]
-  ancestry: (typeof characterOptions.ancestry)[number]
-  background: (typeof characterOptions.background)[number]
-  weapon: (typeof characterOptions.weapon)[number]
-  artifact: (typeof characterOptions.artifact)[number]
-  personality: (typeof characterOptions.personality)[number]
-  aura: (typeof characterOptions.aura)[number]
-  companion: (typeof characterOptions.companion)[number]
+
+  characterClass:
+    (typeof characterOptions.characterClass)[number]
+
+  ancestry:
+    (typeof characterOptions.ancestry)[number]
+
+  background:
+    (typeof characterOptions.background)[number]
+
+  weapon:
+    (typeof characterOptions.weapon)[number]
+
+  artifact:
+    (typeof characterOptions.artifact)[number]
+
+  personality:
+    (typeof characterOptions.personality)[number]
+
+  aura:
+    (typeof characterOptions.aura)[number]
+
+  companion:
+    (typeof characterOptions.companion)[number]
+
+  motivation:
+    (typeof characterOptions.motivation)[number]
 }
 
 export type CharacterValidationResult =
@@ -160,13 +199,25 @@ export function validateCharacterInput(
 
   const errors: Record<string, string> = {}
 
-  const containsUnexpectedFields = Object.keys(input).some(
-    (field) => !allowedFields.has(field),
-  )
+  /*
+   * Reject unexpected fields.
+   *
+   * Clients cannot set database IDs,
+   * user ownership or timestamps.
+   */
+
+  const containsUnexpectedFields =
+    Object.keys(input).some(
+      (field) => !allowedFields.has(field),
+    )
 
   if (containsUnexpectedFields) {
     errors.body = 'Unexpected fields are not allowed.'
   }
+
+  /*
+   * CHARACTER NAME
+   */
 
   const rawName = input.name
 
@@ -177,14 +228,27 @@ export function validateCharacterInput(
   } else {
     normalizedName = rawName.trim()
 
-    const nameLength = Array.from(normalizedName).length
+    const nameLength =
+      Array.from(normalizedName).length
 
     if (containsControlCharacters(rawName)) {
-      errors.name = 'Name cannot contain control characters.'
-    } else if (nameLength < 2 || nameLength > 32) {
-      errors.name = 'Name must be between 2 and 32 characters.'
+      errors.name =
+        'Name cannot contain control characters.'
+    } else if (
+      nameLength < 2 ||
+      nameLength > 32
+    ) {
+      errors.name =
+        'Name must be between 2 and 32 characters.'
     }
   }
+
+  /*
+   * CHARACTER OPTIONS
+   *
+   * Every selection must belong to the
+   * approved six-stage catalog.
+   */
 
   for (const field of optionFields) {
     const value = input[field]
@@ -196,9 +260,14 @@ export function validateCharacterInput(
       typeof value !== 'string' ||
       !options.includes(value)
     ) {
-      errors[field] = `Invalid ${field} selection.`
+      errors[field] =
+        `Invalid ${field} selection.`
     }
   }
+
+  /*
+   * VALIDATION RESULT
+   */
 
   if (
     Object.keys(errors).length > 0 ||
@@ -212,6 +281,7 @@ export function validateCharacterInput(
 
   return {
     success: true,
+
     data: {
       name: normalizedName,
 
@@ -238,6 +308,9 @@ export function validateCharacterInput(
 
       companion:
         input.companion as CharacterInput['companion'],
+
+      motivation:
+        input.motivation as CharacterInput['motivation'],
     },
   }
 }

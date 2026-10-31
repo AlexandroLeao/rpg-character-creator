@@ -1,4 +1,5 @@
 import request from 'supertest'
+
 import {
   beforeEach,
   describe,
@@ -6,6 +7,15 @@ import {
   it,
   vi,
 } from 'vitest'
+
+/* ==========================================
+   ADVENTURE FILES
+   CHARACTER API — PUT TESTS
+   ========================================== */
+
+/* ==========================================
+   SUPABASE MOCKS
+   ========================================== */
 
 const mocks = vi.hoisted(() => ({
   getUser: vi.fn(),
@@ -26,11 +36,16 @@ vi.mock('../lib/supabase.js', () => ({
       getUser: mocks.getUser,
     },
   }),
+
   createUserDatabaseClient:
     mocks.createUserDatabaseClient,
 }))
 
 import app from '../app.js'
+
+/* ==========================================
+   VALID CHARACTER
+   ========================================== */
 
 const validCharacter = {
   name: 'Eldrin',
@@ -42,7 +57,12 @@ const validCharacter = {
   personality: 'curious',
   aura: 'arcane',
   companion: 'owl',
+  motivation: 'knowledge',
 }
+
+/* ==========================================
+   DATABASE FIELDS
+   ========================================== */
 
 const databaseFields = {
   name: 'Eldrin',
@@ -54,15 +74,26 @@ const databaseFields = {
   personality: 'curious',
   aura: 'arcane',
   companion: 'owl',
+  motivation: 'knowledge',
 }
+
+/* ==========================================
+   SAVED CHARACTER
+   ========================================== */
 
 const savedCharacter = {
   id: 'character-123',
   user_id: 'verified-user-id',
+
   ...databaseFields,
+
   created_at: '2026-10-29T10:00:00Z',
   updated_at: '2026-10-29T10:00:00Z',
 }
+
+/* ==========================================
+   PUT /api/characters/me
+   ========================================== */
 
 describe('PUT /api/characters/me', () => {
   beforeEach(() => {
@@ -72,7 +103,8 @@ describe('PUT /api/characters/me', () => {
       data: {
         user: {
           id: 'verified-user-id',
-          email_confirmed_at: '2026-10-29T10:00:00Z',
+          email_confirmed_at:
+            '2026-10-29T10:00:00Z',
         },
       },
       error: null,
@@ -118,6 +150,10 @@ describe('PUT /api/characters/me', () => {
     })
   })
 
+  /* ========================================
+     AUTHENTICATION
+     ======================================== */
+
   it('rejects requests without authentication', async () => {
     const response = await request(app)
       .put('/api/characters/me')
@@ -140,7 +176,10 @@ describe('PUT /api/characters/me', () => {
 
     const response = await request(app)
       .put('/api/characters/me')
-      .set('Authorization', 'Bearer invalid-token')
+      .set(
+        'Authorization',
+        'Bearer invalid-token',
+      )
       .send(validCharacter)
 
     expect(response.status).toBe(401)
@@ -162,7 +201,10 @@ describe('PUT /api/characters/me', () => {
 
     const response = await request(app)
       .put('/api/characters/me')
-      .set('Authorization', 'Bearer unverified-token')
+      .set(
+        'Authorization',
+        'Bearer unverified-token',
+      )
       .send(validCharacter)
 
     expect(response.status).toBe(403)
@@ -170,6 +212,10 @@ describe('PUT /api/characters/me', () => {
     expect(mocks.update).not.toHaveBeenCalled()
     expect(mocks.insert).not.toHaveBeenCalled()
   })
+
+  /* ========================================
+     CREATE CHARACTER
+     ======================================== */
 
   it('creates a character when none exists', async () => {
     mocks.updateMaybeSingle.mockResolvedValue({
@@ -179,7 +225,10 @@ describe('PUT /api/characters/me', () => {
 
     const response = await request(app)
       .put('/api/characters/me')
-      .set('Authorization', 'Bearer valid-token')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
       .send(validCharacter)
 
     expect(response.status).toBe(201)
@@ -187,6 +236,10 @@ describe('PUT /api/characters/me', () => {
     expect(response.body.character.id).toBe(
       'character-123',
     )
+
+    expect(
+      response.body.character.motivation,
+    ).toBe('knowledge')
 
     expect(mocks.insert).toHaveBeenCalledWith({
       user_id: 'verified-user-id',
@@ -198,10 +251,17 @@ describe('PUT /api/characters/me', () => {
     ).toHaveBeenCalledWith('valid-token')
   })
 
+  /* ========================================
+     UPDATE CHARACTER
+     ======================================== */
+
   it('updates an existing character', async () => {
     const response = await request(app)
       .put('/api/characters/me')
-      .set('Authorization', 'Bearer valid-token')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
       .send(validCharacter)
 
     expect(response.status).toBe(200)
@@ -209,6 +269,10 @@ describe('PUT /api/characters/me', () => {
     expect(response.body.character.id).toBe(
       'character-123',
     )
+
+    expect(
+      response.body.character.motivation,
+    ).toBe('knowledge')
 
     expect(mocks.update).toHaveBeenCalledWith(
       databaseFields,
@@ -224,8 +288,13 @@ describe('PUT /api/characters/me', () => {
 
   it('ignores user IDs supplied through query parameters', async () => {
     const response = await request(app)
-      .put('/api/characters/me?userId=attacker-id')
-      .set('Authorization', 'Bearer valid-token')
+      .put(
+        '/api/characters/me?userId=attacker-id',
+      )
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
       .send(validCharacter)
 
     expect(response.status).toBe(200)
@@ -236,10 +305,17 @@ describe('PUT /api/characters/me', () => {
     )
   })
 
+  /* ========================================
+     INVALID REQUESTS
+     ======================================== */
+
   it('rejects immutable fields in the request body', async () => {
     const response = await request(app)
       .put('/api/characters/me')
-      .set('Authorization', 'Bearer valid-token')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
       .send({
         ...validCharacter,
         user_id: 'attacker-user-id',
@@ -258,7 +334,10 @@ describe('PUT /api/characters/me', () => {
   it('rejects invalid customization options', async () => {
     const response = await request(app)
       .put('/api/characters/me')
-      .set('Authorization', 'Bearer valid-token')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
       .send({
         ...validCharacter,
         characterClass: 'invalid-class',
@@ -273,7 +352,10 @@ describe('PUT /api/characters/me', () => {
   it('rejects an empty character body', async () => {
     const response = await request(app)
       .put('/api/characters/me')
-      .set('Authorization', 'Bearer valid-token')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
       .send({})
 
     expect(response.status).toBe(400)
@@ -282,10 +364,78 @@ describe('PUT /api/characters/me', () => {
     expect(mocks.insert).not.toHaveBeenCalled()
   })
 
+  /* ========================================
+     MOTIVATION VALIDATION
+     ======================================== */
+
+  /*
+   * Verify that motivation is required.
+   *
+   * Create a copy of the character and
+   * remove its motivation field.
+   *
+   * This avoids unused-variable errors
+   * while preserving the original fixture.
+   */
+
+  it('rejects missing motivation', async () => {
+    const withoutMotivation: Record<string, unknown> = {
+      ...validCharacter,
+    }
+
+    delete withoutMotivation.motivation
+
+    const response = await request(app)
+      .put('/api/characters/me')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
+      .send(withoutMotivation)
+
+    expect(response.status).toBe(400)
+
+    expect(response.body.details).toHaveProperty(
+      'motivation',
+    )
+
+    expect(mocks.update).not.toHaveBeenCalled()
+    expect(mocks.insert).not.toHaveBeenCalled()
+  })
+
+  it('rejects invalid motivation', async () => {
+    const response = await request(app)
+      .put('/api/characters/me')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
+      .send({
+        ...validCharacter,
+        motivation: 'invalid-motivation',
+      })
+
+    expect(response.status).toBe(400)
+
+    expect(response.body.details).toHaveProperty(
+      'motivation',
+    )
+
+    expect(mocks.update).not.toHaveBeenCalled()
+    expect(mocks.insert).not.toHaveBeenCalled()
+  })
+
+  /* ========================================
+     NAME NORMALIZATION
+     ======================================== */
+
   it('normalizes character names before updating', async () => {
     const response = await request(app)
       .put('/api/characters/me')
-      .set('Authorization', 'Bearer valid-token')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
       .send({
         ...validCharacter,
         name: '  Eldrin  ',
@@ -297,6 +447,10 @@ describe('PUT /api/characters/me', () => {
       databaseFields,
     )
   })
+
+  /* ========================================
+     CONCURRENT CREATION
+     ======================================== */
 
   it('handles simultaneous creation conflicts', async () => {
     mocks.updateMaybeSingle
@@ -319,7 +473,10 @@ describe('PUT /api/characters/me', () => {
 
     const response = await request(app)
       .put('/api/characters/me')
-      .set('Authorization', 'Bearer valid-token')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
       .send(validCharacter)
 
     expect(response.status).toBe(200)
@@ -349,7 +506,10 @@ describe('PUT /api/characters/me', () => {
 
     const response = await request(app)
       .put('/api/characters/me')
-      .set('Authorization', 'Bearer valid-token')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
       .send(validCharacter)
 
     expect(response.status).toBe(409)
@@ -359,18 +519,26 @@ describe('PUT /api/characters/me', () => {
     })
   })
 
+  /* ========================================
+     DATABASE ERRORS
+     ======================================== */
+
   it('handles database update errors safely', async () => {
     mocks.updateMaybeSingle.mockResolvedValue({
       data: null,
       error: {
         code: '42501',
-        message: 'Sensitive database information',
+        message:
+          'Sensitive database information',
       },
     })
 
     const response = await request(app)
       .put('/api/characters/me')
-      .set('Authorization', 'Bearer valid-token')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
       .send(validCharacter)
 
     expect(response.status).toBe(503)
@@ -400,7 +568,10 @@ describe('PUT /api/characters/me', () => {
 
     const response = await request(app)
       .put('/api/characters/me')
-      .set('Authorization', 'Bearer valid-token')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
       .send(validCharacter)
 
     expect(response.status).toBe(503)
@@ -416,12 +587,17 @@ describe('PUT /api/characters/me', () => {
 
   it('handles unexpected database failures safely', async () => {
     mocks.updateMaybeSingle.mockRejectedValue(
-      new Error('Internal database connection failure'),
+      new Error(
+        'Internal database connection failure',
+      ),
     )
 
     const response = await request(app)
       .put('/api/characters/me')
-      .set('Authorization', 'Bearer valid-token')
+      .set(
+        'Authorization',
+        'Bearer valid-token',
+      )
       .send(validCharacter)
 
     expect(response.status).toBe(503)

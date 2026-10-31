@@ -1,4 +1,8 @@
-import { Fragment, useEffect, useState } from 'react'
+import {
+  Fragment,
+  useEffect,
+  useState,
+} from 'react'
 
 import type { Language } from './lib/authTranslations'
 
@@ -16,10 +20,22 @@ import {
 
 import { CharacterCreator } from './CharacterCreator'
 
+/*
+ * ADVENTURE FILES
+ * CHARACTER DASHBOARD
+ */
+
 type DashboardState =
-  | { status: 'loading' }
-  | { status: 'empty' }
-  | { status: 'ready'; character: Character }
+  | {
+      status: 'loading'
+    }
+  | {
+      status: 'empty'
+    }
+  | {
+      status: 'ready'
+      character: Character
+    }
   | {
       status: 'error'
       reason: 'session' | 'unavailable'
@@ -28,7 +44,10 @@ type DashboardState =
 type CharacterDashboardProps = {
   accessToken: string
   language: Language
-  onCreatorStepChange?: (step: number | null) => void
+
+  onCreatorStepChange?: (
+    step: number | null,
+  ) => void
 }
 
 export function CharacterDashboard({
@@ -36,13 +55,23 @@ export function CharacterDashboard({
   language,
   onCreatorStepChange,
 }: CharacterDashboardProps) {
-  const [state, setState] = useState<DashboardState>({
-    status: 'loading',
-  })
+  /* ========================================
+     DASHBOARD STATE
+     ======================================== */
+
+  const [state, setState] =
+    useState<DashboardState>({
+      status: 'loading',
+    })
 
   const [attempt, setAttempt] = useState(0)
 
-  const [creating, setCreating] = useState(false)
+  const [creating, setCreating] =
+    useState(false)
+
+  /* ========================================
+     TRANSLATIONS
+     ======================================== */
 
   const copy = characterTranslations[language]
 
@@ -52,9 +81,9 @@ export function CharacterDashboard({
       : 'Create Character'
     : copy.title
 
-  /*
-   * LOAD CHARACTER
-   */
+  /* ========================================
+     LOAD CHARACTER
+     ======================================== */
 
   useEffect(() => {
     const controller = new AbortController()
@@ -69,7 +98,10 @@ export function CharacterDashboard({
         }
 
         if (character === null) {
-          setState({ status: 'empty' })
+          setState({
+            status: 'empty',
+          })
+
           return
         }
 
@@ -103,18 +135,21 @@ export function CharacterDashboard({
     }
   }, [accessToken, attempt])
 
-  /*
-   * RETRY
-   */
+  /* ========================================
+     RETRY LOADING
+     ======================================== */
 
   function retry() {
-    setState({ status: 'loading' })
+    setState({
+      status: 'loading',
+    })
+
     setAttempt((current) => current + 1)
   }
 
-  /*
-   * CREATOR NAVIGATION
-   */
+  /* ========================================
+     START CREATING
+     ======================================== */
 
   function startCreating() {
     setCreating(true)
@@ -122,15 +157,41 @@ export function CharacterDashboard({
     onCreatorStepChange?.(1)
   }
 
+  /* ========================================
+     CANCEL CREATION
+     ======================================== */
+
   function cancelCreating() {
     setCreating(false)
 
     onCreatorStepChange?.(null)
   }
 
-  /*
-   * RENDER
-   */
+  /* ========================================
+     CHARACTER SAVED
+     ======================================== */
+
+  function handleCharacterSaved(
+    character: Character,
+  ) {
+    /*
+     * Update the dashboard only after
+     * the server confirms persistence.
+     */
+
+    setState({
+      status: 'ready',
+      character,
+    })
+
+    setCreating(false)
+
+    onCreatorStepChange?.(null)
+  }
+
+  /* ========================================
+     RENDER
+     ======================================== */
 
   return (
     <section
@@ -141,7 +202,9 @@ export function CharacterDashboard({
       }
       aria-label={dashboardTitle}
     >
-      {/* LOADING */}
+      {/* ===================================
+          LOADING
+          =================================== */}
 
       {state.status === 'loading' && (
         <p role="status">
@@ -149,14 +212,18 @@ export function CharacterDashboard({
         </p>
       )}
 
-      {/* EMPTY STATE / CHARACTER CREATOR */}
+      {/* ===================================
+          EMPTY STATE / CHARACTER CREATOR
+          =================================== */}
 
       {state.status === 'empty' && (
         creating ? (
           <CharacterCreator
             language={language}
+            accessToken={accessToken}
             onCancel={cancelCreating}
             onStepChange={onCreatorStepChange}
+            onSaved={handleCharacterSaved}
           />
         ) : (
           <div className="character-empty">
@@ -173,7 +240,9 @@ export function CharacterDashboard({
         )
       )}
 
-      {/* SAVED CHARACTER */}
+      {/* ===================================
+          SAVED CHARACTER
+          =================================== */}
 
       {state.status === 'ready' && (
         <div className="character-details">
@@ -184,7 +253,9 @@ export function CharacterDashboard({
           <dl>
             {characterFieldKeys.map((field) => (
               <Fragment key={field}>
-                <dt>{copy.fields[field]}</dt>
+                <dt>
+                  {copy.fields[field]}
+                </dt>
 
                 <dd>
                   {translateCharacterOption(
@@ -199,7 +270,9 @@ export function CharacterDashboard({
         </div>
       )}
 
-      {/* ERROR STATE */}
+      {/* ===================================
+          ERROR STATE
+          =================================== */}
 
       {state.status === 'error' && (
         <div className="character-error">

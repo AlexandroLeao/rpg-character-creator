@@ -35,14 +35,10 @@ import './CharacterReviewStep.css'
  * ADVENTURE FILES
  * STEP 06 / 06 — FINAL REVIEW
  *
- * The visible heading is omitted to keep
- * the review compact.
+ * The approved visual layout is preserved.
  *
- * An accessible heading is preserved
- * for screen-reader users.
- *
- * The artwork and selected information
- * share equal-width desktop columns.
+ * Saving is enabled only when an onSave
+ * callback is provided by the creator.
  */
 
 export type CharacterReviewData = {
@@ -65,7 +61,17 @@ export type CharacterReviewData = {
 type CharacterReviewStepProps = {
   language: Language
   data: CharacterReviewData
+
   onBack: () => void
+
+  /*
+   * Optional until the character creator
+   * is connected to the saving API.
+   */
+
+  onSave?: () => void | Promise<void>
+
+  saving?: boolean
 }
 
 type ReviewField = {
@@ -78,10 +84,12 @@ export function CharacterReviewStep({
   language,
   data,
   onBack,
+  onSave,
+  saving = false,
 }: CharacterReviewStepProps) {
-  /*
-   * TRANSLATIONS
-   */
+  /* ========================================
+     TRANSLATIONS
+     ======================================== */
 
   const copy =
     language === 'pt'
@@ -99,6 +107,7 @@ export function CharacterReviewStep({
           motivation: 'Motivação',
           back: 'VOLTAR',
           save: 'SALVAR',
+          saving: 'SALVANDO...',
           saveUnavailable:
             'O salvamento estará disponível após a integração com o servidor.',
         }
@@ -116,20 +125,14 @@ export function CharacterReviewStep({
           motivation: 'Motivation',
           back: 'BACK',
           save: 'SAVE',
+          saving: 'SAVING...',
           saveUnavailable:
             'Saving will be available after server integration.',
         }
 
-  /*
-   * CHARACTER INFORMATION
-   *
-   * Name
-   * Class
-   * Ancestry + Background
-   * Weapon + Artifact
-   * Personality + Aura
-   * Companion + Motivation
-   */
+  /* ========================================
+     CHARACTER INFORMATION
+     ======================================== */
 
   const fields: ReviewField[] = [
     {
@@ -219,6 +222,10 @@ export function CharacterReviewStep({
     },
   ]
 
+  /* ========================================
+     RENDER
+     ======================================== */
+
   return (
     <section
       className="character-review-step"
@@ -227,8 +234,8 @@ export function CharacterReviewStep({
       {/*
        * ACCESSIBLE TITLE
        *
-       * Hidden visually, but available
-       * to screen readers and heading navigation.
+       * Visually hidden to preserve
+       * the approved review layout.
        */}
 
       <h2
@@ -238,7 +245,9 @@ export function CharacterReviewStep({
         {copy.title}
       </h2>
 
-      {/* CLASS ARTWORK */}
+      {/* ===================================
+          CLASS ARTWORK
+          =================================== */}
 
       <div className="character-review-step__visual">
         <CharacterPreview
@@ -247,7 +256,9 @@ export function CharacterReviewStep({
         />
       </div>
 
-      {/* SELECTED INFORMATION */}
+      {/* ===================================
+          SELECTED INFORMATION
+          =================================== */}
 
       <dl className="character-review-step__values">
         {fields.map((field, index) => {
@@ -280,34 +291,59 @@ export function CharacterReviewStep({
         })}
       </dl>
 
-      {/* NAVIGATION */}
+      {/* ===================================
+          NAVIGATION
+          =================================== */}
 
       <div className="character-review-step__actions">
+        {/* BACK */}
+
         <button
           type="button"
           className="character-review-step__back"
           onClick={onBack}
+          disabled={saving}
         >
           {copy.back}
         </button>
 
+        {/* SAVE */}
+
         <button
           type="button"
           className="character-review-step__save"
-          disabled
-          aria-describedby="character-review-save-note"
-          title={copy.saveUnavailable}
+          onClick={onSave}
+          disabled={!onSave || saving}
+          aria-busy={saving}
+          aria-describedby={
+            onSave
+              ? undefined
+              : 'character-review-save-note'
+          }
+          title={
+            onSave
+              ? undefined
+              : copy.saveUnavailable
+          }
         >
-          {copy.save}
+          {saving
+            ? copy.saving
+            : copy.save}
         </button>
       </div>
 
-      <span
-        id="character-review-save-note"
-        className="character-review-step__sr-only"
-      >
-        {copy.saveUnavailable}
-      </span>
+      {/* ===================================
+          ACCESSIBLE SAVE INFORMATION
+          =================================== */}
+
+      {!onSave && (
+        <span
+          id="character-review-save-note"
+          className="character-review-step__sr-only"
+        >
+          {copy.saveUnavailable}
+        </span>
+      )}
     </section>
   )
 }

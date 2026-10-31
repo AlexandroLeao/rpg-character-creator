@@ -24,6 +24,11 @@ afterEach(() => {
   cleanup()
 })
 
+/* ==========================================
+   ADVENTURE FILES
+   FINAL REVIEW TESTS
+   ========================================== */
+
 const character: CharacterReviewData = {
   characterClass: 'cleric',
   name: 'Alexandro',
@@ -41,7 +46,15 @@ const character: CharacterReviewData = {
   motivation: 'protection',
 }
 
+/* ==========================================
+   CHARACTER FINAL REVIEW
+   ========================================== */
+
 describe('Character final review', () => {
+  /* ========================================
+     CHARACTER INFORMATION
+     ======================================== */
+
   it('displays all ten selections in the approved order', () => {
     const { container } = render(
       <CharacterReviewStep
@@ -78,6 +91,10 @@ describe('Character final review', () => {
     ])
   })
 
+  /* ========================================
+     CHARACTER ARTWORK
+     ======================================== */
+
   it('reuses the artwork of the selected class', () => {
     render(
       <CharacterReviewStep
@@ -95,6 +112,10 @@ describe('Character final review', () => {
       '/art/characters/cleric.png',
     )
   })
+
+  /* ========================================
+     ENGLISH TRANSLATIONS
+     ======================================== */
 
   it('displays translated values in English', () => {
     render(
@@ -123,9 +144,15 @@ describe('Character final review', () => {
       'Owl',
       'Protection',
     ]) {
-      expect(screen.getByText(value)).toBeTruthy()
+      expect(
+        screen.getByText(value),
+      ).toBeTruthy()
     }
   })
+
+  /* ========================================
+     BACK NAVIGATION
+     ======================================== */
 
   it('allows returning and prevents premature saving', () => {
     const onBack = vi.fn()
@@ -140,7 +167,9 @@ describe('Character final review', () => {
 
     const saveButton = screen.getByRole(
       'button',
-      { name: 'SALVAR' },
+      {
+        name: 'SALVAR',
+      },
     ) as HTMLButtonElement
 
     expect(saveButton.disabled).toBe(true)
@@ -154,6 +183,10 @@ describe('Character final review', () => {
     expect(onBack).toHaveBeenCalledTimes(1)
   })
 
+  /* ========================================
+     NO COMPANION
+     ======================================== */
+
   it('accepts an explicit choice of no companion', () => {
     render(
       <CharacterReviewStep
@@ -166,6 +199,106 @@ describe('Character final review', () => {
       />,
     )
 
-    expect(screen.getByText('Nenhum')).toBeTruthy()
+    expect(
+      screen.getByText('Nenhum'),
+    ).toBeTruthy()
+  })
+
+  /* ========================================
+     SAVE CALLBACK
+     ======================================== */
+
+  it('enables saving when a callback is provided', () => {
+    const onSave = vi.fn()
+
+    render(
+      <CharacterReviewStep
+        language="pt"
+        data={character}
+        onBack={vi.fn()}
+        onSave={onSave}
+      />,
+    )
+
+    const saveButton = screen.getByRole(
+      'button',
+      {
+        name: 'SALVAR',
+      },
+    ) as HTMLButtonElement
+
+    expect(saveButton.disabled).toBe(false)
+
+    fireEvent.click(saveButton)
+
+    expect(onSave).toHaveBeenCalledTimes(1)
+  })
+
+  /* ========================================
+     SAVING STATE
+     ======================================== */
+
+  it('disables navigation while saving', () => {
+    const onBack = vi.fn()
+    const onSave = vi.fn()
+
+    render(
+      <CharacterReviewStep
+        language="pt"
+        data={character}
+        onBack={onBack}
+        onSave={onSave}
+        saving
+      />,
+    )
+
+    const backButton = screen.getByRole(
+      'button',
+      {
+        name: 'VOLTAR',
+      },
+    ) as HTMLButtonElement
+
+    const saveButton = screen.getByRole(
+      'button',
+      {
+        name: 'SALVANDO...',
+      },
+    ) as HTMLButtonElement
+
+    expect(backButton.disabled).toBe(true)
+    expect(saveButton.disabled).toBe(true)
+
+    expect(
+      saveButton.getAttribute('aria-busy'),
+    ).toBe('true')
+
+    fireEvent.click(backButton)
+    fireEvent.click(saveButton)
+
+    expect(onBack).not.toHaveBeenCalled()
+    expect(onSave).not.toHaveBeenCalled()
+  })
+
+  /* ========================================
+     ENGLISH SAVING STATE
+     ======================================== */
+
+  it('displays English saving feedback', () => {
+    render(
+      <CharacterReviewStep
+        language="en"
+        data={character}
+        onBack={vi.fn()}
+        onSave={vi.fn()}
+        saving
+      />,
+    )
+
+    expect(
+      screen.getByRole('button', {
+        name: 'SAVING...',
+      }),
+    ).toBeTruthy()
   })
 })
