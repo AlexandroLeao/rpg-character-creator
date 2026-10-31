@@ -111,9 +111,9 @@ const portugueseOptionLabels: Record<
     'ancient-ring': 'Anel Antigo',
     'moon-crystal': 'Cristal Lunar',
     'runic-compass': 'Bússola Rúnica',
-    'forgotten-tome': 'Tomo Esquecido',
+    'shadow-crown': 'Coroa Sombria',
     'phoenix-feather': 'Pena de Fênix',
-    'timeworn-key': 'Chave Desgastada pelo Tempo',
+    'chaos-orb': 'Orbe do Caos',
     'sun-relic': 'Relíquia Solar',
   },
 

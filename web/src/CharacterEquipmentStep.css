@@ -1,0 +1,421 @@
+/* ==========================================
+   ADVENTURE FILES
+   CHARACTER CREATOR — EQUIPMENT
+   STEP 03 / 04
+   ========================================== */
+
+.character-equipment-step {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  min-width: 0;
+
+  gap: 22px;
+}
+
+/* ==========================================
+   EQUIPMENT GROUPS
+   ========================================== */
+
+.character-equipment-step__groups {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  align-items: start;
+
+  width: 100%;
+  min-width: 0;
+
+  gap: clamp(14px, 1.8vw, 24px);
+}
+
+/* ==========================================
+   INDIVIDUAL GROUP
+   ========================================== */
+
+.character-equipment-step__group {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  min-width: 0;
+
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+}
+
+/* ==========================================
+   GROUP TITLES
+   ========================================== */
+
+.character-equipment-step__title {
+  display: block;
+
+  width: 100%;
+
+  margin: 0 0 16px;
+  padding: 0;
+
+  color: #f5efd2;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  font-weight: normal;
+
+  line-height: 1.85;
+  letter-spacing: 0.1px;
+}
+
+/* ==========================================
+   OPTIONS GRID
+   ========================================== */
+
+.character-equipment-step__choices {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 9px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+/* ==========================================
+   OPTION BUTTONS
+   ========================================== */
+
+.character-equipment-step__choice {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 54px;
+
+  padding: 10px 6px;
+
+  border: 2px solid #618b5a;
+  border-radius: 6px;
+
+  background: #0b170f;
+  color: #f5efd2;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  font-weight: normal;
+
+  line-height: 1.5;
+
+  text-align: center;
+  overflow-wrap: anywhere;
+
+  cursor: pointer;
+
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+/* ==========================================
+   HOVER
+   ========================================== */
+
+.character-equipment-step__choice:hover {
+  border-color: #a4ed86;
+
+  background: #14291a;
+}
+
+/* ==========================================
+   SELECTED OPTION
+   ========================================== */
+
+.character-equipment-step__choice.is-selected {
+  border-color: #a4ed86;
+
+  background: #24462c;
+  color: #a4ed86;
+}
+
+.character-equipment-step__choice.is-selected:hover {
+  background: #2a5133;
+}
+
+/* ==========================================
+   KEYBOARD FOCUS
+   ========================================== */
+
+.character-equipment-step__choice:focus-visible {
+  outline: 3px solid #a4ed86;
+  outline-offset: 3px;
+}
+
+/* ==========================================
+   NAVIGATION
+   ========================================== */
+
+.character-equipment-step__actions {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+  min-width: 0;
+
+  gap: 12px;
+  margin-top: 4px;
+}
+
+/* ==========================================
+   NAVIGATION BUTTONS
+   ========================================== */
+
+.character-equipment-step__actions button {
+  display: flex;
+
+  flex: 1;
+
+  align-items: center;
+  justify-content: center;
+
+  min-width: 0;
+  min-height: 46px;
+
+  padding: 12px 10px;
+
+  border: 2px solid #a4ed86;
+  border-radius: 6px;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  font-weight: normal;
+
+  line-height: 1.5;
+
+  text-align: center;
+
+  cursor: pointer;
+
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+/* ==========================================
+   BACK BUTTON
+   ========================================== */
+
+.character-equipment-step__back {
+  background: transparent;
+  color: #a4ed86;
+}
+
+.character-equipment-step__back:hover:not(:disabled) {
+  background: #1c3522;
+}
+
+/* ==========================================
+   CONTINUE BUTTON
+   ========================================== */
+
+.character-equipment-step__continue {
+  background: #a4ed86;
+  color: #07120a;
+}
+
+.character-equipment-step__continue:hover:not(:disabled) {
+  background: #c9ffb1;
+}
+
+/* ==========================================
+   DISABLED BUTTON
+   ========================================== */
+
+.character-equipment-step__actions button:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+/* ==========================================
+   NAVIGATION FOCUS
+   ========================================== */
+
+.character-equipment-step__actions button:focus-visible {
+  outline: 3px solid #a4ed86;
+  outline-offset: 3px;
+}
+
+/* ==========================================
+   DESKTOP — EQUAL OPTION SIZES
+   ========================================== */
+
+@media (min-width: 1100px) {
+  /*
+   * Three equal-width categories.
+   */
+
+  .character-equipment-step__groups {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+  /*
+   * Every option has the same dimensions.
+   *
+   * Four rows in each category.
+   */
+
+  .character-equipment-step__choice {
+    height: 64px;
+    min-height: 64px;
+
+    padding: 6px 5px;
+
+    font-size: 10px;
+    line-height: 1.5;
+  }
+
+  /*
+   * Position the two dividers relative
+   * to the option grids.
+   */
+
+  .character-equipment-step__group:not(:last-child)
+  .character-equipment-step__choices {
+    position: relative;
+  }
+
+  /*
+   * Dividers begin at the first row
+   * and end at the last row.
+   */
+
+  .character-equipment-step__group:not(:last-child)
+  .character-equipment-step__choices::after {
+    content: '';
+
+    position: absolute;
+
+    top: 0;
+    bottom: 0;
+
+    left: calc(100% + clamp(7px, 0.9vw, 12px));
+
+    width: 2px;
+
+    background: #3f6744;
+
+    pointer-events: none;
+  }
+}
+
+/* ==========================================
+   MEDIUM SCREENS
+   ========================================== */
+
+@media (min-width: 761px) and (max-width: 1099px) {
+  .character-equipment-step__groups {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .character-equipment-step__group:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .character-equipment-step__group:last-child
+  .character-equipment-step__choices {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ==========================================
+   MOBILE
+   ========================================== */
+
+@media (max-width: 760px) {
+  .character-equipment-step {
+    gap: 24px;
+  }
+
+  .character-equipment-step__groups {
+    grid-template-columns: 1fr;
+
+    gap: 26px;
+  }
+
+  .character-equipment-step__title {
+    margin-bottom: 14px;
+
+    font-size: 11px;
+  }
+
+  .character-equipment-step__choices {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+  }
+
+  .character-equipment-step__choice {
+    min-height: 60px;
+
+    font-size: clamp(8px, 2.5vw, 10px);
+  }
+
+  .character-equipment-step__actions {
+    gap: 12px;
+  }
+
+  .character-equipment-step__actions button {
+    min-height: 48px;
+
+    font-size: clamp(9px, 2.5vw, 11px);
+  }
+}
+
+/* ==========================================
+   VERY SMALL SCREENS
+   ========================================== */
+
+@media (max-width: 360px) {
+  .character-equipment-step__choice {
+    padding: 10px 5px;
+
+    font-size: 8px;
+  }
+
+  .character-equipment-step__actions {
+    gap: 8px;
+  }
+
+  .character-equipment-step__actions button {
+    padding: 10px 6px;
+
+    font-size: 9px;
+  }
+}
+
+/* ==========================================
+   REDUCED MOTION
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .character-equipment-step__choice,
+  .character-equipment-step__actions button {
+    transition: none;
+  }
+}

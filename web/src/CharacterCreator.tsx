@@ -14,17 +14,38 @@ import {
   type OriginsStepData,
 } from './CharacterOriginsStep'
 
+import {
+  CharacterEquipmentStep,
+  type CharacterWeapon,
+  type CharacterArtifact,
+  type CharacterCompanion,
+  type EquipmentStepSelection,
+  type EquipmentStepData,
+} from './CharacterEquipmentStep'
+
 type CharacterCreatorProps = {
   language: Language
   onCancel: () => void
   onStepChange?: (step: number) => void
 }
 
+/*
+ * CHARACTER DRAFT
+ *
+ * Stores all selections until the
+ * character is explicitly saved.
+ */
+
 type CharacterDraft = {
   characterClass: CharacterClass | null
   name: string
+
   ancestry: CharacterAncestry | null
   background: CharacterBackground | null
+
+  weapon: CharacterWeapon | null
+  artifact: CharacterArtifact | null
+  companion: CharacterCompanion | null
 }
 
 export function CharacterCreator({
@@ -40,16 +61,18 @@ export function CharacterCreator({
 
   /*
    * CHARACTER DRAFT
-   *
-   * Choices remain in memory while the
-   * user navigates between wizard steps.
    */
 
   const [draft, setDraft] = useState<CharacterDraft>({
     characterClass: null,
     name: '',
+
     ancestry: null,
     background: null,
+
+    weapon: null,
+    artifact: null,
+    companion: null,
   })
 
   /*
@@ -116,28 +139,59 @@ export function CharacterCreator({
 
   /*
    * STEP 03 — EQUIPMENT
+   */
+
+  if (step === 3) {
+    return (
+      <CharacterEquipmentStep
+        language={language}
+        initialWeapon={draft.weapon}
+        initialArtifact={draft.artifact}
+        initialCompanion={draft.companion}
+        onBack={(data: EquipmentStepSelection) => {
+          setDraft((current) => ({
+            ...current,
+            ...data,
+          }))
+
+          goToStep(2)
+        }}
+        onNext={(data: EquipmentStepData) => {
+          setDraft((current) => ({
+            ...current,
+            ...data,
+          }))
+
+          goToStep(4)
+        }}
+      />
+    )
+  }
+
+  /*
+   * STEP 04 — ESSENCE AND REVIEW
    *
-   * Temporary screen until the next
-   * character creation step is implemented.
+   * Temporary screen until the final
+   * creation step is implemented.
    */
 
   return (
     <div className="character-creator-next">
       <h3>
         {language === 'pt'
-          ? 'EQUIPAMENTO'
-          : 'EQUIPMENT'}
+          ? 'ESSÊNCIA E REVISÃO'
+          : 'ESSENCE AND REVIEW'}
       </h3>
 
       <p>
         {language === 'pt'
-          ? 'A próxima etapa do criador será implementada em seguida.'
-          : 'The next character creation step will be implemented next.'}
+          ? 'A última etapa do criador será implementada em seguida.'
+          : 'The final character creation step will be implemented next.'}
       </p>
 
       <button
         type="button"
-        onClick={() => goToStep(2)}
+        onClick={() => goToStep(3)}
       >
         {language === 'pt' ? 'VOLTAR' : 'BACK'}
       </button>

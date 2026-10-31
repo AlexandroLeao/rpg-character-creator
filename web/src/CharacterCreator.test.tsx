@@ -23,7 +23,7 @@ import { CharacterCreator } from './CharacterCreator'
  * ADVENTURE FILES
  * CHARACTER CREATOR TESTS
  *
- * Tests for steps 01 and 02.
+ * Steps 01, 02 and 03.
  */
 
 afterEach(() => {
@@ -31,10 +31,7 @@ afterEach(() => {
 })
 
 /*
- * HELPER
- *
- * Opens the creator and completes
- * the first step.
+ * HELPERS
  */
 
 function advanceToOrigins(language: Language = 'pt') {
@@ -83,12 +80,46 @@ function advanceToOrigins(language: Language = 'pt') {
   }
 }
 
+function advanceToEquipment(language: Language = 'pt') {
+  const callbacks = advanceToOrigins(language)
+
+  fireEvent.click(
+    screen.getByRole('button', {
+      name: language === 'pt' ? 'Elfo' : 'Elf',
+    }),
+  )
+
+  fireEvent.click(
+    screen.getByRole('button', {
+      name:
+        language === 'pt'
+          ? 'Estudioso'
+          : 'Scholar',
+    }),
+  )
+
+  fireEvent.click(
+    screen.getByRole('button', {
+      name:
+        language === 'pt'
+          ? 'CONTINUAR'
+          : 'CONTINUE',
+    }),
+  )
+
+  return callbacks
+}
+
 /*
- * TEST 01
- * CLASS AND NAME VALIDATION
+ * TESTS
  */
 
 describe('Character creator', () => {
+  /*
+   * TEST 01
+   * CLASS AND NAME VALIDATION
+   */
+
   it('requires a class and a valid name before continuing', () => {
     render(
       <CharacterCreator
@@ -238,7 +269,7 @@ describe('Character creator', () => {
 
   /*
    * TEST 04
-   * PRESERVE SELECTIONS ON BACK
+   * PRESERVE ORIGINS WHEN GOING BACK
    */
 
   it('preserves unfinished origins selections when returning to step one', () => {
@@ -250,20 +281,11 @@ describe('Character creator', () => {
       }),
     )
 
-    /*
-     * Return without selecting
-     * a background.
-     */
-
     fireEvent.click(
       screen.getByRole('button', {
         name: 'VOLTAR',
       }),
     )
-
-    /*
-     * Class remains selected.
-     */
 
     expect(
       screen
@@ -273,29 +295,17 @@ describe('Character creator', () => {
         .getAttribute('aria-pressed'),
     ).toBe('true')
 
-    /*
-     * Name remains unchanged.
-     */
-
     const nameInput = screen.getByLabelText(
       'NOME DO PERSONAGEM',
     ) as HTMLInputElement
 
     expect(nameInput.value).toBe('Luna')
 
-    /*
-     * Return to step 02.
-     */
-
     fireEvent.click(
       screen.getByRole('button', {
         name: 'CONTINUAR',
       }),
     )
-
-    /*
-     * Ancestry remains selected.
-     */
 
     expect(
       screen
@@ -304,11 +314,6 @@ describe('Character creator', () => {
         })
         .getAttribute('aria-pressed'),
     ).toBe('true')
-
-    /*
-     * Continue is still disabled
-     * because no background was selected.
-     */
 
     const continueButton = screen.getByRole(
       'button',
@@ -322,7 +327,7 @@ describe('Character creator', () => {
 
   /*
    * TEST 05
-   * STEP 02 TO STEP 03
+   * ORIGINS TO EQUIPMENT
    */
 
   it('advances to equipment and preserves origins when returning', () => {
@@ -349,16 +354,18 @@ describe('Character creator', () => {
     )
 
     expect(
-      screen.getByRole('heading', {
-        name: 'EQUIPAMENTO',
-      }),
+      screen.getByText('ARMA'),
+    ).toBeTruthy()
+
+    expect(
+      screen.getByText('ARTEFATO'),
+    ).toBeTruthy()
+
+    expect(
+      screen.getByText('COMPANHEIRO'),
     ).toBeTruthy()
 
     expect(onStepChange).toHaveBeenCalledWith(3)
-
-    /*
-     * Return to origins.
-     */
 
     fireEvent.click(
       screen.getByRole('button', {
@@ -385,7 +392,7 @@ describe('Character creator', () => {
 
   /*
    * TEST 06
-   * ENGLISH TRANSLATIONS
+   * ENGLISH ORIGINS
    */
 
   it('displays origins options in English', () => {
@@ -399,29 +406,391 @@ describe('Character creator', () => {
       screen.getByText('BACKGROUND'),
     ).toBeTruthy()
 
+    for (const option of [
+      'Human',
+      'Fae',
+      'Scholar',
+      'Outlaw',
+    ]) {
+      expect(
+        screen.getByRole('button', {
+          name: option,
+        }),
+      ).toBeTruthy()
+    }
+  })
+
+  /*
+   * TEST 07
+   * EQUIPMENT OPTIONS
+   */
+
+  it('displays all equipment categories and approved artifacts', () => {
+    advanceToEquipment()
+
     expect(
-      screen.getByRole('button', {
-        name: 'Human',
-      }),
+      screen.getByText('ARMA'),
     ).toBeTruthy()
 
     expect(
-      screen.getByRole('button', {
-        name: 'Fae',
-      }),
+      screen.getByText('ARTEFATO'),
     ).toBeTruthy()
 
     expect(
+      screen.getByText('COMPANHEIRO'),
+    ).toBeTruthy()
+
+    const weaponOptions = [
+      'Espada',
+      'Arco',
+      'Cajado',
+      'Adaga',
+      'Machado',
+      'Lança',
+      'Martelo',
+      'Varinha',
+    ]
+
+    const artifactOptions = [
+      'Amuleto de Esmeralda',
+      'Anel Antigo',
+      'Cristal Lunar',
+      'Bússola Rúnica',
+      'Coroa Sombria',
+      'Pena de Fênix',
+      'Orbe do Caos',
+      'Relíquia Solar',
+    ]
+
+    const companionOptions = [
+      'Lobo',
+      'Coruja',
+      'Gato',
+      'Raposa',
+      'Corvo',
+      'Tartaruga',
+      'Filhote de Dragão',
+    ]
+
+    for (const option of weaponOptions) {
+      expect(
+        screen.getByRole('button', {
+          name: option,
+        }),
+      ).toBeTruthy()
+    }
+
+    for (const option of artifactOptions) {
+      expect(
+        screen.getByRole('button', {
+          name: option,
+        }),
+      ).toBeTruthy()
+    }
+
+    for (const option of companionOptions) {
+      expect(
+        screen.getByRole('button', {
+          name: option,
+        }),
+      ).toBeTruthy()
+    }
+
+    /*
+     * "Nenhum" exists only for companions.
+     * Artifacts require an actual selection.
+     */
+
+    expect(
+      screen.getAllByRole('button', {
+        name: 'Nenhum',
+      }),
+    ).toHaveLength(1)
+
+    /*
+     * Removed artifacts must not appear.
+     */
+
+    expect(
+      screen.queryByRole('button', {
+        name: 'Tomo Esquecido',
+      }),
+    ).toBeNull()
+
+    expect(
+      screen.queryByRole('button', {
+        name: 'Chave Desgastada pelo Tempo',
+      }),
+    ).toBeNull()
+  })
+
+  /*
+   * TEST 08
+   * EQUIPMENT VALIDATION
+   */
+
+  it('requires a weapon, an artifact and a companion selection', () => {
+    advanceToEquipment()
+
+    const continueButton = screen.getByRole(
+      'button',
+      {
+        name: 'CONTINUAR',
+      },
+    ) as HTMLButtonElement
+
+    expect(continueButton.disabled).toBe(true)
+
+    /*
+     * Select weapon.
+     */
+
+    fireEvent.click(
       screen.getByRole('button', {
-        name: 'Scholar',
+        name: 'Espada',
+      }),
+    )
+
+    expect(continueButton.disabled).toBe(true)
+
+    /*
+     * Select a real artifact.
+     */
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Coroa Sombria',
+      }),
+    )
+
+    expect(continueButton.disabled).toBe(true)
+
+    /*
+     * Companion can be "Nenhum".
+     */
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Nenhum',
+      }),
+    )
+
+    expect(continueButton.disabled).toBe(false)
+
+    for (const option of [
+      'Espada',
+      'Coroa Sombria',
+      'Nenhum',
+    ]) {
+      expect(
+        screen
+          .getByRole('button', {
+            name: option,
+          })
+          .getAttribute('aria-pressed'),
+      ).toBe('true')
+    }
+  })
+
+  /*
+   * TEST 09
+   * PRESERVE UNFINISHED EQUIPMENT
+   */
+
+  it('preserves unfinished equipment selections when returning to origins', () => {
+    advanceToEquipment()
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Cajado',
+      }),
+    )
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Orbe do Caos',
+      }),
+    )
+
+    /*
+     * Return without selecting a companion.
+     */
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'VOLTAR',
+      }),
+    )
+
+    expect(
+      screen.getByText('ANCESTRALIDADE'),
+    ).toBeTruthy()
+
+    /*
+     * Return to equipment.
+     */
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'CONTINUAR',
+      }),
+    )
+
+    expect(
+      screen
+        .getByRole('button', {
+          name: 'Cajado',
+        })
+        .getAttribute('aria-pressed'),
+    ).toBe('true')
+
+    expect(
+      screen
+        .getByRole('button', {
+          name: 'Orbe do Caos',
+        })
+        .getAttribute('aria-pressed'),
+    ).toBe('true')
+
+    /*
+     * Continue remains disabled because
+     * the companion has not been selected.
+     */
+
+    const continueButton = screen.getByRole(
+      'button',
+      {
+        name: 'CONTINUAR',
+      },
+    ) as HTMLButtonElement
+
+    expect(continueButton.disabled).toBe(true)
+  })
+
+  /*
+   * TEST 10
+   * EQUIPMENT TO ESSENCE
+   */
+
+  it('advances to step four and preserves equipment when returning', () => {
+    const { onStepChange } = advanceToEquipment()
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Arco',
+      }),
+    )
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Coroa Sombria',
+      }),
+    )
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Coruja',
+      }),
+    )
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'CONTINUAR',
+      }),
+    )
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'ESSÊNCIA E REVISÃO',
       }),
     ).toBeTruthy()
 
-    expect(
+    expect(onStepChange).toHaveBeenCalledWith(4)
+
+    /*
+     * Return to equipment.
+     */
+
+    fireEvent.click(
       screen.getByRole('button', {
-        name: 'Outlaw',
+        name: 'VOLTAR',
       }),
+    )
+
+    for (const option of [
+      'Arco',
+      'Coroa Sombria',
+      'Coruja',
+    ]) {
+      expect(
+        screen
+          .getByRole('button', {
+            name: option,
+          })
+          .getAttribute('aria-pressed'),
+      ).toBe('true')
+    }
+  })
+
+  /*
+   * TEST 11
+   * ENGLISH EQUIPMENT
+   */
+
+  it('displays the approved equipment options in English', () => {
+    advanceToEquipment('en')
+
+    expect(
+      screen.getByText('WEAPON'),
     ).toBeTruthy()
+
+    expect(
+      screen.getByText('ARTIFACT'),
+    ).toBeTruthy()
+
+    expect(
+      screen.getByText('COMPANION'),
+    ).toBeTruthy()
+
+    for (const option of [
+      'Sword',
+      'Moon Crystal',
+      'Shadow Crown',
+      'Chaos Orb',
+      'Dragonling',
+    ]) {
+      expect(
+        screen.getByRole('button', {
+          name: option,
+        }),
+      ).toBeTruthy()
+    }
+
+    /*
+     * "None" exists only for companions.
+     */
+
+    expect(
+      screen.getAllByRole('button', {
+        name: 'None',
+      }),
+    ).toHaveLength(1)
+
+    /*
+     * Old artifacts must not appear.
+     */
+
+    expect(
+      screen.queryByRole('button', {
+        name: 'Forgotten Tome',
+      }),
+    ).toBeNull()
+
+    expect(
+      screen.queryByRole('button', {
+        name: 'Timeworn Key',
+      }),
+    ).toBeNull()
 
     expect(
       screen.getByRole('button', {
