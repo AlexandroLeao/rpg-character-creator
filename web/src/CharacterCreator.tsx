@@ -1,9 +1,18 @@
 import { useState } from 'react'
 
 import type { Language } from './lib/authTranslations'
+
 import type { CharacterClass } from './CharacterPreview'
 
 import { CharacterClassStep } from './CharacterClassStep'
+
+import {
+  CharacterOriginsStep,
+  type CharacterAncestry,
+  type CharacterBackground,
+  type OriginsStepSelection,
+  type OriginsStepData,
+} from './CharacterOriginsStep'
 
 type CharacterCreatorProps = {
   language: Language
@@ -14,6 +23,8 @@ type CharacterCreatorProps = {
 type CharacterDraft = {
   characterClass: CharacterClass | null
   name: string
+  ancestry: CharacterAncestry | null
+  background: CharacterBackground | null
 }
 
 export function CharacterCreator({
@@ -21,12 +32,34 @@ export function CharacterCreator({
   onCancel,
   onStepChange,
 }: CharacterCreatorProps) {
+  /*
+   * CURRENT STEP
+   */
+
   const [step, setStep] = useState(1)
+
+  /*
+   * CHARACTER DRAFT
+   *
+   * Choices remain in memory while the
+   * user navigates between wizard steps.
+   */
 
   const [draft, setDraft] = useState<CharacterDraft>({
     characterClass: null,
     name: '',
+    ancestry: null,
+    background: null,
   })
+
+  /*
+   * STEP NAVIGATION
+   */
+
+  function goToStep(nextStep: number) {
+    setStep(nextStep)
+    onStepChange?.(nextStep)
+  }
 
   /*
    * STEP 01 — CLASS AND NAME
@@ -40,9 +73,12 @@ export function CharacterCreator({
         initialName={draft.name}
         onBack={onCancel}
         onNext={(data) => {
-          setDraft(data)
-          setStep(2)
-          onStepChange?.(2)
+          setDraft((current) => ({
+            ...current,
+            ...data,
+          }))
+
+          goToStep(2)
         }}
       />
     )
@@ -50,6 +86,36 @@ export function CharacterCreator({
 
   /*
    * STEP 02 — ORIGINS
+   */
+
+  if (step === 2) {
+    return (
+      <CharacterOriginsStep
+        language={language}
+        initialAncestry={draft.ancestry}
+        initialBackground={draft.background}
+        onBack={(data: OriginsStepSelection) => {
+          setDraft((current) => ({
+            ...current,
+            ...data,
+          }))
+
+          goToStep(1)
+        }}
+        onNext={(data: OriginsStepData) => {
+          setDraft((current) => ({
+            ...current,
+            ...data,
+          }))
+
+          goToStep(3)
+        }}
+      />
+    )
+  }
+
+  /*
+   * STEP 03 — EQUIPMENT
    *
    * Temporary screen until the next
    * character creation step is implemented.
@@ -59,8 +125,8 @@ export function CharacterCreator({
     <div className="character-creator-next">
       <h3>
         {language === 'pt'
-          ? '02 / 04 — ORIGENS'
-          : '02 / 04 — ORIGINS'}
+          ? 'EQUIPAMENTO'
+          : 'EQUIPMENT'}
       </h3>
 
       <p>
@@ -71,10 +137,7 @@ export function CharacterCreator({
 
       <button
         type="button"
-        onClick={() => {
-          setStep(1)
-          onStepChange?.(1)
-        }}
+        onClick={() => goToStep(2)}
       >
         {language === 'pt' ? 'VOLTAR' : 'BACK'}
       </button>

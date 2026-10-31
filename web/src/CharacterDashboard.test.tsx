@@ -340,10 +340,16 @@ describe('Character dashboard', () => {
       }),
     )
 
+    /*
+     * Verify the new Origins screen.
+     */
+
     expect(
-      await screen.findByText(
-        '02 / 04 — ORIGENS',
-      ),
+      await screen.findByText('ANCESTRALIDADE'),
+    ).toBeTruthy()
+
+    expect(
+      screen.getByText('ORIGEM'),
     ).toBeTruthy()
 
     /*
