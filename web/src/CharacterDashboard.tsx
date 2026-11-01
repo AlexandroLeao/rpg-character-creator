@@ -1,9 +1,17 @@
-import { useEffect, useState } from 'react'
+
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from 'react'
 
 import type { Language } from './lib/authTranslations'
 
 import {
   CharacterApiError,
+  deleteMyCharacter,
   getMyCharacter,
   type Character,
 } from './lib/characterApi'
@@ -13,32 +21,21 @@ import {
 } from './lib/characterTranslations'
 
 import { CharacterSheet } from './CharacterSheet'
-
 import { CharacterCreator } from './CharacterCreator'
+
+import './CharacterDashboard.css'
 
 /*
  * ADVENTURE FILES
  * CHARACTER DASHBOARD
  *
- * Supports:
- * - Loading the saved character
- * - Creating a new character
- * - Viewing the saved character
- * - Editing the saved character
- * - Canceling without saving
+ * Creation, viewing, editing and
+ * confirmed deletion of characters.
  */
 
-/* ==========================================
-   DASHBOARD STATE
-   ========================================== */
-
 type DashboardState =
-  | {
-      status: 'loading'
-    }
-  | {
-      status: 'empty'
-    }
+  | { status: 'loading' }
+  | { status: 'empty' }
   | {
       status: 'ready'
       character: Character
@@ -48,18 +45,43 @@ type DashboardState =
       reason: 'session' | 'unavailable'
     }
 
-/* ==========================================
-   COMPONENT PROPS
-   ========================================== */
-
 type CharacterDashboardProps = {
   accessToken: string
-
   language: Language
 
   onCreatorStepChange?: (
     step: number | null,
   ) => void
+}
+
+/* ==========================================
+   DELETE ERROR MESSAGES
+   ========================================== */
+
+function getDeleteErrorMessage(
+  language: Language,
+  error: unknown,
+): string {
+  if (error instanceof CharacterApiError) {
+    if (
+      error.kind === 'unauthorized' ||
+      error.kind === 'forbidden'
+    ) {
+      return language === 'pt'
+        ? 'Sua sessão não pôde ser validada. Entre novamente.'
+        : 'Your session could not be verified. Please sign in again.'
+    }
+
+    if (error.kind === 'conflict') {
+      return language === 'pt'
+        ? 'O personagem foi alterado. Tente novamente.'
+        : 'The character has changed. Please try again.'
+    }
+  }
+
+  return language === 'pt'
+    ? 'Não foi possível excluir o personagem. Verifique sua conexão e tente novamente.'
+    : 'Unable to delete the character. Check your connection and try again.'
 }
 
 /* ==========================================
@@ -71,10 +93,6 @@ export function CharacterDashboard({
   language,
   onCreatorStepChange,
 }: CharacterDashboardProps) {
-  /* ========================================
-     DASHBOARD STATE
-     ======================================== */
-
   const [state, setState] =
     useState<DashboardState>({
       status: 'loading',
@@ -82,26 +100,60 @@ export function CharacterDashboard({
 
   const [attempt, setAttempt] = useState(0)
 
-  /* ========================================
-     CREATION MODE
-     ======================================== */
-
-  const [creating, setCreating] =
-    useState(false)
-
-  /* ========================================
-     EDITING MODE
-     ======================================== */
-
-  const [editing, setEditing] =
-    useState(false)
-
-  /*
-   * The same creator is used for both
-   * creating and editing characters.
-   */
+  const [creating, setCreating] = useState(false)
+  const [editing, setEditing] = useState(false)
 
   const creatorOpen = creating || editing
+
+  /* ========================================
+     DELETE STATE
+     ======================================== */
+
+  const [
+    deleteDialogOpen,
+    setDeleteDialogOpen,
+  ] = useState(false)
+
+  const [deleting, setDeleting] = useState(false)
+
+  const [
+    deleteError,
+    setDeleteError,
+  ] = useState<string | null>(null)
+
+  const deleteInProgress = useRef(false)
+
+  const confirmationToken =
+    useRef<string | null>(null)
+
+  /* ========================================
+     FOCUS MANAGEMENT
+     ======================================== */
+
+  const deleteTriggerRef =
+    useRef<HTMLButtonElement>(null)
+
+  const cancelDeleteRef =
+    useRef<HTMLButtonElement>(null)
+
+  const confirmDeleteRef =
+    useRef<HTMLButtonElement>(null)
+
+  const createButtonRef =
+    useRef<HTMLButtonElement>(null)
+
+  const focusCreateAfterDelete = useRef(false)
+
+  /*
+   * Restores focus after React has
+   * re-enabled the Delete button.
+   */
+
+  const restoreFocusToDeleteButton =
+    useRef(false)
+
+  const deleteTitleId = useId()
+  const deleteDescriptionId = useId()
 
   /* ========================================
      TRANSLATIONS
@@ -120,7 +172,7 @@ export function CharacterDashboard({
       : copy.title
 
   /* ========================================
-     LOAD CHARACTER
+     LOAD SAVED CHARACTER
      ======================================== */
 
   useEffect(() => {
@@ -162,7 +214,6 @@ export function CharacterDashboard({
 
         setState({
           status: 'error',
-
           reason: sessionError
             ? 'session'
             : 'unavailable',
@@ -173,6 +224,51 @@ export function CharacterDashboard({
       controller.abort()
     }
   }, [accessToken, attempt])
+
+  /* ========================================
+     DIALOG FOCUS
+     ======================================== */
+
+  useEffect(() => {
+    if (deleteDialogOpen) {
+      /*
+       * Initially focus the safer
+       * Cancel button.
+       */
+
+      cancelDeleteRef.current?.focus()
+
+      return
+    }
+
+    /*
+     * After the dialog closes, React
+     * re-enables the Delete button.
+     *
+     * Restore focus only then.
+     */
+
+    if (restoreFocusToDeleteButton.current) {
+      deleteTriggerRef.current?.focus()
+
+      restoreFocusToDeleteButton.current = false
+    }
+  }, [deleteDialogOpen])
+
+  /* ========================================
+     FOCUS AFTER SUCCESSFUL DELETION
+     ======================================== */
+
+  useEffect(() => {
+    if (
+      state.status === 'empty' &&
+      focusCreateAfterDelete.current
+    ) {
+      createButtonRef.current?.focus()
+
+      focusCreateAfterDelete.current = false
+    }
+  }, [state.status])
 
   /* ========================================
      RETRY LOADING
@@ -187,7 +283,7 @@ export function CharacterDashboard({
   }
 
   /* ========================================
-     START CREATING
+     CREATE CHARACTER
      ======================================== */
 
   function startCreating() {
@@ -196,10 +292,6 @@ export function CharacterDashboard({
     onCreatorStepChange?.(1)
   }
 
-  /* ========================================
-     CANCEL CREATION
-     ======================================== */
-
   function cancelCreating() {
     setCreating(false)
 
@@ -207,16 +299,14 @@ export function CharacterDashboard({
   }
 
   /* ========================================
-     START EDITING
+     EDIT CHARACTER
      ======================================== */
 
   function startEditing() {
-    /*
-     * Editing is available only when
-     * a saved character exists.
-     */
-
-    if (state.status !== 'ready') {
+    if (
+      state.status !== 'ready' ||
+      deleteDialogOpen
+    ) {
       return
     }
 
@@ -225,38 +315,19 @@ export function CharacterDashboard({
     onCreatorStepChange?.(1)
   }
 
-  /* ========================================
-     CANCEL EDITING
-     ======================================== */
-
   function cancelEditing() {
-    /*
-     * Closing the creator discards the
-     * unfinished editing draft.
-     *
-     * No API request is sent.
-     */
-
     setEditing(false)
 
     onCreatorStepChange?.(null)
   }
 
   /* ========================================
-     CHARACTER SAVED
+     SAVE CALLBACK
      ======================================== */
 
   function handleCharacterSaved(
     character: Character,
   ) {
-    /*
-     * Update the dashboard only after
-     * the server confirms persistence.
-     *
-     * This works for both creation
-     * and editing.
-     */
-
     setState({
       status: 'ready',
       character,
@@ -266,6 +337,168 @@ export function CharacterDashboard({
     setEditing(false)
 
     onCreatorStepChange?.(null)
+  }
+
+  /* ========================================
+     OPEN DELETE CONFIRMATION
+     ======================================== */
+
+  function openDeleteConfirmation() {
+    if (
+      state.status !== 'ready' ||
+      creatorOpen ||
+      deleting
+    ) {
+      return
+    }
+
+    confirmationToken.current = accessToken
+
+    restoreFocusToDeleteButton.current = false
+
+    setDeleteError(null)
+    setDeleteDialogOpen(true)
+  }
+
+  /* ========================================
+     CANCEL DELETE
+     ======================================== */
+
+  function cancelDeleteConfirmation() {
+    if (
+      deleting ||
+      deleteInProgress.current
+    ) {
+      return
+    }
+
+    /*
+     * Mark focus for restoration
+     * after the dialog closes.
+     */
+
+    restoreFocusToDeleteButton.current = true
+
+    confirmationToken.current = null
+
+    setDeleteError(null)
+    setDeleteDialogOpen(false)
+  }
+
+  /* ========================================
+     CONFIRM DELETE
+     ======================================== */
+
+  async function confirmDeletion() {
+    if (
+      state.status !== 'ready' ||
+      !deleteDialogOpen ||
+      deleteInProgress.current
+    ) {
+      return
+    }
+
+    /*
+     * Never use a confirmation opened
+     * under another access token.
+     */
+
+    if (
+      confirmationToken.current !== accessToken
+    ) {
+      cancelDeleteConfirmation()
+
+      return
+    }
+
+    deleteInProgress.current = true
+
+    setDeleting(true)
+    setDeleteError(null)
+
+    try {
+      await deleteMyCharacter(accessToken)
+
+      /*
+       * Only after the server confirms
+       * deletion may the character
+       * disappear from the dashboard.
+       */
+
+      focusCreateAfterDelete.current = true
+
+      restoreFocusToDeleteButton.current = false
+
+      confirmationToken.current = null
+
+      setState({
+        status: 'empty',
+      })
+
+      setDeleteDialogOpen(false)
+
+      setCreating(false)
+      setEditing(false)
+
+      onCreatorStepChange?.(null)
+    } catch (error: unknown) {
+      /*
+       * Preserve the saved character
+       * on failure.
+       */
+
+      setDeleteError(
+        getDeleteErrorMessage(language, error),
+      )
+    } finally {
+      deleteInProgress.current = false
+
+      setDeleting(false)
+    }
+  }
+
+  /* ========================================
+     KEYBOARD SUPPORT
+     ======================================== */
+
+  function handleDeleteKeyDown(
+    event: KeyboardEvent<HTMLDivElement>,
+  ) {
+    if (event.key === 'Escape') {
+      event.preventDefault()
+
+      if (!deleting) {
+        cancelDeleteConfirmation()
+      }
+
+      return
+    }
+
+    if (
+      event.key !== 'Tab' ||
+      deleting
+    ) {
+      return
+    }
+
+    const first = cancelDeleteRef.current
+    const last = confirmDeleteRef.current
+
+    if (
+      event.shiftKey &&
+      document.activeElement === first
+    ) {
+      event.preventDefault()
+
+      last?.focus()
+    } else if (
+      !event.shiftKey &&
+      document.activeElement === last
+    ) {
+      event.preventDefault()
+
+      first?.focus()
+    }
   }
 
   /* ========================================
@@ -281,9 +514,7 @@ export function CharacterDashboard({
       }
       aria-label={dashboardTitle}
     >
-      {/* ===================================
-          LOADING
-          =================================== */}
+      {/* LOADING */}
 
       {state.status === 'loading' && (
         <p role="status">
@@ -291,9 +522,7 @@ export function CharacterDashboard({
         </p>
       )}
 
-      {/* ===================================
-          EMPTY STATE / CHARACTER CREATOR
-          =================================== */}
+      {/* EMPTY STATE */}
 
       {state.status === 'empty' && (
         creating ? (
@@ -307,6 +536,7 @@ export function CharacterDashboard({
         ) : (
           <div className="character-empty">
             <button
+              ref={createButtonRef}
               type="button"
               className="character-empty__create-button"
               onClick={startCreating}
@@ -319,19 +549,10 @@ export function CharacterDashboard({
         )
       )}
 
-      {/* ===================================
-          SAVED CHARACTER
-          =================================== */}
+      {/* SAVED CHARACTER */}
 
       {state.status === 'ready' && (
         editing ? (
-          /*
-           * EDITING MODE
-           *
-           * Restore existing selections
-           * inside the six-stage creator.
-           */
-
           <CharacterCreator
             language={language}
             accessToken={accessToken}
@@ -341,34 +562,41 @@ export function CharacterDashboard({
             onSaved={handleCharacterSaved}
           />
         ) : (
-          /*
-           * SAVED CHARACTER SHEET
-           */
-
           <div className="character-dashboard__saved">
             <CharacterSheet
               character={state.character}
               language={language}
             />
 
-            {/* EDIT CHARACTER BUTTON */}
+            <div className="character-dashboard__actions">
+              <button
+                type="button"
+                className="character-empty__create-button"
+                onClick={startEditing}
+                disabled={deleteDialogOpen}
+              >
+                {language === 'pt'
+                  ? 'EDITAR PERSONAGEM'
+                  : 'EDIT CHARACTER'}
+              </button>
 
-            <button
-              type="button"
-              className="character-empty__create-button"
-              onClick={startEditing}
-            >
-              {language === 'pt'
-                ? 'EDITAR PERSONAGEM'
-                : 'EDIT CHARACTER'}
-            </button>
+              <button
+                ref={deleteTriggerRef}
+                type="button"
+                className="character-dashboard__delete-button"
+                onClick={openDeleteConfirmation}
+                disabled={deleteDialogOpen}
+              >
+                {language === 'pt'
+                  ? 'EXCLUIR PERSONAGEM'
+                  : 'DELETE CHARACTER'}
+              </button>
+            </div>
           </div>
         )
       )}
 
-      {/* ===================================
-          ERROR STATE
-          =================================== */}
+      {/* LOADING ERROR */}
 
       {state.status === 'error' && (
         <div className="character-error">
@@ -386,6 +614,90 @@ export function CharacterDashboard({
           </button>
         </div>
       )}
+
+      {/* DELETE CONFIRMATION */}
+
+      {deleteDialogOpen &&
+        state.status === 'ready' &&
+        !editing && (
+          <div className="character-delete-overlay">
+            <div
+              className="character-delete-dialog"
+              role="alertdialog"
+              aria-modal="true"
+              aria-labelledby={deleteTitleId}
+              aria-describedby={deleteDescriptionId}
+              aria-busy={deleting}
+              onKeyDown={handleDeleteKeyDown}
+            >
+              <h2
+                id={deleteTitleId}
+                className="character-delete-dialog__title"
+              >
+                {language === 'pt'
+                  ? 'EXCLUIR PERSONAGEM?'
+                  : 'DELETE CHARACTER?'}
+              </h2>
+
+              <p
+                id={deleteDescriptionId}
+                className="character-delete-dialog__description"
+              >
+                {language === 'pt'
+                  ? 'Você está prestes a excluir '
+                  : 'You are about to delete '}
+
+                <strong>
+                  {state.character.name}
+                </strong>.
+              </p>
+
+              <p className="character-delete-dialog__warning">
+                {language === 'pt'
+                  ? 'ESTA AÇÃO NÃO PODE SER DESFEITA.'
+                  : 'THIS ACTION CANNOT BE UNDONE.'}
+              </p>
+
+              {deleteError && (
+                <p role="alert">
+                  {deleteError}
+                </p>
+              )}
+
+              <div className="character-delete-dialog__actions">
+                <button
+                  ref={cancelDeleteRef}
+                  type="button"
+                  className="character-delete-dialog__cancel"
+                  onClick={cancelDeleteConfirmation}
+                  disabled={deleting}
+                >
+                  {language === 'pt'
+                    ? 'CANCELAR'
+                    : 'CANCEL'}
+                </button>
+
+                <button
+                  ref={confirmDeleteRef}
+                  type="button"
+                  className="character-delete-dialog__confirm"
+                  onClick={() => {
+                    void confirmDeletion()
+                  }}
+                  disabled={deleting}
+                >
+                  {deleting
+                    ? language === 'pt'
+                      ? 'EXCLUINDO...'
+                      : 'DELETING...'
+                    : language === 'pt'
+                      ? 'EXCLUIR DEFINITIVAMENTE'
+                      : 'DELETE PERMANENTLY'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
     </section>
   )
 }

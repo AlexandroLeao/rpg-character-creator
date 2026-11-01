@@ -1,9 +1,11 @@
+
 /*
  * ADVENTURE FILES
  * CHARACTER API CLIENT
  *
  * GET /api/characters/me
  * PUT /api/characters/me
+ * DELETE /api/characters/me
  *
  * Authentication uses the access token
  * provided by Supabase Auth.
@@ -325,4 +327,58 @@ export async function saveMyCharacter(
   }
 
   return character
+}
+
+/* ==========================================
+   DELETE MY CHARACTER
+   ========================================== */
+
+/*
+ * Deletes the authenticated user's
+ * saved character.
+ *
+ * The server identifies the character
+ * from the authenticated session.
+ *
+ * A successful DELETE returns
+ * HTTP 204 No Content.
+ */
+
+export async function deleteMyCharacter(
+  accessToken: string,
+  signal?: AbortSignal,
+): Promise<void> {
+  requireAccessToken(accessToken)
+
+  const authorizationHeader =
+    getAuthorizationHeader()
+
+  const response = await fetch(
+    '/api/characters/me',
+    {
+      method: 'DELETE',
+
+      headers: {
+        [authorizationHeader]:
+          `Bearer ${accessToken}`,
+      },
+
+      signal,
+    },
+  )
+
+  /*
+   * Handles authentication failures,
+   * conflicts, and server errors.
+   *
+   * HTTP 204 is accepted as success.
+   */
+
+  checkResponseStatus(response)
+
+  /*
+   * DELETE returns no response body.
+   *
+   * Do not attempt response.json().
+   */
 }
