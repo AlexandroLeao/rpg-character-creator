@@ -722,12 +722,21 @@ Changes must pass automated checks before being considered ready for merging.
 
 The protected character CRUD API is integrated with the feature-branch frontend. The six-stage PT/EN character creator, class artwork, saving, editing, deletion, and two PNG character-sheet exports are implemented.
 
+Local authorization verification has been completed:
+
+- 6 mocked cross-account API tests are included in the standard suite.
+- 39 local pgTAP assertions passed against Supabase PostgreSQL.
+- 2 opt-in integration tests passed using real disposable Supabase Local Auth accounts and the Express API.
+- The standard API suite passes **97 tests**, while the 2 local integration tests are skipped by default.
+
 The remaining steps toward release are:
 
-1. Run negative cross-account authorization tests for character retrieval, updates, and deletion; confirm database RLS independently.
-2. Verify the revised catalog and Motivation field against existing character records and the live Supabase environment.
-3. Complete production authentication/email configuration, API deployment, and end-to-end integration checks.
-4. Review accessibility, responsive behavior, observability, and deployment documentation.
+1. Verify deployed API and database ownership isolation in a controlled staging environment, using disposable users and never modifying existing character records.
+2. Confirm the revised catalog, Motivation field, migration state, and legacy records in the intended deployment environment.
+3. Complete production authentication/email configuration, API deployment, observability, and end-to-end checks.
+4. Review accessibility, responsive behavior, and deployment documentation.
+
+For the guarded local integration command and cleanup behavior, see [Supabase database documentation](../supabase/README.md).
 
 The frontend defaults to Brazilian Portuguese with optional English, and uses a single consistent retro dark theme.
 
