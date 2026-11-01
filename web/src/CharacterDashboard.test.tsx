@@ -622,4 +622,30 @@ describe('Character dashboard', () => {
 
     expect(signal.aborted).toBe(true)
   })
+
+  it('shows the saved class artwork and grouped character sheet', async () => {
+    mocks.getMyCharacter.mockResolvedValue(savedCharacter)
+
+    render(
+      <CharacterDashboard
+        accessToken="valid-token"
+        language="pt"
+      />,
+    )
+
+    expect(await screen.findByRole('heading', {
+      name: 'Eldrin',
+    })).toBeTruthy()
+
+    expect(screen.getByRole('img').getAttribute('src'))
+      .toBe('/art/characters/mage.png')
+
+    expect(screen.getByRole('heading', {
+      name: 'ORIGENS',
+    })).toBeTruthy()
+
+    expect(screen.getByRole('heading', {
+      name: 'EQUIPAMENTO',
+    })).toBeTruthy()
+  })
 })

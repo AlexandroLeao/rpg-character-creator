@@ -1,0 +1,256 @@
+/* ==========================================
+   ADVENTURE FILES
+   SAVED CHARACTER SHEET
+   ========================================== */
+
+.character-sheet {
+  --sheet-cream: #f5efd2;
+  --sheet-green: #a4ed86;
+  --sheet-muted: #adbea1;
+  --sheet-edge: #456e4b;
+  --sheet-dark: #09140e;
+
+  display: grid;
+  gap: 18px;
+  width: 100%;
+
+  color: var(--sheet-cream);
+}
+
+.character-sheet__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  align-items: stretch;
+  gap: 20px;
+
+  padding: 16px;
+
+  border: 2px solid var(--sheet-edge);
+  border-radius: 9px;
+
+  background:
+    linear-gradient(145deg, #1a3220, #0b190f 70%);
+
+  box-shadow: inset 0 0 0 2px #07110b;
+}
+
+.character-sheet__artwork {
+  display: flex;
+  min-width: 0;
+}
+
+.character-sheet__artwork .character-preview {
+  min-height: 220px;
+  aspect-ratio: auto;
+
+  border: 2px solid #355f3d;
+  border-radius: 5px;
+
+  background: radial-gradient(
+    ellipse at center,
+    #23482c 0%,
+    #102719 65%,
+    #08160c 100%
+  );
+}
+
+.character-sheet__identity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+
+  min-width: 0;
+  gap: 13px;
+  padding: 14px 8px;
+}
+
+.character-sheet__eyebrow,
+.character-sheet__label,
+.character-sheet__saved {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  font-weight: normal;
+  line-height: 1.8;
+}
+
+.character-sheet__eyebrow {
+  color: var(--sheet-green);
+}
+
+.auth-content .character-sheet__name {
+  margin: 0;
+
+  color: var(--sheet-cream);
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(16px, 2.3vw, 23px);
+  font-weight: normal;
+  line-height: 1.65;
+
+  overflow-wrap: anywhere;
+}
+
+.character-sheet__class-details {
+  display: grid;
+  gap: 6px;
+}
+
+.character-sheet__label {
+  color: var(--sheet-muted);
+}
+
+.character-sheet__class-name {
+  margin: 0;
+
+  color: var(--sheet-green);
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.character-sheet__saved {
+  margin-top: 3px;
+  padding: 7px 9px;
+
+  border: 1px solid #547d50;
+  border-radius: 4px;
+
+  background: #152d1c;
+  color: #c7f4b4;
+}
+
+.character-sheet__sections {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.character-sheet__section {
+  min-width: 0;
+  padding: 16px;
+
+  border: 2px solid #3b6342;
+  border-radius: 7px;
+
+  background: #0b1b11;
+  box-shadow: inset 0 0 0 1px #152e1b;
+}
+
+.character-sheet__section-heading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+
+  border-bottom: 1px solid #35593c;
+}
+
+.character-sheet__section-number {
+  display: grid;
+  place-items: center;
+  flex: 0 0 29px;
+
+  width: 29px;
+  height: 29px;
+
+  border: 1px solid #658f5d;
+  border-radius: 4px;
+
+  background: #1c3822;
+  color: var(--sheet-green);
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+}
+
+.auth-content .character-sheet__section h3 {
+  margin: 0;
+
+  color: var(--sheet-green);
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  font-weight: normal;
+  line-height: 1.7;
+}
+
+.character-sheet__fields {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+}
+
+.character-sheet__field {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.character-sheet__field dt {
+  color: var(--sheet-muted);
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  line-height: 1.7;
+}
+
+.character-sheet__field dd {
+  margin: 0;
+
+  color: var(--sheet-cream);
+  font-size: 16px;
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .character-sheet__hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .character-sheet__artwork .character-preview {
+    min-height: 180px;
+    aspect-ratio: 16 / 9;
+  }
+
+  .character-sheet__identity {
+    padding: 10px 3px 4px;
+  }
+}
+
+@media (max-width: 600px) {
+  .character-sheet__sections {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .character-sheet__hero,
+  .character-sheet__section {
+    padding: 13px;
+  }
+
+  .character-sheet__section-heading {
+    margin-bottom: 12px;
+  }
+
+  .character-sheet__field dd {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 380px) {
+  .character-sheet__eyebrow,
+  .character-sheet__saved,
+  .character-sheet__field dt {
+    font-size: 8px;
+  }
+
+  .auth-content .character-sheet__section h3 {
+    font-size: 9px;
+  }
+}

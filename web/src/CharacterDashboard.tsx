@@ -1,8 +1,4 @@
-import {
-  Fragment,
-  useEffect,
-  useState,
-} from 'react'
+import { useEffect, useState } from 'react'
 
 import type { Language } from './lib/authTranslations'
 
@@ -12,11 +8,9 @@ import {
   type Character,
 } from './lib/characterApi'
 
-import {
-  characterFieldKeys,
-  characterTranslations,
-  translateCharacterOption,
-} from './lib/characterTranslations'
+import { characterTranslations } from './lib/characterTranslations'
+
+import { CharacterSheet } from './CharacterSheet'
 
 import { CharacterCreator } from './CharacterCreator'
 
@@ -245,29 +239,10 @@ export function CharacterDashboard({
           =================================== */}
 
       {state.status === 'ready' && (
-        <div className="character-details">
-          <h2>{copy.title}</h2>
-
-          <h3>{state.character.name}</h3>
-
-          <dl>
-            {characterFieldKeys.map((field) => (
-              <Fragment key={field}>
-                <dt>
-                  {copy.fields[field]}
-                </dt>
-
-                <dd>
-                  {translateCharacterOption(
-                    language,
-                    field,
-                    state.character[field],
-                  )}
-                </dd>
-              </Fragment>
-            ))}
-          </dl>
-        </div>
+        <CharacterSheet
+          character={state.character}
+          language={language}
+        />
       )}
 
       {/* ===================================
