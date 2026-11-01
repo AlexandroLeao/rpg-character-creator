@@ -1,0 +1,4 @@
+# Supabase CLI — local development state
+
+.branches/
+.temp/
