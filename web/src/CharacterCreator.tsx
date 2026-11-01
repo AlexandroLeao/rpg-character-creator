@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 
 import type { Language } from './lib/authTranslations'
+import { motivationIds } from './lib/motivationTranslations'
 
 import {
   CharacterApiError,
@@ -68,16 +69,18 @@ type CharacterCreatorProps = {
 
   onStepChange?: (step: number) => void
 
+  accessToken?: string
+
+  onSaved?: (character: Character) => void
+
   /*
-   * Optional for compatibility with
-   * existing creator tests.
+   * Optional saved character.
    *
-   * The dashboard provides both values
-   * when real saving is available.
+   * When provided, the creator starts
+   * with the existing selections.
    */
 
-  accessToken?: string
-  onSaved?: (character: Character) => void
+  initialCharacter?: Character
 }
 
 /* ==========================================
@@ -99,6 +102,195 @@ type CharacterDraft = {
 
   companion: CharacterCompanion | null
   motivation: CharacterMotivation | null
+}
+
+/* ==========================================
+   CURRENT CATALOG FOR EDITING
+   ========================================== */
+
+const editableOptions = {
+  characterClass: [
+    'warrior',
+    'paladin',
+    'mage',
+    'rogue',
+    'ranger',
+    'druid',
+    'cleric',
+    'bard',
+  ],
+
+  ancestry: [
+    'human',
+    'elf',
+    'dwarf',
+    'orc',
+    'fae',
+    'construct',
+  ],
+
+  background: [
+    'noble',
+    'scholar',
+    'wanderer',
+    'guardian',
+    'artisan',
+    'outlaw',
+  ],
+
+  weapon: [
+    'sword',
+    'bow',
+    'staff',
+    'dagger',
+    'axe',
+    'spear',
+    'hammer',
+    'wand',
+  ],
+
+  artifact: [
+    'arcane-seal',
+    'ancient-ring',
+    'moon-crystal',
+    'runic-compass',
+    'shadow-crown',
+    'phoenix-feather',
+    'chaos-orb',
+    'sun-relic',
+  ],
+
+  personality: [
+    'brave',
+    'curious',
+    'loyal',
+    'cunning',
+    'kind',
+    'stoic',
+    'rebellious',
+    'mysterious',
+  ],
+
+  aura: [
+    'fire',
+    'ice',
+    'nature',
+    'shadow',
+    'light',
+    'storm',
+    'arcane',
+    'void',
+  ],
+
+  companion: [
+    'none',
+    'wolf',
+    'owl',
+    'cat',
+    'fox',
+    'raven',
+    'turtle',
+    'dragon',
+  ],
+} as const
+
+/* ==========================================
+   RESTORE VALID SELECTION
+   ========================================== */
+
+function restoreSelection<T extends string>(
+  savedValue: string | null,
+  options: readonly T[],
+): T | null {
+  return options.find(
+    (option) => option === savedValue,
+  ) ?? null
+}
+
+/* ==========================================
+   CREATE INITIAL DRAFT
+   ========================================== */
+
+/*
+ * New characters start with empty choices.
+ *
+ * Editing restores the saved selections.
+ *
+ * Legacy values that no longer belong to
+ * the current catalog become null, requiring
+ * a valid selection before saving again.
+ */
+
+function createInitialDraft(
+  character?: Character,
+): CharacterDraft {
+  if (!character) {
+    return {
+      characterClass: null,
+      name: '',
+
+      ancestry: null,
+      background: null,
+
+      weapon: null,
+      artifact: null,
+
+      personality: null,
+      aura: null,
+
+      companion: null,
+      motivation: null,
+    }
+  }
+
+  return {
+    characterClass: restoreSelection(
+      character.characterClass,
+      editableOptions.characterClass,
+    ),
+
+    name: character.name,
+
+    ancestry: restoreSelection(
+      character.ancestry,
+      editableOptions.ancestry,
+    ),
+
+    background: restoreSelection(
+      character.background,
+      editableOptions.background,
+    ),
+
+    weapon: restoreSelection(
+      character.weapon,
+      editableOptions.weapon,
+    ),
+
+    artifact: restoreSelection(
+      character.artifact,
+      editableOptions.artifact,
+    ),
+
+    personality: restoreSelection(
+      character.personality,
+      editableOptions.personality,
+    ),
+
+    aura: restoreSelection(
+      character.aura,
+      editableOptions.aura,
+    ),
+
+    companion: restoreSelection(
+      character.companion,
+      editableOptions.companion,
+    ),
+
+    motivation: restoreSelection(
+      character.motivation,
+      motivationIds,
+    ),
+  }
 }
 
 /* ==========================================
@@ -177,6 +369,7 @@ export function CharacterCreator({
   onStepChange,
   accessToken,
   onSaved,
+  initialCharacter,
 }: CharacterCreatorProps) {
   /* ========================================
      CURRENT STEP
@@ -188,22 +381,9 @@ export function CharacterCreator({
      CHARACTER DRAFT
      ======================================== */
 
-  const [draft, setDraft] = useState<CharacterDraft>({
-    characterClass: null,
-    name: '',
-
-    ancestry: null,
-    background: null,
-
-    weapon: null,
-    artifact: null,
-
-    personality: null,
-    aura: null,
-
-    companion: null,
-    motivation: null,
-  })
+  const [draft, setDraft] = useState<CharacterDraft>(
+    () => createInitialDraft(initialCharacter),
+  )
 
   /* ========================================
      SAVE STATE
@@ -275,8 +455,8 @@ export function CharacterCreator({
       )
 
       /*
-       * The dashboard changes only after
-       * the API confirms saving.
+       * Update the dashboard only after
+       * the server confirms persistence.
        */
 
       onSaved(savedCharacter)
@@ -367,7 +547,7 @@ export function CharacterCreator({
             ...data,
           }))
 
-          goToStep(4)
+          goToStep(3 + 1)
         }}
       />
     )

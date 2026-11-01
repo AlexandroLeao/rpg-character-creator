@@ -8,7 +8,9 @@ import {
   type Character,
 } from './lib/characterApi'
 
-import { characterTranslations } from './lib/characterTranslations'
+import {
+  characterTranslations,
+} from './lib/characterTranslations'
 
 import { CharacterSheet } from './CharacterSheet'
 
@@ -17,7 +19,18 @@ import { CharacterCreator } from './CharacterCreator'
 /*
  * ADVENTURE FILES
  * CHARACTER DASHBOARD
+ *
+ * Supports:
+ * - Loading the saved character
+ * - Creating a new character
+ * - Viewing the saved character
+ * - Editing the saved character
+ * - Canceling without saving
  */
+
+/* ==========================================
+   DASHBOARD STATE
+   ========================================== */
 
 type DashboardState =
   | {
@@ -35,14 +48,23 @@ type DashboardState =
       reason: 'session' | 'unavailable'
     }
 
+/* ==========================================
+   COMPONENT PROPS
+   ========================================== */
+
 type CharacterDashboardProps = {
   accessToken: string
+
   language: Language
 
   onCreatorStepChange?: (
     step: number | null,
   ) => void
 }
+
+/* ==========================================
+   CHARACTER DASHBOARD
+   ========================================== */
 
 export function CharacterDashboard({
   accessToken,
@@ -60,8 +82,26 @@ export function CharacterDashboard({
 
   const [attempt, setAttempt] = useState(0)
 
+  /* ========================================
+     CREATION MODE
+     ======================================== */
+
   const [creating, setCreating] =
     useState(false)
+
+  /* ========================================
+     EDITING MODE
+     ======================================== */
+
+  const [editing, setEditing] =
+    useState(false)
+
+  /*
+   * The same creator is used for both
+   * creating and editing characters.
+   */
+
+  const creatorOpen = creating || editing
 
   /* ========================================
      TRANSLATIONS
@@ -69,11 +109,15 @@ export function CharacterDashboard({
 
   const copy = characterTranslations[language]
 
-  const dashboardTitle = creating
+  const dashboardTitle = editing
     ? language === 'pt'
-      ? 'Criar personagem'
-      : 'Create Character'
-    : copy.title
+      ? 'Editar personagem'
+      : 'Edit Character'
+    : creating
+      ? language === 'pt'
+        ? 'Criar personagem'
+        : 'Create Character'
+      : copy.title
 
   /* ========================================
      LOAD CHARACTER
@@ -118,6 +162,7 @@ export function CharacterDashboard({
 
         setState({
           status: 'error',
+
           reason: sessionError
             ? 'session'
             : 'unavailable',
@@ -162,6 +207,42 @@ export function CharacterDashboard({
   }
 
   /* ========================================
+     START EDITING
+     ======================================== */
+
+  function startEditing() {
+    /*
+     * Editing is available only when
+     * a saved character exists.
+     */
+
+    if (state.status !== 'ready') {
+      return
+    }
+
+    setEditing(true)
+
+    onCreatorStepChange?.(1)
+  }
+
+  /* ========================================
+     CANCEL EDITING
+     ======================================== */
+
+  function cancelEditing() {
+    /*
+     * Closing the creator discards the
+     * unfinished editing draft.
+     *
+     * No API request is sent.
+     */
+
+    setEditing(false)
+
+    onCreatorStepChange?.(null)
+  }
+
+  /* ========================================
      CHARACTER SAVED
      ======================================== */
 
@@ -171,6 +252,9 @@ export function CharacterDashboard({
     /*
      * Update the dashboard only after
      * the server confirms persistence.
+     *
+     * This works for both creation
+     * and editing.
      */
 
     setState({
@@ -179,6 +263,7 @@ export function CharacterDashboard({
     })
 
     setCreating(false)
+    setEditing(false)
 
     onCreatorStepChange?.(null)
   }
@@ -190,7 +275,7 @@ export function CharacterDashboard({
   return (
     <section
       className={
-        creating
+        creatorOpen
           ? 'character-dashboard character-dashboard--creating'
           : 'character-dashboard'
       }
@@ -239,10 +324,46 @@ export function CharacterDashboard({
           =================================== */}
 
       {state.status === 'ready' && (
-        <CharacterSheet
-          character={state.character}
-          language={language}
-        />
+        editing ? (
+          /*
+           * EDITING MODE
+           *
+           * Restore existing selections
+           * inside the six-stage creator.
+           */
+
+          <CharacterCreator
+            language={language}
+            accessToken={accessToken}
+            initialCharacter={state.character}
+            onCancel={cancelEditing}
+            onStepChange={onCreatorStepChange}
+            onSaved={handleCharacterSaved}
+          />
+        ) : (
+          /*
+           * SAVED CHARACTER SHEET
+           */
+
+          <div className="character-dashboard__saved">
+            <CharacterSheet
+              character={state.character}
+              language={language}
+            />
+
+            {/* EDIT CHARACTER BUTTON */}
+
+            <button
+              type="button"
+              className="character-empty__create-button"
+              onClick={startEditing}
+            >
+              {language === 'pt'
+                ? 'EDITAR PERSONAGEM'
+                : 'EDIT CHARACTER'}
+            </button>
+          </div>
+        )
       )}
 
       {/* ===================================
