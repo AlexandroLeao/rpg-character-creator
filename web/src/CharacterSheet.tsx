@@ -94,6 +94,10 @@ export function CharacterSheet({
       className="character-sheet"
       aria-labelledby="character-sheet-name"
     >
+      <h2 className="character-sheet__sr-only">
+        {copy.title}
+      </h2>
+
       <div className="character-sheet__hero">
         <div className="character-sheet__artwork">
           <CharacterPreview
