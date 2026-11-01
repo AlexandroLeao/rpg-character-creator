@@ -705,7 +705,7 @@ The dashboard provides:
 - Delete Character.
 - Sign Out.
 
-The export action offers the three approved formats: PDF A4, PNG Story/Status, and PNG Portrait.
+The export action offers two formats: PNG Story/Status and PNG Portrait.
 
 Account-related options may be included when the corresponding functionality is implemented.
 
@@ -749,9 +749,10 @@ The application does not publish directly to social networks.
 
 | Format | Dimensions | Intended use |
 |---|---|---|
-| PDF | A4 | Printable or archival character sheet |
 | PNG Story/Status | 1080 × 1920 pixels | Instagram Stories and WhatsApp Status |
 | PNG Portrait | 1080 × 1350 pixels | Portrait social posts and sharing |
+
+PDF is excluded from the roadmap by the November 1, 2026 scope decision.
 
 ### 11.3. Shared content
 
@@ -773,24 +774,7 @@ Content must remain faithful to the saved record, including an explicit `none` c
 
 All layouts preserve the project's dark-green, cream, mint, and pixel-art visual identity.
 
-### 11.4. PDF A4
-
-The PDF resembles a compact retro character sheet.
-
-Preferred design:
-
-- Original pixel-art illustration.
-- Clear pixel-inspired headings.
-- Readable body text.
-- Consistent borders.
-- A restrained color palette.
-- Balanced spacing suitable for printing.
-
-Avoid elaborate backgrounds, excessive decoration, and tiny text.
-
-The PDF must open and print correctly at A4 size.
-
-### 11.5. PNG Story/Status — 1080 × 1920
+### 11.4. PNG Story/Status — 1080 × 1920
 
 The vertical image is designed for Instagram Stories and WhatsApp Status.
 
@@ -805,7 +789,7 @@ It should:
 
 The image is downloaded as a standard PNG file. Direct social-network integration is not part of the initial release.
 
-### 11.6. PNG Portrait — 1080 × 1350
+### 11.5. PNG Portrait — 1080 × 1350
 
 The portrait image is intended for social-media posts and general sharing.
 
@@ -818,12 +802,12 @@ It should:
 
 The portrait layout must not simply crop the Story/Status image.
 
-### 11.7. Export interaction
+### 11.6. Export interaction
 
 The interface should allow the user to:
 
 1. Open the Export Character Sheet action.
-2. Choose PDF A4, PNG Story/Status, or PNG Portrait.
+2. Choose PNG Story/Status or PNG Portrait.
 3. Generate and download the selected file.
 4. Return to the saved-character view without losing state.
 
@@ -831,7 +815,7 @@ Provide loading and failure feedback where generation is not immediate.
 
 Do not claim a download succeeded if generation failed.
 
-### 11.8. Data, privacy, and implementation
+### 11.7. Data, privacy, and implementation
 
 Exports contain only the fictional information needed for the character sheet.
 
@@ -844,7 +828,7 @@ They must not include:
 
 Client-side export generation is preferred for the initial release if it meets quality, accessibility, and device-performance requirements.
 
-Generated PDF or PNG bytes do not need to be stored as additional server records.
+Generated PNG bytes do not need to be stored as additional server records.
 
 Changes to the catalog and schema must be compatible with saved-character retrieval before export is enabled.
 
@@ -864,7 +848,7 @@ The start-screen artwork must remain separate from its title and prompt.
 
 Class illustrations should share a consistent style, proportions, and palette.
 
-When feasible, the same class illustrations can be reused in the character dashboard, PDF, and PNG exports.
+When feasible, the same class illustrations can be reused in the character dashboard and PNG exports.
 
 ## 13. Responsive Behavior
 
@@ -885,7 +869,7 @@ The mobile interface should:
 - Keep important buttons within comfortable reach.
 - Reorganize class artwork and selection options vertically when necessary.
 - Allow the complete creation and editing experience.
-- Support all three character-sheet export formats.
+- Support both character-sheet export formats.
 
 Mobile users must have access to the same functional choices as desktop users.
 
@@ -899,7 +883,7 @@ Both layouts must support:
 - Character review.
 - Character editing.
 - Character deletion.
-- PDF A4 and both PNG exports.
+- both PNG exports.
 - Sign out.
 
 ## 14. Motion and Interaction Guidelines
@@ -960,48 +944,31 @@ The following rules apply across the entire application:
 
 ## 17. Implementation Status
 
-The product experience described here represents the approved target design, not a claim that every screen is complete.
+The six-stage flow, character management, and both PNG export layouts are implemented on the feature branch. The complete product is still undergoing release validation.
 
-### Already implemented
+### Implemented on the Development Branch
 
-- Adventure Files start screen.
-- Separate desktop and mobile start-screen artwork.
-- "PRESS START" interaction.
-- Retro transition into authentication.
-- Authentication foundations and PT/EN interface support.
-- Basic authenticated character dashboard and simplified empty state.
-- Protected backend character API.
-- Previous creator step 01: class and name.
-- Previous creator step 02: ancestry and background.
-- Previous creator step 03: weapon, artifact, and companion.
-- Draft selections preserved when navigating backward between implemented steps.
-- Responsive layouts for the first three creator stages.
-- Frontend lint, build, and automated tests for the implemented stages.
+- Adventure Files start screen, separate desktop/mobile pixel-art compositions, PRESS START, and retro transition.
+- Supabase authentication, session restoration, and PT/EN interface.
+- All six guided creator stages with the revised catalog, Personality, Aura, Companion, and Motivation.
+- Dedicated Final Review, draft preservation, explicit Save, and character persistence.
+- Saved-character dashboard using class artwork and showing all customization choices.
+- Character editing and confirmation-based deletion.
+- Browser downloads of PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350).
+- Frontend/API/database automated checks; the latest reported frontend run passed lint, build, and 141 tests in 17 files.
 
-### Approved next implementation milestones
+Manual browser checks covered deletion cancellation, editing and saving, both accounts, and re-export after changing a saved character's class and choices.
 
-1. Replace Emerald Amulet (`emerald-amulet`) with Arcane Seal (`arcane-seal`) and Dragonling (`dragonling`) with Dragon (`dragon`).
-2. Reorganize Equipment into Weapon and Artifact only.
-3. Implement Essence with Personality and Aura.
-4. Implement Journey with Companion and the eight new Motivation options.
-5. Implement an exclusive Step 06 Final Review with explicit Save.
-6. Update progress indicators to 01 / 06 through 06 / 06.
-7. Preserve desktop paired layouts and mobile stacked layouts.
-8. Align shared types, translations, API validation, database schema, and tests with the revised catalog.
-9. Safely handle any existing records using older identifiers or missing Motivation.
-10. Complete character saving, editing, deletion, and the illustrated dashboard.
-11. Implement PDF A4, PNG Story/Status, and PNG Portrait export.
-12. Complete integration, responsive, accessibility, and production validation.
+### Remaining Review and Release Work
 
-The previous fourth step remains a placeholder. The new six-stage flow has not yet been fully implemented.
+1. Negative cross-account security checks for API read, update, delete, and database RLS.
+2. Responsive polish, keyboard accessibility, reduced-motion review, and error states.
+3. Full production authentication/email, API integration, deployment, and recovery verification.
+4. Final documentation review and merge of the draft pull request after all checks pass.
 
-The approved artifact catalog contains eight mandatory artifact choices, including Arcane Seal (`arcane-seal`), Shadow Crown (`shadow-crown`), and Chaos Orb (`chaos-orb`).
+The updated catalog includes Arcane Seal (`arcane-seal`), Shadow Crown (`shadow-crown`), Chaos Orb (`chaos-orb`), and Dragon (`dragon`). Only Companion offers `none` as an explicit selection. Previously saved records and compatibility paths require continued validation.
 
-Only Companion offers `none` as an explicit selection.
-
-Backend and database compatibility must be verified before saving with newly approved values or the Motivation field.
-
-Approved designs must not be described as completed features until their implementation is verified.
+The project's original eight-class illustrations remain shared by the creator, dashboard, and PNG exports; per-option artwork is deferred. PDF export is not in scope.
 
 ## 18. Non-Goals
 
@@ -1031,7 +998,7 @@ The visual and interaction design is successful when:
 - Explicit class selection and original artwork make character creation more engaging.
 - The six-stage wizard remains easy to navigate, with a dedicated final review.
 - Saved characters are easy to view and manage.
-- PDF A4 and both PNG layouts feel like natural extensions of the project.
+- both PNG layouts feel like natural extensions of the project.
 - Desktop and mobile experiences remain coherent.
 - The application's creativity supports its technical purpose.
 
