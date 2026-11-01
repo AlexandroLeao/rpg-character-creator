@@ -1,0 +1,164 @@
+/*
+ * ADVENTURE FILES
+ * CHARACTER EXPORT PANEL
+ */
+
+.character-export {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+}
+
+/* ==========================================
+   MAIN EXPORT BUTTON
+   ========================================== */
+
+.character-export__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 50px;
+
+  padding: 13px 16px;
+
+  border: 2px solid #a4ed86;
+  border-radius: 7px;
+
+  background: #142c1b;
+  color: #a4ed86;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  line-height: 1.8;
+  text-align: center;
+
+  cursor: pointer;
+}
+
+.character-export__toggle:hover:not(:disabled) {
+  background: #1c3a23;
+  color: #c9ffb1;
+}
+
+/* ==========================================
+   FORMAT SELECTION PANEL
+   ========================================== */
+
+.character-export__panel {
+  display: grid;
+  gap: 16px;
+
+  padding: 18px;
+
+  border: 2px solid #456e4b;
+  border-radius: 7px;
+
+  background: #0b1b11;
+}
+
+.character-export__heading {
+  margin: 0;
+
+  color: #a4ed86;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  line-height: 1.8;
+}
+
+.character-export__options {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+/* ==========================================
+   FORMAT BUTTONS
+   ========================================== */
+
+.character-export__option {
+  min-width: 0;
+  min-height: 60px;
+
+  padding: 12px;
+
+  border: 2px solid #5b8d61;
+  border-radius: 6px;
+
+  background: #102719;
+  color: #f5efd2;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  line-height: 1.9;
+  text-align: center;
+
+  cursor: pointer;
+}
+
+.character-export__option:hover:not(:disabled) {
+  border-color: #a4ed86;
+  background: #1d3b25;
+}
+
+.character-export__toggle:focus-visible,
+.character-export__option:focus-visible {
+  outline: 3px solid #f5efd2;
+  outline-offset: 3px;
+}
+
+.character-export__toggle:disabled,
+.character-export__option:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* ==========================================
+   FEEDBACK
+   ========================================== */
+
+.character-export__status {
+  margin: 0;
+
+  color: #a4ed86;
+
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.character-export__error {
+  margin: 0;
+
+  padding: 12px;
+
+  border: 1px solid #b77b70;
+  border-radius: 6px;
+
+  background: #2a1b18;
+  color: #ffd3c8;
+
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* ==========================================
+   MOBILE
+   ========================================== */
+
+@media (max-width: 600px) {
+  .character-export__options {
+    grid-template-columns: 1fr;
+  }
+
+  .character-export__panel {
+    padding: 14px;
+  }
+
+  .character-export__toggle {
+    font-size: 9px;
+  }
+}

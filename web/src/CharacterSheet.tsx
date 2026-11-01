@@ -11,6 +11,10 @@ import {
   type CharacterClass,
 } from './CharacterPreview'
 
+import {
+  CharacterExportPanel,
+} from './CharacterExportPanel'
+
 import './CharacterSheet.css'
 
 /*
@@ -18,8 +22,12 @@ import './CharacterSheet.css'
  * SAVED CHARACTER SHEET
  *
  * The saved record is the source of truth.
- * Every choice without dedicated artwork
- * is presented as localized text.
+ *
+ * Each character choice is presented
+ * as localized text.
+ *
+ * The saved sheet also provides access
+ * to the available export formats.
  */
 
 const illustratedClasses = new Set<string>([
@@ -72,16 +80,19 @@ export function CharacterSheet({
   const copy = characterTranslations[language]
 
   /*
-   * Older or unexpected class identifiers
-   * retain their saved label, while artwork
-   * safely falls back to the group illustration.
+   * Unknown or legacy class identifiers
+   * retain their saved labels.
+   *
+   * Artwork falls back to the existing
+   * group illustration when necessary.
    */
 
-  const illustratedClass = illustratedClasses.has(
-    character.characterClass,
-  )
-    ? character.characterClass as CharacterClass
-    : null
+  const illustratedClass =
+    illustratedClasses.has(
+      character.characterClass,
+    )
+      ? character.characterClass as CharacterClass
+      : null
 
   const className = translateCharacterOption(
     language,
@@ -97,6 +108,10 @@ export function CharacterSheet({
       <h2 className="character-sheet__sr-only">
         {copy.title}
       </h2>
+
+      {/* ====================================
+          CHARACTER IDENTITY AND ARTWORK
+          ==================================== */}
 
       <div className="character-sheet__hero">
         <div className="character-sheet__artwork">
@@ -138,6 +153,10 @@ export function CharacterSheet({
         </div>
       </div>
 
+      {/* ====================================
+          CHARACTER CUSTOMIZATION
+          ==================================== */}
+
       <div className="character-sheet__sections">
         {sections.map((section, index) => (
           <section
@@ -155,7 +174,11 @@ export function CharacterSheet({
                 {String(index + 1).padStart(2, '0')}
               </span>
 
-              <h3 id={'character-sheet-' + section.key}>
+              <h3
+                id={
+                  'character-sheet-' + section.key
+                }
+              >
                 {section[language]}
               </h3>
             </div>
@@ -166,7 +189,10 @@ export function CharacterSheet({
                   key={field}
                   className="character-sheet__field"
                 >
-                  <dt>{copy.fields[field]}</dt>
+                  <dt>
+                    {copy.fields[field]}
+                  </dt>
+
                   <dd>
                     {translateCharacterOption(
                       language,
@@ -180,6 +206,15 @@ export function CharacterSheet({
           </section>
         ))}
       </div>
+
+      {/* ====================================
+          CHARACTER EXPORT
+          ==================================== */}
+
+      <CharacterExportPanel
+        character={character}
+        language={language}
+      />
     </article>
   )
 }
