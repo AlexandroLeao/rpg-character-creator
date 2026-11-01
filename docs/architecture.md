@@ -1,6 +1,6 @@
 # Adventure Files — System Architecture
 
-- **Status:** Partially implemented; six-stage creator and expanded exports are approved targets.
+- **Status:** Core character flow and two PNG exports implemented on the feature branch; final security, accessibility, and production verification pending.
 - **Product name:** Adventure Files
 - **Linked specs:** [Requirements](./requirements.md), [Catalog](./customization-catalog.md), [Product Experience](./product-experience.md).
 
@@ -20,7 +20,7 @@ flowchart TD
     B -->|Validate token| A
     B -->|User-scoped requests| D[(Supabase PostgreSQL)]
     D -->|RLS ownership rules| D
-    F -->|Client-side generation| E[PDF A4 / PNG Exports]
+    F -->|Client-side generation| E[PNG Story / Portrait Exports]
 ```
 
 The frontend owns the interactive character creation experience and export presentation.
@@ -44,9 +44,7 @@ PostgreSQL owns persistent character records, database constraints, and Row Leve
 | Deployment | Vercel frontend; API deployment mode validated before release |
 | Development | Google Cloud Shell Editor |
 
-PDF and PNG generation will use a client-side implementation selected and validated during the export phase.
-
-No export library is considered finalized until its output quality, compatibility, and maintenance requirements are verified.
+PNG exports are generated client-side from the authorized saved character using browser canvas/image APIs. PNG output dimensions and fields have automated tests; browser and device compatibility remain part of release verification.
 
 ## 3. User and Navigation Flows
 
@@ -57,7 +55,7 @@ No export library is considered finalized until its output quality, compatibilit
 5. **Explicit save:** The sixth stage displays the complete draft and saves only after user confirmation.
 6. **Returning user:** My Character displays the saved character with editing, deletion, export, and sign-out actions.
 7. **Password recovery:** The application uses Supabase Auth's managed recovery flow and safe feedback.
-8. **Export:** The browser generates the selected PDF or PNG file locally from the authorized saved character record.
+8. **Export:** The browser generates the selected PNG file locally from the authorized saved character record.
 
 ### 3.1. Approved Six-Stage Creator
 
@@ -82,9 +80,10 @@ The frontend must preserve the character draft when navigating between stages.
 
 | Format | Dimensions | Purpose |
 |---|---|---|
-| PDF | A4 | Printable character sheet |
 | PNG Story/Status | 1080 × 1920 | Instagram Stories and WhatsApp Status |
 | PNG Portrait | 1080 × 1350 | Portrait social posts and sharing |
+
+The November 1, 2026 scope decision excludes PDF export.
 
 The application provides file downloads.
 
@@ -119,7 +118,7 @@ The React application must:
 - Display safe loading, validation, success, and error feedback.
 - Load saved character values before editing.
 - Support character deletion with explicit confirmation.
-- Generate and download the approved PDF and PNG exports.
+- Generate and download both approved PNG exports.
 - Keep authentication credentials and private account information out of exports.
 
 Client-side validation improves usability but does not replace API validation.
@@ -178,7 +177,7 @@ Base path: `/api`.
 
 The Express API already implements the health endpoint and authenticated character GET, PUT, and DELETE routes.
 
-The current backend uses the previous character catalog. The expanded contract below is the approved target and requires implementation and compatibility testing.
+The six-stage character payload and revised catalog are implemented on the feature branch. Compatibility with older records and cross-account authorization still require release verification.
 
 | Method | Path | Auth | Response |
 |---|---|---|---|
@@ -191,9 +190,9 @@ Protected requests use:
 
 `Authorization: Bearer <access_token>`
 
-### 5.1. Target Character Payload
+### 5.1. Character Payload
 
-After the schema and validation updates, `PUT /api/characters/me` accepts the complete editable character data:
+`PUT /api/characters/me` accepts the complete editable character data:
 
 ```json
 {
@@ -210,7 +209,7 @@ After the schema and validation updates, `PUT /api/characters/me` accepts the co
 }
 ```
 
-This is the **planned contract**, not a claim that the current API already accepts `motivation`.
+The API validates the new Motivation field with the revised catalog. Validate compatibility against live deployment configurations before release.
 
 The caller cannot submit or overwrite:
 
@@ -240,7 +239,7 @@ The server must validate:
 | `companion` | One of 8 approved values; `none` permitted |
 | `motivation` | One of 8 approved values |
 
-Motivation is mandatory in the target character model.
+Motivation is required in the current character model.
 
 The canonical identifiers are documented in [Customization Catalog](./customization-catalog.md).
 
@@ -318,9 +317,7 @@ The account display name is not part of the fictional character record.
 
 ### 7.2. Application Table: characters
 
-The following table describes the **approved target schema**.
-
-The new `motivation` column and revised catalog constraints are not yet assumed to exist in the deployed database.
+The following table describes the **revised character schema** implemented through project migrations. Confirm that the target deployment has applied the required migrations and RLS policies before production release.
 
 | Column | Database type | Notes |
 |---|---|---|
@@ -335,7 +332,7 @@ The new `motivation` column and revised catalog constraints are not yet assumed 
 | `personality` | TEXT | One of 8 personality slugs |
 | `aura` | TEXT | One of 8 aura slugs |
 | `companion` | TEXT | One of 8 companion slugs, including `none` |
-| `motivation` | TEXT | One of 8 motivation slugs; required in target model |
+| `motivation` | TEXT | One of 8 motivation slugs; required for new records |
 | `created_at` | TIMESTAMPTZ | Database-generated |
 | `updated_at` | TIMESTAMPTZ | Updated on write |
 
@@ -346,10 +343,10 @@ The new `motivation` column and revised catalog constraints are not yet assumed 
 - Character names must meet the approved length constraints.
 - Enumerated fields must match the approved catalog.
 - Only Companion supports the explicit value `none`.
-- Motivation is required for new records after the target schema is fully deployed.
+- Motivation is required for new records; migrations and compatibility must be verified in each deployed environment.
 - Class illustrations remain static frontend assets determined by `character_class`.
 - No gender, sex, body-type, or class-art selection column is introduced.
-- Generated PDF and PNG files are not persisted as character database columns.
+- Generated PNG files are not persisted as character database columns.
 - SQL changes and RLS policies must be maintained through reviewed migrations.
 
 ### 7.4. Catalog Identifier Changes
@@ -511,7 +508,6 @@ The application uses one fixed dark theme.
 | Localization | PT/EN labels change without altering selected slugs or draft values |
 | Class artwork | Eight-class default, explicit selection, persistent active state |
 | Data migration | Existing records remain readable and safely editable during schema evolution |
-| PDF export | A4 output, complete fictional attributes, valid download, no private account data |
 | Story/Status export | Valid PNG at exactly 1080 × 1920 pixels |
 | Portrait export | Valid PNG at exactly 1080 × 1350 pixels |
 | CI | Frontend and API install, build, lint, tests, and configured security checks |
@@ -543,7 +539,7 @@ The completed workflow must be validated through integration tests.
 - **AD-03:** Enforce one private saved character per account using `UNIQUE(user_id)` and RLS.
 - **AD-04:** Use a version-controlled catalog containing eight classes and eight enumerated customization categories, without sex or gender fields.
 - **AD-05:** Use a six-stage guided creator with two fields in each of the first five stages and an exclusive Final Review stage.
-- **AD-06:** Generate PDF A4 and both approved PNG formats from saved character data without server-side file persistence.
+- **AD-06:** Generate both approved PNG formats from saved character data without server-side file persistence.
 - **AD-07:** Require security verification and production email readiness before public registration.
 - **AD-08:** Preserve a fixed dark visual identity without a light/dark theme toggle.
 - **AD-09:** Place the responsive Adventure Files start screen before authentication, with original artwork and a retro iris transition.
