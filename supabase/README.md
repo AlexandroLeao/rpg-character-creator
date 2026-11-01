@@ -5,21 +5,21 @@ The database schema lives in version-controlled SQL migrations. Do not edit the 
 ## What this change provides
 
 - `public.characters` references Supabase-managed `auth.users` and is limited to one row per account (`UNIQUE(user_id)`).
-- All eight character classes and seven customization fields are constrained to the [approved catalog](../docs/customization-catalog.md).
+- All eight character classes and eight customization fields are constrained to the [approved catalog](../docs/customization-catalog.md).
 - Character names must be trimmed, between 2 and 32 characters, and contain no control characters.
 - IDs and timestamps are database-managed.
 - Row Level Security (RLS) allows only the signed-in owner to select, insert, update, and delete their character.
 - Only editable character columns can be updated by the `authenticated` database role. Ownership, IDs and timestamps are not writable through the normal client role.
 - The `anon` database role has no access to this table.
 
-**Important:** RLS is not a substitute for authenticating the Express API's access token. Future Express CRUD handlers must validate tokens and use user-scoped database requests so RLS applies. They must never use a service-role/secret key for ordinary character CRUD.
+**Important:** RLS is not a substitute for authenticating the Express API's access token. The implemented Express CRUD handlers validate tokens and use user-scoped database requests so RLS applies. They must never use a service-role/secret key for ordinary character CRUD.
 
 ## Testing before touching the hosted project
 
 On a machine with Docker and the [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started) installed:
 
 ```bash
-supabase db start
+supabase start
 supabase test db
 ```
 
@@ -45,7 +45,7 @@ Do not run `supabase db reset` against any environment containing data you need.
 | A caller supplies a blank or untrimmed character name | Rejected by database constraints |
 | User B deletes their Supabase Auth account | B's character is removed by FK cascade |
 
-The database test suite checks these rules at the SQL layer. When the Express endpoints are implemented, add separate API integration tests using **real user access tokens** for A and B. Database role simulation cannot prove that the Express token verification is correct.
+The database test suite checks these rules at the SQL layer. The Express API has automated authorization tests using mocked accounts; separate end-to-end integration tests with **real access tokens from disposable test users A and B** are still required. Database role simulation cannot prove that the Express token verification is correct.
 
 ## Later: deploy the reviewed migration
 
