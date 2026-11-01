@@ -720,18 +720,17 @@ Changes must pass automated checks before being considered ready for merging.
 
 ## Next Milestones
 
-After the protected character CRUD milestone:
+The protected character CRUD API is integrated with the feature-branch frontend. The six-stage PT/EN character creator, class artwork, saving, editing, deletion, and two PNG character-sheet exports are implemented.
 
-- Complete safe integration verification against Supabase.
-- Connect the frontend character creator to the protected API.
-- Implement the planned Portuguese and English language selection.
-- Continue character creation interface development.
-- Add character illustrations and visual customization.
-- Implement PDF export.
-- Refine the application's design, colors, and typography.
+The remaining steps toward release are:
 
-The frontend must default to Brazilian Portuguese, with manual switching between Portuguese and English.
+1. Run negative cross-account authorization tests for character retrieval, updates, and deletion; confirm database RLS independently.
+2. Verify the revised catalog and Motivation field against existing character records and the live Supabase environment.
+3. Complete production authentication/email configuration, API deployment, and end-to-end integration checks.
+4. Review accessibility, responsive behavior, observability, and deployment documentation.
 
-The application will use one consistent retro visual theme without a light/dark theme toggle.
+The frontend defaults to Brazilian Portuguese with optional English, and uses a single consistent retro dark theme.
 
-Production deployment will be handled separately.
+The only character-sheet downloads in scope are PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350). PDF export was removed from the roadmap on November 1, 2026.
+
+Production deployment will be validated separately before release.
