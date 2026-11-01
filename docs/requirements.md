@@ -16,7 +16,7 @@ The application combines:
 - A guided six-stage character creation experience.
 - Persistent character data.
 - Secure user-specific API operations.
-- Character-sheet export in PDF and PNG formats.
+- Character-sheet export in PNG Story/Status and PNG Portrait formats.
 
 Adventure Files is not a playable RPG.
 
@@ -56,7 +56,6 @@ An authenticated user can:
 - View their saved character.
 - Edit their character.
 - Delete their character.
-- Export their character as PDF.
 - Export their character as PNG Story/Status.
 - Export their character as PNG Portrait.
 - Sign out.
@@ -92,7 +91,7 @@ Each user can access only their own data.
 | FR-16 | Users can retrieve their saved character and view it in the retro-styled My Character dashboard after subsequent logins. |
 | FR-17 | Editing opens the guided creator with the saved values prefilled. Saving updates the existing character rather than creating a second record. |
 | FR-18 | Users can delete their own character after explicit confirmation. Their account remains available for creating another character. |
-| FR-19 | The application generates downloadable character sheets containing the character illustration, name, and all selected fields in the three approved export formats. Private account credentials and authentication tokens must never be included. |
+| FR-19 | The application generates downloadable character sheets containing the character illustration, name, and all selected fields in the two approved PNG export formats. Private account credentials and authentication tokens must never be included. |
 
 ### 3.3. Visual Experience and Interaction
 
@@ -113,7 +112,7 @@ Each user can access only their own data.
 |---|---|
 | FR-28 | The creator header displays progress from 01 / 06 through 06 / 06 on the left, with the PT/EN language selector on the right. |
 | FR-29 | Customization stages organize their fields into pairs. Desktop layouts use side-by-side categories with subtle visual dividers. Mobile layouts stack categories vertically without those dividers. |
-| FR-30 | The available export formats are PDF A4, PNG Story/Status at 1080 × 1920 pixels, and PNG Portrait at 1080 × 1350 pixels. |
+| FR-30 | The available export formats are PNG Story/Status at 1080 × 1920 pixels and PNG Portrait at 1080 × 1350 pixels. |
 | FR-31 | All export formats use the authenticated user's saved character data as their source. Each format may use its own layout while preserving the complete character information. |
 | FR-32 | The export interface allows users to select and download a format. Direct publishing to Instagram, WhatsApp, or other social platforms is not required. |
 | FR-33 | Character creation requires an explicit valid selection for every customization category. Companion supports the explicit value `none`, while artifact does not. |
@@ -328,7 +327,7 @@ It does not introduce combat mechanics, statistics, or gameplay restrictions.
 - **BR-05:** Character operations derive record ownership from the authenticated session rather than accepting an arbitrary user identifier from the request.
 - **BR-06:** Editing updates an existing character instead of creating a duplicate.
 - **BR-07:** Randomization, when available, modifies only an unsaved draft until the user explicitly saves.
-- **BR-08:** Character-sheet exports contain fictional character details and do not require storing generated PDF or PNG files on the server.
+- **BR-08:** Character-sheet exports contain fictional character details and do not require storing generated PNG files on the server.
 - **BR-09:** Class illustrations do not determine or persist a sex or gender attribute.
 - **BR-10:** Introducing new option slugs requires coordinated catalog, frontend, API validation, database compatibility, and test updates.
 - **BR-11:** Translating interface labels must not change database identifiers or break validation.
@@ -341,23 +340,16 @@ It does not introduce combat mechanics, statistics, or gameplay restrictions.
 
 ### 6.4. Implementation Alignment
 
-The approved catalog and current implementation are not yet fully aligned.
+The revised catalog, shared types, API input validation, and Motivation field are implemented in the feature branch and supported by automated tests. The protected create, read, update, and delete paths have been exercised manually.
 
-Before enabling the revised save workflow:
+Before release:
 
-1. Update frontend identifiers and translations.
-2. Update shared character types.
-3. Update API input validation.
-4. Update database constraints and the character schema.
-5. Add support for the new motivation field.
-6. Review existing saved records for compatibility.
-7. Introduce safe migrations where required.
-8. Update automated frontend and backend tests.
-9. Verify authenticated create, read, update, and delete operations.
+1. Verify that the target Supabase environment has the reviewed migrations and current catalog constraints.
+2. Confirm older saved records remain readable and safely editable.
+3. Run negative cross-account checks for read, update, and delete at both API and RLS boundaries.
+4. Repeat authentication, integration, and migration checks in the production-like environment.
 
-Existing records must not be deleted or silently overwritten simply because an approved identifier has changed.
-
-A compatibility strategy must be verified before enforcing any new mandatory database constraints.
+Existing records must not be deleted or silently overwritten because a catalog identifier changed.
 
 ## 7. Non-Functional Requirements
 
@@ -375,7 +367,7 @@ A compatibility strategy must be verified before enforcing any new mandatory dat
 | NFR-10 — Responsiveness | Provide a complete usable experience on desktop and mobile without horizontal scrolling or unreadably small controls. |
 | NFR-11 — Maintainability | Keep frontend, API, authentication, and persistence concerns separated. Maintain stable identifiers and accurate documentation. |
 | NFR-12 — Reliability | Support loading, empty, success, and error states. Avoid accidental draft or saved-character loss. |
-| NFR-13 — Testability | Include automated checks for authentication, validation, ownership, CRUD, record uniqueness, the six-stage creator, critical frontend flows, and all three export formats. |
+| NFR-13 — Testability | Include automated checks for authentication, validation, ownership, CRUD, record uniqueness, the six-stage creator, critical frontend flows, and both PNG export formats. |
 | NFR-14 — CI/CD | Use GitHub Actions to run applicable builds, linting, tests, and configured security checks before integration or deployment. |
 | NFR-15 — Production email | Configure suitable production email delivery for account verification and password recovery before public registration. |
 | NFR-16 — Security review | Test cross-user access, missing or expired credentials, spoofed identifiers, invalid catalog values, and accidental secret exposure before public release. |
@@ -383,7 +375,7 @@ A compatibility strategy must be verified before enforcing any new mandatory dat
 | NFR-18 — Motion safety | Respect reduced-motion preferences and prevent transitions or overlays from blocking later interactions. |
 | NFR-19 — Localization | Support Portuguese and English for user-facing interface text while retaining stable language-independent stored values. |
 | NFR-20 — Original artwork | Use original or appropriately licensed illustration assets and avoid reproducing protected third-party characters, interfaces, and game artwork. |
-| NFR-21 — Export quality | Generate PNG files at the exact approved pixel dimensions and PDF files in A4 format with readable text and artwork. |
+| NFR-21 — Export quality | Generate PNG files at the exact approved pixel dimensions with readable text and artwork. |
 | NFR-22 — Export privacy | Exclude authentication tokens, passwords, account identifiers, and unrelated personal information from every export format. |
 | NFR-23 — Data compatibility | Apply catalog and schema changes through reviewed migrations that protect existing character records. |
 | NFR-24 — Draft preservation | Preserve current creator selections during stage navigation, language changes, validation failures, and recoverable save failures. |
@@ -464,17 +456,7 @@ A compatibility strategy must be verified before enforcing any new mandatory dat
 
 ### 8.6. Character Sheet Export
 
-The application supports three formats.
-
-**PDF A4**
-
-- The exported PDF uses A4 page dimensions.
-- The character illustration is included.
-- The character name is prominently displayed.
-- Class and all selected customization fields are included.
-- Labels remain readable in the generated document.
-- The document uses the project's retro design language.
-- The PDF can be downloaded and opened successfully.
+The application supports two downloadable PNG formats.
 
 **PNG Story/Status**
 
@@ -538,7 +520,7 @@ The application supports three formats.
 - Existing character data remains compatible with approved migrations.
 - The complete six-stage creator works with the backend.
 - Saved-character creation, editing, and deletion are validated.
-- All three export formats are generated successfully.
+- Both PNG export formats are generated successfully.
 - Documentation accurately reflects the released functionality.
 
 ## 9. Implementation and Delivery Priorities
@@ -605,7 +587,6 @@ The intended delivery sequence is:
 
 - Shared export data preparation.
 - Character illustration integration.
-- PDF A4 generation and download.
 - PNG Story/Status 1080 × 1920 generation and download.
 - PNG Portrait 1080 × 1350 generation and download.
 - Export readability and privacy tests.
@@ -634,6 +615,7 @@ The initial release excludes:
 - Multiple saved characters per account.
 - Public character sharing.
 - Direct social-media publishing integrations.
+- PDF character-sheet export (removed from scope on November 1, 2026).
 - Social profiles or feeds.
 - Composite avatar generation.
 - Detailed body or facial customization.
@@ -670,6 +652,6 @@ Requirements should remain synchronized with:
 
 Changes to established scope should be reviewed before implementation.
 
-The approved six-stage creator and three export formats define the target product behavior. They must not be described as completed until their implementations have been integrated and tested.
+The six-stage creator and two PNG export formats are implemented on the development branch. Their local test results and manual checks must be supplemented by final security, accessibility, integration, and production verification before release.
 
 Adventure Files should prioritize a complete, secure, accessible, and visually coherent character-creation experience over unnecessary feature expansion.
