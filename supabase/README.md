@@ -29,6 +29,22 @@ The same steps run in `.github/workflows/database.yml` on PRs that change the Su
 
 Do not run `supabase db reset` against any environment containing data you need. Do not use `supabase test db --linked` on the hosted project: these tests exercise database roles and create temporary authentication records and are intended **only for isolated local testing**.
 
+### Local Express + Supabase authorization integration
+
+The API includes `api/src/integration/characters.local.test.ts`, an opt-in integration suite using the **real local Supabase Auth, PostgreSQL RLS, and Express app**.
+
+From the `api/` directory, with the local Supabase stack already running:
+
+```bash
+RUN_LOCAL_AUTH_INTEGRATION=1 npx vitest run src/integration/characters.local.test.ts
+```
+
+The suite reads local CLI credentials internally using `supabase status -o env`; it rejects any API URL other than `http://127.0.0.1:54321`. It creates two disposable local users, authenticates with real JWTs, verifies that cross-account query parameters cannot redirect character reads/updates/deletes, rejects an invalid token, and removes only its own test users. **Never paste local keys, JWTs, or the complete CLI status output into issues or chat.**
+
+The two integration tests are skipped during ordinary `npm test` runs unless `RUN_LOCAL_AUTH_INTEGRATION=1` is set. They must not be run against the hosted project.
+
+**Latest reported local verification (November 1, 2026):** 39 pgTAP assertions passed; 2 opt-in Express/Supabase integration tests passed; the API's standard suite passed 97 tests with 2 integration tests skipped by default. CI and final deployment-specific verification remain separate release gates.
+
 ## Security verification matrix
 
 | Scenario | Expected result |
@@ -45,7 +61,7 @@ Do not run `supabase db reset` against any environment containing data you need.
 | A caller supplies a blank or untrimmed character name | Rejected by database constraints |
 | User B deletes their Supabase Auth account | B's character is removed by FK cascade |
 
-The database test suite checks these rules at the SQL layer. The Express API has automated authorization tests using mocked accounts; separate end-to-end integration tests with **real access tokens from disposable test users A and B** are still required. Database role simulation cannot prove that the Express token verification is correct.
+The database test suite verifies these rules at the SQL layer. The API additionally has isolated mock-based authorization tests and an opt-in integration suite using real local Auth tokens with disposable accounts. These local results do not substitute for controlled validation of production authentication, API deployment, and RLS configuration.
 
 ## Later: deploy the reviewed migration
 
