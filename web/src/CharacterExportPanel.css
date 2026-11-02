@@ -162,3 +162,14 @@
     font-size: 9px;
   }
 }
+
+/* ==========================================
+   COMPACT EXPORT ACTION — DESKTOP
+   ========================================== */
+
+@media (min-width: 900px) {
+  .character-export__toggle {
+    min-height: 42px;
+    padding: 9px 12px;
+  }
+}
