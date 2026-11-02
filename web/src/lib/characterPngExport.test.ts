@@ -259,6 +259,40 @@ describe('Character PNG export', () => {
     }
   })
 
+  it('centers the lower field row within each export card', () => {
+    const lowerFields = [
+      ['ORIGEM', 'ARTESÃO'],
+      ['ARTEFATO', 'BÚSSOLA RÚNICA'],
+      ['AURA', 'NATUREZA'],
+      ['MOTIVAÇÃO', 'LIBERDADE'],
+    ] as const
+
+    for (const format of ['story', 'portrait'] as const) {
+      const mock = mockCanvas()
+      const data = prepareCharacterExportData(character, 'pt')
+
+      renderCharacterPng(data, mock.artwork, format)
+
+      const firstRowBaseline = format === 'story' ? 1399 : 912
+      const secondRowBaseline = format === 'story' ? 1711 : 1146
+
+      lowerFields.forEach(([label, value], index) => {
+        const baseline = index < 2
+          ? firstRowBaseline
+          : secondRowBaseline
+        const labelCall = mock.fillText.mock.calls.find(
+          (call) => call[0] === label,
+        )
+        const valueCall = mock.fillText.mock.calls.find(
+          (call) => call[0] === value,
+        )
+
+        expect(labelCall?.[2]).toBe(baseline)
+        expect(valueCall?.[2]).toBe(baseline)
+      })
+    }
+  })
+
   it('draws the supplied favicon twice in either export format', () => {
     for (const format of ['story', 'portrait'] as const) {
       const mock = mockCanvas()
