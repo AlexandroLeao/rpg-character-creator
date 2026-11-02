@@ -1,5 +1,6 @@
 :root {
-  font-family: 'Courier New', Courier, monospace;
+  font-family: 'Press Start 2P', monospace;
+  text-transform: uppercase;
   color: #eee9ce;
   background: #101815;
   font-synthesis: none;
@@ -18,12 +19,27 @@ body {
 }
 
 button,
-input {
+input,
+textarea,
+select {
   font: inherit;
 }
 
 button {
   cursor: pointer;
+}
+
+/* Keep credentials case-sensitive and readable. */
+.auth-form input[type='email'],
+.auth-form input[type='password'] {
+  text-transform: none;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* Names use the same pixel font as the rest of the interface. */
+.auth-form input[type='text'],
+.character-class-step__name input {
+  font-family: 'Press Start 2P', monospace;
 }
 
 button:disabled {
