@@ -955,16 +955,16 @@ The six-stage flow, character management, and both PNG export layouts are implem
 - Saved-character dashboard using class artwork and showing all customization choices.
 - Character editing and confirmation-based deletion.
 - Browser downloads of PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350).
-- Frontend/API/database automated checks; the latest reported frontend run passed lint, build, and 141 tests in 17 files.
+- Frontend/API/database automated checks; the latest local run passed lint, builds, 146 frontend tests in 17 files, and 97 API tests in 8 files (with 2 opt-in local-integration tests skipped by default).
 
-Manual browser checks covered deletion cancellation, editing and saving, both accounts, and re-export after changing a saved character's class and choices.
+Manual QA was completed on November 2, 2026 across the complete creator/CRUD/export flow, desktop/mobile, PT/EN, keyboard accessibility, error handling, and reduced-motion behavior. Two separate test accounts showed no cross-account character mixing during normal UI flows; no issues were reported. Local API authorization and RLS integration checks were also exercised previously.
 
 ### Remaining Review and Release Work
 
-1. Negative cross-account security checks for API read, update, delete, and database RLS.
-2. Responsive polish, keyboard accessibility, reduced-motion review, and error states.
-3. Full production authentication/email, API integration, deployment, and recovery verification.
-4. Final documentation review and merge of the draft pull request after all checks pass.
+1. Repeat negative API read/update/delete authorization, RLS, migration, and legacy-data checks in a controlled hosted staging environment.
+2. Confirm frontend/API proxy routing, SPA password-reset URLs, HTTPS/CORS, monitoring, and production-ready authentication emails.
+3. Re-run key UX and export flows on the hosted preview and review dependency security.
+4. Update documentation, rerun CI, and merge draft PR #23 only after final review. Track remaining work in [issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
 
 The updated catalog includes Arcane Seal (`arcane-seal`), Shadow Crown (`shadow-crown`), Chaos Orb (`chaos-orb`), and Dragon (`dragon`). Only Companion offers `none` as an explicit selection. Previously saved records and compatibility paths require continued validation.
 
