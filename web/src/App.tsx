@@ -507,6 +507,9 @@ function App() {
                 accessToken={session.access_token}
                 language={language}
                 onCreatorStepChange={setCreatorStep}
+                onSignOut={handleSignOut}
+                signOutLabel={working ? copy.signingOut : copy.signOut}
+                signingOut={working}
               />
 
               {/* SIGN OUT */}
