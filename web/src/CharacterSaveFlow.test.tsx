@@ -210,7 +210,7 @@ describe('Character saving flow', () => {
     ).toBeTruthy()
 
     expect(
-      screen.getByText('Luna'),
+      screen.getByText('LUNA'),
     ).toBeTruthy()
 
     const retryButton = screen.getByRole(
