@@ -173,3 +173,20 @@
     padding: 9px 12px;
   }
 }
+
+/* Keep the PNG-format menu accessible above the compact footer. */
+@media (min-width: 900px) {
+  .character-dashboard__actions .character-export {
+    position: relative;
+    align-self: start;
+  }
+
+  .character-dashboard__actions .character-export__panel {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 10px);
+    z-index: 10;
+    width: min(420px, 85vw);
+    box-shadow: 0 8px 24px #0009;
+  }
+}
