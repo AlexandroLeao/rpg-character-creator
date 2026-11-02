@@ -508,3 +508,121 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* ==========================================
+   VARIANT B — ALIGNED CHARACTER INFORMATION
+   The first identity panel aligns with the artwork top;
+   the last pair of cards aligns with its bottom.
+   ========================================== */
+
+@media (min-width: 900px) {
+  .character-sheet__details {
+    height: 380px;
+    min-height: 0;
+    grid-template-rows: 160px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .character-sheet__identity {
+    display: grid;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 10px;
+    padding: 0;
+  }
+
+  .character-sheet__name-details,
+  .character-sheet__class-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 2px solid #456e4b;
+    border-radius: 7px;
+    background: #0b1b11;
+  }
+
+  .character-sheet__name-details .character-sheet__label,
+  .character-sheet__class-details .character-sheet__label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .character-sheet__name-details .character-sheet__label::before,
+  .character-sheet__name-details .character-sheet__label::after,
+  .character-sheet__class-details .character-sheet__label::before,
+  .character-sheet__class-details .character-sheet__label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #456e4b;
+  }
+
+  .auth-content .character-sheet__name {
+    font-size: 20px;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  .character-sheet__class-name {
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  .character-sheet__sections {
+    min-height: 0;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .character-sheet__section {
+    min-height: 0;
+    padding: 9px 11px;
+  }
+
+  .character-sheet__section-heading {
+    padding-bottom: 6px;
+    margin-bottom: 5px;
+  }
+
+  .character-sheet__fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .character-sheet__field {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 6px;
+    min-height: 0;
+    padding: 3px 0;
+  }
+
+  .character-sheet__field + .character-sheet__field {
+    border-top: 1px solid #35593c;
+  }
+
+  .character-sheet__field dt {
+    font-size: 8px;
+    line-height: 1.5;
+  }
+
+  .character-sheet__field dd {
+    font-size: 9px;
+    line-height: 1.5;
+    text-align: right;
+  }
+}
