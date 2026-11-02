@@ -251,3 +251,65 @@
     font-size: 9px;
   }
 }
+
+/* ==========================================
+   FOUR-ACTION CHARACTER FOOTER — DESKTOP
+   ========================================== */
+
+@media (min-width: 900px) {
+  .character-dashboard__actions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: start;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .character-dashboard__actions > button,
+  .character-dashboard__actions .character-export__toggle {
+    width: 100%;
+    min-height: 44px;
+    margin: 0;
+    padding: 9px 7px;
+    font-size: 9px;
+    line-height: 1.5;
+  }
+
+  .character-dashboard__signout-button {
+    border: 2px solid #5c8059;
+    border-radius: 7px;
+    background: #142c1b;
+    color: #c8e8bb;
+    font-family: 'Press Start 2P', monospace;
+    cursor: pointer;
+  }
+
+  .character-dashboard__signout-button:hover:not(:disabled) {
+    background: #1d3a25;
+    border-color: #a4ed86;
+  }
+
+  .character-dashboard__signout-button:focus-visible {
+    outline: 2px solid #f5efd2;
+    outline-offset: 3px;
+  }
+
+  .character-dashboard__signout-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+/* All four actions remain available in a readable mobile layout. */
+@media (max-width: 899px) {
+  .character-dashboard__signout-button {
+    min-height: 48px;
+    padding: 12px;
+    border: 2px solid #5c8059;
+    border-radius: 7px;
+    background: #142c1b;
+    color: #c8e8bb;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    cursor: pointer;
+  }
+}
