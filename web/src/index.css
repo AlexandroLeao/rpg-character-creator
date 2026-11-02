@@ -29,9 +29,18 @@ button {
   cursor: pointer;
 }
 
+/* Apply uppercase to interactive elements too.
+ * Browser form controls may define their own text-transform,
+ * so inheritance from :root alone is insufficient.
+ */
+#root,
+#root * {
+  text-transform: uppercase;
+}
+
 /* Keep credentials case-sensitive and readable. */
-.auth-form input[type='email'],
-.auth-form input[type='password'] {
+#root .auth-form input[type='email'],
+#root .auth-form input[type='password'] {
   text-transform: none;
   font-family: 'Courier New', Courier, monospace;
 }
