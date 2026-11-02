@@ -183,6 +183,7 @@ describe('Character creator', () => {
     })
 
     expect(continueButton.disabled).toBe(false)
+    expect((nameInput as HTMLInputElement).value).toBe('LUNA')
   })
 
   /*
@@ -257,7 +258,7 @@ describe('Character creator', () => {
       'NOME DO PERSONAGEM',
     ) as HTMLInputElement
 
-    expect(nameInput.value).toBe('Luna')
+    expect(nameInput.value).toBe('LUNA')
 
     clickButton('CONTINUAR')
 
