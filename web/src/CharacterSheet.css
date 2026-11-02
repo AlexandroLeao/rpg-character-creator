@@ -715,6 +715,9 @@
 
   .character-sheet__field + .character-sheet__field {
     border-top: 1px solid #35593c;
+    /* Lower the second field while keeping the card's total height unchanged. */
+    padding-top: 16px;
+    padding-bottom: 4px;
   }
 
   .character-sheet__field dt {
