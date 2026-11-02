@@ -130,8 +130,8 @@ export function CharacterSheet({
           <div className="character-sheet__name-details">
             <span className="character-sheet__label">
               {language === 'pt'
-                ? 'Nome:'
-                : 'Name:'}
+                ? 'Nome'
+                : 'Name'}
             </span>
 
             <h2
