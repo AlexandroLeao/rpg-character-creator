@@ -1,3 +1,4 @@
+
 import type { Language } from './lib/authTranslations'
 
 import { translateCharacterOption } from './lib/characterTranslations'
@@ -35,7 +36,8 @@ import './CharacterReviewStep.css'
  * ADVENTURE FILES
  * STEP 06 / 06 — FINAL REVIEW
  *
- * The approved visual layout is preserved.
+ * All field labels are visible and left-aligned.
+ * Selected values remain centered.
  *
  * Saving is enabled only when an onSave
  * callback is provided by the creator.
@@ -63,14 +65,7 @@ type CharacterReviewStepProps = {
   data: CharacterReviewData
 
   onBack: () => void
-
-  /*
-   * Optional until the character creator
-   * is connected to the saving API.
-   */
-
   onSave?: () => void | Promise<void>
-
   saving?: boolean
 }
 
@@ -231,12 +226,7 @@ export function CharacterReviewStep({
       className="character-review-step"
       aria-labelledby="character-review-step-title"
     >
-      {/*
-       * ACCESSIBLE TITLE
-       *
-       * Visually hidden to preserve
-       * the approved review layout.
-       */}
+      {/* Accessible page title */}
 
       <h2
         id="character-review-step-title"
@@ -273,13 +263,7 @@ export function CharacterReviewStep({
                   : 'character-review-step__entry'
               }
             >
-              <dt
-                className={
-                  isPrimaryField
-                    ? 'character-review-step__sr-only'
-                    : 'character-review-step__label'
-                }
-              >
+              <dt className="character-review-step__label">
                 {field.label}
               </dt>
 
@@ -296,8 +280,6 @@ export function CharacterReviewStep({
           =================================== */}
 
       <div className="character-review-step__actions">
-        {/* BACK */}
-
         <button
           type="button"
           className="character-review-step__back"
@@ -306,8 +288,6 @@ export function CharacterReviewStep({
         >
           {copy.back}
         </button>
-
-        {/* SAVE */}
 
         <button
           type="button"
