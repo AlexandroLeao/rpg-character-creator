@@ -1,6 +1,6 @@
 # Adventure Files — System Architecture
 
-- **Status:** Core character flow and two PNG exports implemented on the feature branch; final security, accessibility, and production verification pending.
+- **Status:** Core character flow and two PNG exports implemented; local UX, reduced-motion, and API/RLS checks completed. Controlled staging security, deployment, and production verification remain pending.
 - **Product name:** Adventure Files
 - **Linked specs:** [Requirements](./requirements.md), [Catalog](./customization-catalog.md), [Product Experience](./product-experience.md).
 
@@ -42,7 +42,7 @@ PostgreSQL owns persistent character records, database constraints, and Row Leve
 | Version control | Git + GitHub |
 | CI/CD | GitHub Actions |
 | Deployment | Vercel frontend; API deployment mode validated before release |
-| Development | Google Cloud Shell Editor |
+| Development | GitHub Codespaces (browser-based); Cloud Shell optional |
 
 PNG exports are generated client-side from the authorized saved character using browser canvas/image APIs. PNG output dimensions and fields have automated tests; browser and device compatibility remain part of release verification.
 
@@ -518,7 +518,7 @@ The completed workflow must be validated through integration tests.
 
 ## 11. Deployment and Development
 
-- Development currently runs in Google Cloud Shell Editor.
+- Development currently runs in GitHub Codespaces; Google Cloud Shell remains an optional alternative.
 - Frontend and backend scripts remain in `web/` and `api/`.
 - The frontend is intended for deployment to Vercel with environment-specific public configuration.
 - Express API deployment must use a compatible Node runtime.
