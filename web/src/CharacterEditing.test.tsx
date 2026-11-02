@@ -200,7 +200,7 @@ describe('Character editing flow', () => {
       'NOME DO PERSONAGEM',
     ) as HTMLInputElement
 
-    expect(nameInput.value).toBe('Luna')
+    expect(nameInput.value).toBe('LUNA')
 
     expectSelected('Mago')
 
@@ -258,7 +258,7 @@ describe('Character editing flow', () => {
       'NOME DO PERSONAGEM',
     ) as HTMLInputElement
 
-    expect(restoredInput.value).toBe('Luna')
+    expect(restoredInput.value).toBe('LUNA')
   })
 
   /*
@@ -342,7 +342,7 @@ describe('Character editing flow', () => {
     ).toHaveBeenCalledWith(
       'valid-token',
       {
-        name: 'Luna Nova',
+        name: 'LUNA NOVA',
         characterClass: 'mage',
 
         ancestry: 'elf',
@@ -411,7 +411,7 @@ describe('Character editing flow', () => {
 
     expect(
       screen.getByText(
-        'Luna Nova',
+        'LUNA NOVA',
       ),
     ).toBeTruthy()
 
@@ -506,7 +506,7 @@ describe('Character editing flow', () => {
       'CHARACTER NAME',
     ) as HTMLInputElement
 
-    expect(nameInput.value).toBe('Luna')
+    expect(nameInput.value).toBe('LUNA')
 
     expectSelected('Mage')
 
