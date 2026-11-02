@@ -328,7 +328,7 @@ describe('Character dashboard', () => {
       },
     })
 
-    expect(nameInput.value).toBe('Luna')
+    expect(nameInput.value).toBe('LUNA')
 
     /*
      * Continue to step two.
@@ -383,7 +383,7 @@ describe('Character dashboard', () => {
       'NOME DO PERSONAGEM',
     ) as HTMLInputElement
 
-    expect(restoredName.value).toBe('Luna')
+    expect(restoredName.value).toBe('LUNA')
   })
 
   /*
