@@ -295,8 +295,10 @@ function drawSection(
   context.fillStyle = colors.border
   context.fillRect(x + padding, y + 63, innerWidth, 2)
 
+  // The lower row needs equal breathing room above the text and
+  // below its baseline. Keep both format sizes and panel positions.
   const firstY = y + (height < 240 ? 117 : 141)
-  const secondY = y + (height < 240 ? 180 : 235)
+  const secondY = y + (height < 240 ? 195 : 250)
 
   context.fillStyle = colors.border
   context.fillRect(
