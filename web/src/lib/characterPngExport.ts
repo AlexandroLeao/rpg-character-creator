@@ -99,6 +99,7 @@ function drawFittedText(
   align: CanvasTextAlign = 'left',
 ): void {
   let fontSize = initialSize
+  const displayValue = value.toLocaleUpperCase()
 
   context.fillStyle = color
   context.textAlign = align
@@ -109,7 +110,7 @@ function drawFittedText(
       `${fontSize}px "Press Start 2P", monospace`
 
     if (
-      context.measureText(value).width <=
+      context.measureText(displayValue).width <=
       maxWidth
     ) {
       break
@@ -122,7 +123,7 @@ function drawFittedText(
     `${fontSize}px "Press Start 2P", monospace`
 
   context.fillText(
-    value,
+    displayValue,
     x,
     y,
     maxWidth,
