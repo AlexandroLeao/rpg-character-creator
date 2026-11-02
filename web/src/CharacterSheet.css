@@ -355,3 +355,66 @@
 
   border: 0;
 }
+
+/* ==========================================
+   COMPACT SAVED SHEET — DESKTOP
+   ========================================== */
+
+@media (min-width: 900px) {
+  .character-sheet {
+    gap: 10px;
+  }
+
+  .character-sheet__hero {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 14px;
+    padding: 10px;
+  }
+
+  .character-sheet__artwork .character-preview {
+    min-height: 156px;
+    height: 156px;
+    padding: 5px;
+  }
+
+  .character-sheet__identity {
+    gap: 10px;
+    padding: 5px 8px;
+  }
+
+  .character-sheet__name-details,
+  .character-sheet__class-details {
+    gap: 4px;
+  }
+
+  .character-sheet__sections {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .character-sheet__section {
+    padding: 11px;
+  }
+
+  .character-sheet__section-heading {
+    padding-bottom: 7px;
+    margin-bottom: 9px;
+  }
+
+  .character-sheet__fields {
+    gap: 9px;
+  }
+
+  .character-sheet__field {
+    gap: 3px;
+  }
+
+  .character-sheet__field dt {
+    font-size: 8px;
+  }
+
+  .character-sheet__field dd {
+    font-size: 9px;
+    line-height: 1.6;
+  }
+}
