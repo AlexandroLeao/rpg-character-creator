@@ -588,7 +588,8 @@
 
   .character-sheet__section {
     min-height: 0;
-    padding: 9px 11px;
+    /* Give the second row the same visual breathing room as the first. */
+    padding: 9px 11px 3px;
   }
 
   .character-sheet__section-heading {
@@ -690,7 +691,7 @@
   }
 
   .character-sheet__section {
-    padding: 12px 13px;
+    padding: 12px 13px 8px;
   }
 
   .character-sheet__section-heading {
@@ -709,7 +710,7 @@
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     gap: 8px;
-    padding: 9px 0;
+    padding: 10px 0;
   }
 
   .character-sheet__field + .character-sheet__field {
