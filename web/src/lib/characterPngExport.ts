@@ -339,10 +339,11 @@ function drawFooter(
   context.fillRect(298, lineY - 4, 8, 8)
   context.fillRect(774, lineY - 4, 8, 8)
 
-  drawLogo(context, logo, 380, layout.footerY - 49, 45)
+  // Use an exact 4:1 pixel reduction from the 256px favicon for a crisp D20.
+  drawLogo(context, logo, 402, layout.footerY - 49, 64)
 
   drawFittedText(
-    context, 'ADVENTURE FILES', 420, layout.footerY,
+    context, 'ADVENTURE FILES', 448, layout.footerY,
     380, 18, 14, colors.green, 'left',
   )
 }
