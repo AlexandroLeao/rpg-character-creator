@@ -629,3 +629,106 @@
     text-align: right;
   }
 }
+
+/* ==========================================
+   MOBILE — MATCH THE APPROVED DESKTOP SHEET
+   ========================================== */
+
+@media (max-width: 600px) {
+  .character-sheet__details {
+    width: 100%;
+    gap: 12px;
+  }
+
+  .character-sheet__identity {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 0;
+  }
+
+  .character-sheet__name-details,
+  .character-sheet__class-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    min-height: 72px;
+    gap: 6px;
+    padding: 12px;
+    border: 2px solid #456e4b;
+    border-radius: 7px;
+    background: #0b1b11;
+  }
+
+  .character-sheet__name-details .character-sheet__label,
+  .character-sheet__class-details .character-sheet__label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .character-sheet__name-details .character-sheet__label::before,
+  .character-sheet__name-details .character-sheet__label::after,
+  .character-sheet__class-details .character-sheet__label::before,
+  .character-sheet__class-details .character-sheet__label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #456e4b;
+  }
+
+  .auth-content .character-sheet__name,
+  .character-sheet__class-name {
+    margin: 0;
+    text-align: center;
+  }
+
+  .character-sheet__section {
+    padding: 12px 13px;
+  }
+
+  .character-sheet__section-heading {
+    padding-bottom: 8px;
+    margin-bottom: 6px;
+  }
+
+  .character-sheet__fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .character-sheet__field {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 0;
+  }
+
+  .character-sheet__field + .character-sheet__field {
+    border-top: 1px solid #35593c;
+  }
+
+  .character-sheet__field dt {
+    min-width: 0;
+    font-size: 8px;
+    line-height: 1.6;
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+
+  .character-sheet__field dd {
+    min-width: 0;
+    font-size: 8px;
+    line-height: 1.6;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+}
