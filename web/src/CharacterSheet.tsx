@@ -205,6 +205,7 @@ export function CharacterSheet({
           </section>
         ))}
         </div>
+        </div>
       </div>
 
       {/* ====================================
