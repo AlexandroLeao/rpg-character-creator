@@ -96,7 +96,7 @@ function drawFittedText(
   minimumSize: number,
   color: string,
   align: CanvasTextAlign = 'left',
-): void {
+): number {
   const displayValue = value.toLocaleUpperCase()
   let fontSize = initialSize
 
@@ -114,6 +114,7 @@ function drawFittedText(
 
   context.font = fontSize + 'px "Press Start 2P", monospace'
   context.fillText(displayValue, x, y, maxWidth)
+  return Math.min(context.measureText(displayValue).width, maxWidth)
 }
 
 function drawPanel(
@@ -267,7 +268,7 @@ function drawIdentityPanel(
 
   drawFittedText(
     context, label, center, labelY,
-    columnWidth - 300, 17, 12, colors.muted, 'center',
+    columnWidth - 300, 19, 14, colors.muted, 'center',
   )
   drawFittedText(
     context, value, center, y + height - 34,
@@ -288,14 +289,14 @@ function drawSection(
 
   drawFittedText(
     context, section.title, x + padding, y + 42,
-    innerWidth, 20, 12, colors.green,
+    innerWidth, 22, 14, colors.green,
   )
 
   context.fillStyle = colors.border
   context.fillRect(x + padding, y + 63, innerWidth, 2)
 
-  const firstY = y + (height < 240 ? 113 : 138)
-  const secondY = y + (height < 240 ? 177 : 232)
+  const firstY = y + (height < 240 ? 117 : 141)
+  const secondY = y + (height < 240 ? 180 : 235)
 
   context.fillStyle = colors.border
   context.fillRect(
@@ -304,18 +305,22 @@ function drawSection(
   )
 
   section.fields.slice(0, 2).forEach((field, index) => {
-    const labelAndValueWidth = (innerWidth - 16) / 2
     const rowY = index === 0 ? firstY : secondY
 
-    drawFittedText(
+    // Reserve only the space the label needs. The remaining width
+    // belongs to the value, so longer choices stay legible without
+    // colliding with their labels (in Story and Portrait alike).
+    const labelWidth = drawFittedText(
       context, field.label,
       x + padding, rowY,
-      labelAndValueWidth, 15, 10, colors.muted,
+      innerWidth * 0.58, 17, 14, colors.muted,
     )
+
     drawFittedText(
       context, field.value,
       x + columnWidth - padding, rowY,
-      labelAndValueWidth, 18, 11, colors.cream, 'right',
+      innerWidth - labelWidth - 22,
+      21, 15, colors.cream, 'right',
     )
   })
 }
@@ -336,7 +341,7 @@ function drawFooter(
 
   drawFittedText(
     context, 'ADVENTURE FILES', 420, layout.footerY,
-    380, 16, 12, colors.green, 'left',
+    380, 18, 14, colors.green, 'left',
   )
 }
 
