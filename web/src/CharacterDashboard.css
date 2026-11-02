@@ -313,3 +313,27 @@
     cursor: pointer;
   }
 }
+
+/* ==========================================
+   MOBILE ACTION PRIORITY
+   Export > Edit > Delete > Sign out
+   Desktop retains its existing order.
+   ========================================== */
+
+@media (max-width: 899px) {
+  .character-dashboard__actions .character-export {
+    order: 1;
+  }
+
+  .character-dashboard__actions .character-empty__create-button {
+    order: 2;
+  }
+
+  .character-dashboard__actions .character-dashboard__delete-button {
+    order: 3;
+  }
+
+  .character-dashboard__actions .character-dashboard__signout-button {
+    order: 4;
+  }
+}
