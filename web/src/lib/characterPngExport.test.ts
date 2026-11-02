@@ -309,6 +309,13 @@ describe('Character PNG export', () => {
       )
 
       expect(logoDraws).toHaveLength(2)
+      expect(logoDraws[1]).toEqual([
+        logo,
+        370,
+        format === 'story' ? 1806 : 1235,
+        64,
+        64,
+      ])
       expect(mock.drawImage).toHaveBeenCalledTimes(3)
     }
   })
