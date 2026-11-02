@@ -21,6 +21,7 @@ import {
 } from './lib/characterTranslations'
 
 import { CharacterSheet } from './CharacterSheet'
+import { CharacterExportPanel } from './CharacterExportPanel'
 import { CharacterCreator } from './CharacterCreator'
 
 import './CharacterDashboard.css'
@@ -48,6 +49,9 @@ type DashboardState =
 type CharacterDashboardProps = {
   accessToken: string
   language: Language
+  onSignOut?: () => void
+  signOutLabel?: string
+  signingOut?: boolean
 
   onCreatorStepChange?: (
     step: number | null,
@@ -91,6 +95,9 @@ function getDeleteErrorMessage(
 export function CharacterDashboard({
   accessToken,
   language,
+  onSignOut,
+  signOutLabel,
+  signingOut = false,
   onCreatorStepChange,
 }: CharacterDashboardProps) {
   const [state, setState] =
@@ -526,9 +533,20 @@ export function CharacterDashboard({
             <CharacterSheet
               character={state.character}
               language={language}
+              showExport={false}
             />
 
             <div className="character-dashboard__actions">
+              {onSignOut && (
+                <button
+                  type="button"
+                  className="character-dashboard__signout-button"
+                  onClick={onSignOut}
+                  disabled={signingOut || deleteDialogOpen}
+                >
+                  {signOutLabel ?? (language === 'pt' ? 'Sair' : 'Sign Out')}
+                </button>
+              )}
               <button
                 type="button"
                 className="character-empty__create-button"
@@ -539,6 +557,11 @@ export function CharacterDashboard({
                   ? 'Editar personagem'
                   : 'Edit character'}
               </button>
+
+              <CharacterExportPanel
+                character={state.character}
+                language={language}
+              />
 
               <button
                 ref={deleteTriggerRef}
