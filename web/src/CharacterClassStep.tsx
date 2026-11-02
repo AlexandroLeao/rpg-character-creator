@@ -57,7 +57,7 @@ export function CharacterClassStep({
    * CHARACTER NAME
    */
 
-  const [name, setName] = useState(initialName)
+  const [name, setName] = useState(initialName.toLocaleUpperCase(language === 'pt' ? 'pt-BR' : 'en-US'))
 
   const trimmedName = name.trim()
 
@@ -166,7 +166,7 @@ export function CharacterClassStep({
             maxLength={32}
             autoComplete="off"
             onChange={(event) =>
-              setName(event.target.value)
+              setName(event.target.value.toLocaleUpperCase(language === 'pt' ? 'pt-BR' : 'en-US'))
             }
           />
         </div>
