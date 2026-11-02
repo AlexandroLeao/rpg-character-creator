@@ -224,6 +224,41 @@ describe('Character PNG export', () => {
     expect(new Set(rightCards.map((call) => call[2])).size).toBe(1)
   })
 
+  it('gives long values room while keeping labels aligned in both formats', () => {
+    const longCharacter: Character = {
+      ...character,
+      aura: 'shadow',
+      motivation: 'knowledge',
+    }
+
+    for (const format of ['story', 'portrait'] as const) {
+      const mock = mockCanvas()
+      const data = prepareCharacterExportData(longCharacter, 'pt')
+
+      renderCharacterPng(data, mock.artwork, format)
+
+      const text = (value: string) =>
+        mock.fillText.mock.calls.find((call) => call[0] === value)
+
+      const auraLabel = text('AURA')
+      const auraValue = text('SOMBRA')
+      const motivationLabel = text('MOTIVAÇÃO')
+      const motivationValue = text('CONHECIMENTO')
+
+      expect(auraLabel).toBeDefined()
+      expect(auraValue).toBeDefined()
+      expect(motivationLabel).toBeDefined()
+      expect(motivationValue).toBeDefined()
+
+      // Each row shares one baseline, and values receive the
+      // available width instead of a fixed half-column.
+      expect(auraLabel?.[2]).toBe(auraValue?.[2])
+      expect(motivationLabel?.[2]).toBe(motivationValue?.[2])
+      expect(auraValue?.[3]).toBeGreaterThan(250)
+      expect(motivationValue?.[3]).toBeGreaterThan(250)
+    }
+  })
+
   it('draws the supplied favicon twice in either export format', () => {
     for (const format of ['story', 'portrait'] as const) {
       const mock = mockCanvas()
