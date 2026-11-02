@@ -1,75 +1,93 @@
-# React + TypeScript + Vite
+# Adventure Files — Web Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Adventure Files is a retro pixel-art character-creation experience. This directory contains its React/TypeScript interface, built with Vite.
 
-Currently, two official plugins are available:
+The web app is part of the [Adventure Files full-stack repository](../README.md); its API lives in [`api/`](../api/README.md), while Supabase supplies authentication and PostgreSQL/RLS storage.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Implemented Experience
 
-## React Compiler
+- Responsive Adventure Files START screen with original desktop/mobile artwork and reduced-motion support.
+- Supabase Auth email/password flows, recovery, session restoration, and PT/EN interface.
+- Guided creator with six stages: Identity, Origins, Equipment, Essence, Journey, and Final Review.
+- Eight character classes with original class artwork and ten character selections (class, name, ancestry, background, weapon, artifact, personality, aura, companion, motivation).
+- One saved character per account, with view, edit, and confirmation-based delete.
+- Browser-generated PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350) downloads from the **saved** character. The project favicon is reused in both export layouts.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The application is a character creator, not a playable RPG. PDF and direct social publishing are outside the initial scope.
 
-## Expanding the ESLint configuration
+## Requirements
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js 24 and npm.
+- The Express API running on port 3000.
+- A configured Supabase project (URL and **publishable** key).
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Development in GitHub Codespaces
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+1. Install frontend dependencies (from this `web/` directory):
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm ci
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+2. Create `web/.env.local` using `web/.env.example` as a template:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```env
+VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_YOUR_PUBLIC_KEY
 ```
+
+These two values are frontend-visible configuration. **Never** put a Supabase service-role/secret key, database password, or other privileged credential in any `VITE_` variable or committed file.
+
+3. Start the Express API in a **separate Codespaces terminal**:
+
+```bash
+cd /workspaces/rpg-character-creator/api
+node --env-file=.env --import tsx src/server.ts
+```
+
+The API needs its own `api/.env` configuration, documented in [the API README](../api/README.md).
+
+4. Start the frontend in another terminal:
+
+```bash
+cd /workspaces/rpg-character-creator/web
+npm run dev -- --host 0.0.0.0 --port 5174
+```
+
+Open the forwarded port `5174` from the Codespaces **Ports** tab.
+
+The Vite **development** proxy forwards `/api` requests to the Express server at `127.0.0.1:3000`. Production hosting needs a separate forwarding/routing rule; the Vite development proxy does not run inside a production build.
+
+## Commands
+
+Run from `web/`:
+
+```bash
+npm test
+npm run lint
+npm run build
+```
+
+- `npm test`: Vitest and React Testing Library tests.
+- `npm run lint`: ESLint.
+- `npm run build`: TypeScript checks and Vite production build.
+- `npm run preview`: serve a locally built frontend for preview (does **not** start the API).
+
+## Implementation Notes
+
+- UI components, styling, and tests live in `src/`.
+- Supabase browser client and character API requests live in `src/lib/`.
+- Original artwork and `favicon.png` live in `public/`.
+- Browser registration/sign-in/recovery use Supabase Auth directly.
+- Protected character requests use `GET/PUT/DELETE /api/characters/me` with the verified account's access token.
+- PNG generation uses browser Canvas, without uploading generated exports or including private account data.
+
+## Verification and Release
+
+On November 2, 2026, the developer completed local manual QA of desktop/mobile UX, PT/EN, accessibility/reduced motion, the six-stage flow, save/edit/delete, two test accounts, error states, and both exports; no issues were reported.
+
+The latest local frontend run passed **146 tests across 17 files**, lint, and the production build. API and database security checks also passed. The two additional opt-in Express/Supabase integration tests are intentionally skipped during the default API suite.
+
+The feature branch is being reviewed in [draft PR #23](https://github.com/AlexandroLeao/rpg-character-creator/pull/23). **Do not merge or publish for general access yet**: deployed staging authorization, migration compatibility, authentication email/recovery, API routing, and operational checks remain in [release-readiness issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
+
+See the [product experience](../docs/product-experience.md), [requirements](../docs/requirements.md), and [architecture](../docs/architecture.md) for the approved scope.
