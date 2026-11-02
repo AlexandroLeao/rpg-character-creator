@@ -45,12 +45,20 @@ Adventure Files is under active development. The six-stage guided character crea
 - PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350) exports using the saved character.
 - Automated frontend/API/security test suites and GitHub Actions workflows.
 
+### Local Homologation Completed — November 2, 2026
+
+- Manual QA passed for desktop/mobile layout, keyboard accessibility, reduced motion, PT/EN, all six creator stages, CRUD, error states, and both PNG downloads.
+- The developer exercised two separate test accounts and reported no cross-account character mixing in normal application flows.
+- Frontend: **146 passing tests across 17 files**, ESLint and Vite/TypeScript build passed.
+- API: **97 passing tests across 8 files**, ESLint and TypeScript build passed; 2 opt-in local Supabase integration tests are skipped by default but were exercised previously against an isolated local environment.
+- GitHub Actions Frontend, API, and Database Security workflows passed at the last implementation commit; `GET /api/health` returned 200 and an unauthenticated character GET returned 401.
+
 ### Remaining Before Release
 
-- Complete negative cross-account authorization checks against the deployed API and database, including read, update, and delete isolation.
-- Finish integration, accessibility, small-screen layout, and error-state reviews.
-- Validate production authentication/email configuration, deployment, and operational readiness.
-- Complete final review and merge only after the draft pull request satisfies release criteria.
+- Recheck cross-account authorization, RLS, migration state, and legacy-character compatibility against an isolated deployed/staging environment.
+- Configure staging/production API routing, HTTPS, CORS, authentication redirect URLs, production-ready email, and monitoring.
+- Validate end-to-end authentication, persistence, and both exports on the hosted preview; review dependency security.
+- Complete final review, rerun CI after changes, and merge draft PR #23 only after release gates are met. See [release-readiness issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
 
 Passing local tests and manual browser checks does not by itself establish production readiness.
 
@@ -177,7 +185,8 @@ The project does not include character gender selection, combat mechanics, or re
 
 - Git
 - GitHub
-- Google Cloud Shell
+- GitHub Codespaces (current browser-based development)
+- Google Cloud Shell (optional)
 - GitHub Actions
 - npm
 
@@ -209,7 +218,7 @@ The project does not include character gender selection, combat mechanics, or re
 - npm
 - Git
 
-Google Cloud Shell is the primary development environment.
+GitHub Codespaces is the current browser-based development environment. Cloud Shell can also be used when available; neither environment is the production host.
 
 ### Frontend Setup
 
@@ -247,13 +256,13 @@ From the `web` directory:
 npm run dev
 ```
 
-For Google Cloud Shell:
+For the current GitHub Codespaces setup:
 
 ```bash
-npm run dev -- --host 0.0.0.0 --port 5173
+npm run dev -- --host 0.0.0.0 --port 5174
 ```
 
-Open Cloud Shell Web Preview on port `5173`.
+Open forwarded port `5174` from the Codespaces **Ports** panel. Keep this terminal open, and run the API separately on port `3000`. Cloud Shell users can instead select a suitable forwarded port.
 
 ### Run Frontend Tests
 
@@ -293,13 +302,19 @@ SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
 ```
 
-Run the backend:
+Run the backend (from `api/`):
 
 ```bash
 npm run dev
 ```
 
-The frontend development server proxies API requests to the backend running on port `3000`.
+In Codespaces, the explicitly loaded environment-file command is also supported:
+
+```bash
+node --env-file=.env --import tsx src/server.ts
+```
+
+The frontend development server proxies `/api` requests to the backend on port `3000`. That Vite proxy is **development-only**: hosted environments need an explicitly configured frontend/API route or proxy.
 
 ### API Endpoints
 
@@ -453,9 +468,9 @@ The initial release does not include:
 
 ## Current Development Milestone
 
-The six-stage character flow, saved-character creation/editing/deletion, and both PNG downloads are implemented. Manual testing covered two separate accounts, deletion confirmation, character editing, and exports after editing. The frontend's latest reported local run passed lint, build, and 141 tests across 17 test files.
+The six-stage character flow, saved-character creation/editing/deletion, and both PNG downloads are implemented. The November 2 manual QA of frontend flows, PT/EN, mobile/desktop layouts, reduced motion, keyboard access, error states, and two test accounts found no reported issues. The latest local checks passed **146 frontend tests** (17 files) and **97 API tests** (8 files), lint, and production builds; GitHub Actions database security checks passed.
 
-The next milestone is to verify cross-account authorization failures and RLS behavior end to end, then complete accessibility/responsive checks and production readiness. The feature branch remains under review in draft pull request #23; it is not yet merged into `main`.
+The next milestone is controlled **staging** deployment and verification: repeat cross-account authorization/RLS checks, migration and legacy-data compatibility, email/recovery flows, API routing, and operational readiness on the hosted preview. The feature branch remains in draft PR #23 and is not merged into `main`. Progress is tracked in [issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
 
 The roadmap includes **only two character-sheet downloads**: PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350). PDF generation is explicitly out of scope.
 ---
