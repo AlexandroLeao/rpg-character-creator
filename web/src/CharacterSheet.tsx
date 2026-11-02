@@ -1,3 +1,4 @@
+
 import type { Language } from './lib/authTranslations'
 import type { Character } from './lib/characterApi'
 
@@ -21,13 +22,12 @@ import './CharacterSheet.css'
  * ADVENTURE FILES
  * SAVED CHARACTER SHEET
  *
- * The saved record is the source of truth.
+ * The saved character is the source of truth.
+ * All character choices use localized text.
+ * The sheet also provides PNG export options.
  *
- * Each character choice is presented
- * as localized text.
- *
- * The saved sheet also provides access
- * to the available export formats.
+ * The page title is displayed by App.
+ * The character sheet does not repeat it.
  */
 
 const illustratedClasses = new Set<string>([
@@ -88,9 +88,7 @@ export function CharacterSheet({
    */
 
   const illustratedClass =
-    illustratedClasses.has(
-      character.characterClass,
-    )
+    illustratedClasses.has(character.characterClass)
       ? character.characterClass as CharacterClass
       : null
 
@@ -105,6 +103,8 @@ export function CharacterSheet({
       className="character-sheet"
       aria-labelledby="character-sheet-name"
     >
+      {/* Accessible heading for the saved sheet */}
+
       <h2 className="character-sheet__sr-only">
         {copy.title}
       </h2>
@@ -122,18 +122,24 @@ export function CharacterSheet({
         </div>
 
         <div className="character-sheet__identity">
-          <span className="character-sheet__eyebrow">
-            {language === 'pt'
-              ? 'FICHA DE PERSONAGEM'
-              : 'CHARACTER SHEET'}
-          </span>
+          {/* CHARACTER NAME */}
 
-          <h2
-            id="character-sheet-name"
-            className="character-sheet__name"
-          >
-            {character.name}
-          </h2>
+          <div className="character-sheet__name-details">
+            <span className="character-sheet__label">
+              {language === 'pt'
+                ? 'Nome:'
+                : 'Name:'}
+            </span>
+
+            <h2
+              id="character-sheet-name"
+              className="character-sheet__name"
+            >
+              {character.name}
+            </h2>
+          </div>
+
+          {/* CHARACTER CLASS */}
 
           <div className="character-sheet__class-details">
             <span className="character-sheet__label">
@@ -144,12 +150,6 @@ export function CharacterSheet({
               {className}
             </p>
           </div>
-
-          <span className="character-sheet__saved">
-            {language === 'pt'
-              ? 'PERSONAGEM SALVO'
-              : 'CHARACTER SAVED'}
-          </span>
         </div>
       </div>
 
@@ -158,7 +158,7 @@ export function CharacterSheet({
           ==================================== */}
 
       <div className="character-sheet__sections">
-        {sections.map((section, index) => (
+        {sections.map((section) => (
           <section
             key={section.key}
             className="character-sheet__section"
@@ -166,14 +166,9 @@ export function CharacterSheet({
               'character-sheet-' + section.key
             }
           >
-            <div className="character-sheet__section-heading">
-              <span
-                className="character-sheet__section-number"
-                aria-hidden="true"
-              >
-                {String(index + 1).padStart(2, '0')}
-              </span>
+            {/* SECTION TITLE */}
 
+            <div className="character-sheet__section-heading">
               <h3
                 id={
                   'character-sheet-' + section.key
@@ -182,6 +177,8 @@ export function CharacterSheet({
                 {section[language]}
               </h3>
             </div>
+
+            {/* SECTION FIELDS */}
 
             <dl className="character-sheet__fields">
               {section.fields.map((field) => (

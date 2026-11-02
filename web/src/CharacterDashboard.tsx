@@ -144,11 +144,6 @@ export function CharacterDashboard({
 
   const focusCreateAfterDelete = useRef(false)
 
-  /*
-   * Restores focus after React has
-   * re-enabled the Delete button.
-   */
-
   const restoreFocusToDeleteButton =
     useRef(false)
 
@@ -231,22 +226,9 @@ export function CharacterDashboard({
 
   useEffect(() => {
     if (deleteDialogOpen) {
-      /*
-       * Initially focus the safer
-       * Cancel button.
-       */
-
       cancelDeleteRef.current?.focus()
-
       return
     }
-
-    /*
-     * After the dialog closes, React
-     * re-enables the Delete button.
-     *
-     * Restore focus only then.
-     */
 
     if (restoreFocusToDeleteButton.current) {
       deleteTriggerRef.current?.focus()
@@ -372,11 +354,6 @@ export function CharacterDashboard({
       return
     }
 
-    /*
-     * Mark focus for restoration
-     * after the dialog closes.
-     */
-
     restoreFocusToDeleteButton.current = true
 
     confirmationToken.current = null
@@ -398,16 +375,10 @@ export function CharacterDashboard({
       return
     }
 
-    /*
-     * Never use a confirmation opened
-     * under another access token.
-     */
-
     if (
       confirmationToken.current !== accessToken
     ) {
       cancelDeleteConfirmation()
-
       return
     }
 
@@ -418,12 +389,6 @@ export function CharacterDashboard({
 
     try {
       await deleteMyCharacter(accessToken)
-
-      /*
-       * Only after the server confirms
-       * deletion may the character
-       * disappear from the dashboard.
-       */
 
       focusCreateAfterDelete.current = true
 
@@ -442,11 +407,6 @@ export function CharacterDashboard({
 
       onCreatorStepChange?.(null)
     } catch (error: unknown) {
-      /*
-       * Preserve the saved character
-       * on failure.
-       */
-
       setDeleteError(
         getDeleteErrorMessage(language, error),
       )
@@ -576,8 +536,8 @@ export function CharacterDashboard({
                 disabled={deleteDialogOpen}
               >
                 {language === 'pt'
-                  ? 'EDITAR PERSONAGEM'
-                  : 'EDIT CHARACTER'}
+                  ? 'Editar personagem'
+                  : 'Edit character'}
               </button>
 
               <button
@@ -588,8 +548,8 @@ export function CharacterDashboard({
                 disabled={deleteDialogOpen}
               >
                 {language === 'pt'
-                  ? 'EXCLUIR PERSONAGEM'
-                  : 'DELETE CHARACTER'}
+                  ? 'Excluir personagem'
+                  : 'Delete character'}
               </button>
             </div>
           </div>

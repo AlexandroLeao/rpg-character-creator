@@ -121,8 +121,8 @@ async function openEditing(
     {
       name:
         language === 'pt'
-          ? 'EDITAR PERSONAGEM'
-          : 'EDIT CHARACTER',
+          ? 'Editar personagem'
+          : 'Edit character',
     },
   )
 
@@ -252,7 +252,7 @@ describe('Character editing flow', () => {
      * not the canceled local changes.
      */
 
-    clickButton('EDITAR PERSONAGEM')
+    clickButton('Editar personagem')
 
     const restoredInput = screen.getByLabelText(
       'NOME DO PERSONAGEM',
@@ -367,7 +367,7 @@ describe('Character editing flow', () => {
 
     expect(
       screen.getByRole('button', {
-        name: 'EDITAR PERSONAGEM',
+        name: 'Editar personagem',
       }),
     ).toBeTruthy()
 
@@ -520,7 +520,7 @@ describe('Character editing flow', () => {
 
     expect(
       screen.getByRole('button', {
-        name: 'EDIT CHARACTER',
+        name: 'Edit character',
       }),
     ).toBeTruthy()
 

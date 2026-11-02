@@ -98,8 +98,8 @@ async function openDeleteDialog(
     await screen.findByRole('button', {
       name:
         language === 'pt'
-          ? 'EXCLUIR PERSONAGEM'
-          : 'DELETE CHARACTER',
+          ? 'Excluir personagem'
+          : 'Delete character',
     })
 
   fireEvent.click(deleteButton)
@@ -151,7 +151,7 @@ describe('Character deletion interface', () => {
 
     expect(
       screen.queryByRole('button', {
-        name: 'EXCLUIR PERSONAGEM',
+        name: 'Excluir personagem',
       }),
     ).toBeNull()
 
@@ -228,7 +228,7 @@ describe('Character deletion interface', () => {
 
     expect(document.activeElement).toBe(
       screen.getByRole('button', {
-        name: 'EXCLUIR PERSONAGEM',
+        name: 'Excluir personagem',
       }),
     )
   })
@@ -323,7 +323,7 @@ describe('Character deletion interface', () => {
 
     const deleteButton =
       await screen.findByRole('button', {
-        name: 'EXCLUIR PERSONAGEM',
+        name: 'Excluir personagem',
       })
 
     fireEvent.click(deleteButton)
@@ -522,7 +522,7 @@ describe('Character deletion interface', () => {
 
     const deleteButton =
       await screen.findByRole('button', {
-        name: 'EXCLUIR PERSONAGEM',
+        name: 'Excluir personagem',
       })
 
     fireEvent.click(deleteButton)

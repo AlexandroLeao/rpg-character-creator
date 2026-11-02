@@ -1,3 +1,4 @@
+
 import {
   useId,
   useRef,
@@ -29,7 +30,7 @@ type CharacterExportPanelProps = {
 
 const translations = {
   pt: {
-    title: 'EXPORTAR FICHA',
+    title: 'Exportar ficha',
     choose: 'ESCOLHA O FORMATO',
     story: 'PNG STORY — 1080 × 1920',
     portrait: 'PNG RETRATO — 1080 × 1350',
@@ -39,7 +40,7 @@ const translations = {
   },
 
   en: {
-    title: 'EXPORT CHARACTER SHEET',
+    title: 'Export character sheet',
     choose: 'CHOOSE A FORMAT',
     story: 'PNG STORY — 1080 × 1920',
     portrait: 'PNG PORTRAIT — 1080 × 1350',
@@ -53,14 +54,12 @@ export function CharacterExportPanel({
   character,
   language,
 }: CharacterExportPanelProps) {
-  const [isOpen, setIsOpen] =
-    useState(false)
+  const [isOpen, setIsOpen] = useState(false)
 
   const [generating, setGenerating] =
     useState<CharacterPngFormat | null>(null)
 
-  const [error, setError] =
-    useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   const inProgress = useRef(false)
 
@@ -68,9 +67,9 @@ export function CharacterExportPanel({
 
   const copy = translations[language]
 
-  /*
-   * Opens or closes the format selector.
-   */
+  /* ========================================
+     OPEN / CLOSE EXPORT OPTIONS
+     ======================================== */
 
   function togglePanel() {
     if (inProgress.current) {
@@ -78,16 +77,12 @@ export function CharacterExportPanel({
     }
 
     setError(null)
-
     setIsOpen((current) => !current)
   }
 
-  /*
-   * Generates one PNG format.
-   *
-   * Repeated clicks are ignored
-   * while a file is being generated.
-   */
+  /* ========================================
+     GENERATE PNG
+     ======================================== */
 
   async function handleExport(
     format: CharacterPngFormat,
@@ -111,10 +106,13 @@ export function CharacterExportPanel({
       setError(copy.error)
     } finally {
       inProgress.current = false
-
       setGenerating(null)
     }
   }
+
+  /* ========================================
+     RENDER
+     ======================================== */
 
   return (
     <section
