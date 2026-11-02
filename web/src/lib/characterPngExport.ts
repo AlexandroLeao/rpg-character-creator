@@ -11,81 +11,80 @@ import {
  * ADVENTURE FILES
  * CHARACTER PNG EXPORT
  *
- * Generates character sheets locally
- * in the user's browser.
+ * Both formats use the same approved character-sheet design,
+ * the original class artwork and the actual project favicon.
+ * Everything is rendered locally in the user's browser.
  */
 
-export type CharacterPngFormat =
-  | 'story'
-  | 'portrait'
+export type CharacterPngFormat = 'story' | 'portrait'
 
 export const characterPngDimensions = {
-  story: {
-    width: 1080,
-    height: 1920,
-  },
-
-  portrait: {
-    width: 1080,
-    height: 1350,
-  },
+  story: { width: 1080, height: 1920 },
+  portrait: { width: 1080, height: 1350 },
 } as const
 
+export const characterSheetLogoSource = '/favicon.png'
+
 const colors = {
-  background: '#061009',
-  panel: '#0c1e12',
-  border: '#5b8d61',
-  green: '#a4ed86',
+  background: '#03170c',
+  panel: '#062113',
+  border: '#91cf82',
+  green: '#acf58c',
   cream: '#f5efd2',
-  muted: '#b1c7a8',
+  muted: '#b6cbb0',
 } as const
 
 type Layout = {
+  logoTop: number
+  logoSize: number
+  brandY: number
+  titleY: number
   artworkTop: number
   artworkHeight: number
-  nameY: number
-  classY: number
+  identityTop: number
+  identityHeight: number
   sectionsTop: number
   sectionHeight: number
   sectionGap: number
   footerY: number
 }
 
-const layouts: Record<
-  CharacterPngFormat,
-  Layout
-> = {
+const layouts: Record<CharacterPngFormat, Layout> = {
   story: {
-    artworkTop: 153,
-    artworkHeight: 575,
-    nameY: 805,
-    classY: 873,
-    sectionsTop: 965,
-    sectionHeight: 354,
+    logoTop: 58,
+    logoSize: 82,
+    brandY: 220,
+    titleY: 281,
+    artworkTop: 328,
+    artworkHeight: 640,
+    identityTop: 989,
+    identityHeight: 135,
+    sectionsTop: 1149,
+    sectionHeight: 288,
     sectionGap: 24,
     footerY: 1855,
   },
-
   portrait: {
-    artworkTop: 145,
-    artworkHeight: 365,
-    nameY: 570,
-    classY: 630,
-    sectionsTop: 708,
-    sectionHeight: 273,
-    sectionGap: 20,
-    footerY: 1320,
+    logoTop: 32,
+    logoSize: 65,
+    brandY: 151,
+    titleY: 199,
+    artworkTop: 227,
+    artworkHeight: 344,
+    identityTop: 587,
+    identityHeight: 112,
+    sectionsTop: 717,
+    sectionHeight: 216,
+    sectionGap: 18,
+    footerY: 1284,
   },
 }
 
 const canvasWidth = 1080
-const margin = 72
-const columnGap = 20
-
-/*
- * Draws text while adapting its size
- * to the available space.
- */
+const margin = 40
+const columnGap = 18
+const contentWidth = canvasWidth - margin * 2
+const columnWidth = (contentWidth - columnGap) / 2
 
 function drawFittedText(
   context: CanvasRenderingContext2D,
@@ -98,41 +97,24 @@ function drawFittedText(
   color: string,
   align: CanvasTextAlign = 'left',
 ): void {
-  let fontSize = initialSize
   const displayValue = value.toLocaleUpperCase()
+  let fontSize = initialSize
 
   context.fillStyle = color
   context.textAlign = align
   context.textBaseline = 'alphabetic'
 
   while (fontSize > minimumSize) {
-    context.font =
-      `${fontSize}px "Press Start 2P", monospace`
-
-    if (
-      context.measureText(displayValue).width <=
-      maxWidth
-    ) {
+    context.font = fontSize + 'px "Press Start 2P", monospace'
+    if (context.measureText(displayValue).width <= maxWidth) {
       break
     }
-
-    fontSize -= 2
+    fontSize -= 1
   }
 
-  context.font =
-    `${fontSize}px "Press Start 2P", monospace`
-
-  context.fillText(
-    displayValue,
-    x,
-    y,
-    maxWidth,
-  )
+  context.font = fontSize + 'px "Press Start 2P", monospace'
+  context.fillText(displayValue, x, y, maxWidth)
 }
-
-/*
- * Draws a retro rectangular panel.
- */
 
 function drawPanel(
   context: CanvasRenderingContext2D,
@@ -142,444 +124,325 @@ function drawPanel(
   height: number,
 ): void {
   context.fillStyle = colors.panel
-
-  context.fillRect(
-    x,
-    y,
-    width,
-    height,
-  )
-
+  context.fillRect(x, y, width, height)
   context.strokeStyle = colors.border
   context.lineWidth = 3
-
-  context.strokeRect(
-    x,
-    y,
-    width,
-    height,
-  )
+  context.strokeRect(x, y, width, height)
 }
 
-/*
- * Draws the original class illustration.
- *
- * Image smoothing is disabled to preserve
- * the pixel-art appearance.
- */
+/* Pixel-stepped double border from the approved export reference. */
+function drawOuterFrame(
+  context: CanvasRenderingContext2D,
+  height: number,
+): void {
+  context.strokeStyle = colors.green
+  context.lineWidth = 5
+  context.strokeRect(15, 17, canvasWidth - 30, height - 34)
+
+  context.lineWidth = 2
+  context.strokeRect(27, 29, canvasWidth - 54, height - 58)
+
+  context.fillStyle = colors.green
+  for (const atRight of [false, true]) {
+    for (const atBottom of [false, true]) {
+      const edgeX = atRight ? canvasWidth - 16 : 10
+      const edgeY = atBottom ? height - 18 : 12
+      const xDirection = atRight ? -1 : 1
+      const yDirection = atBottom ? -1 : 1
+
+      context.fillRect(edgeX, edgeY, xDirection * 17, yDirection * 7)
+      context.fillRect(
+        edgeX + xDirection * 7,
+        edgeY + yDirection * 7,
+        xDirection * 16,
+        yDirection * 7,
+      )
+      context.fillRect(
+        edgeX + xDirection * 14,
+        edgeY + yDirection * 14,
+        xDirection * 13,
+        yDirection * 6,
+      )
+    }
+  }
+}
+
+function drawLogo(
+  context: CanvasRenderingContext2D,
+  logo: HTMLImageElement | undefined,
+  centerX: number,
+  top: number,
+  size: number,
+): void {
+  if (!logo) {
+    return
+  }
+
+  context.save()
+  context.imageSmoothingEnabled = false
+  context.drawImage(logo, centerX - size / 2, top, size, size)
+  context.restore()
+}
+
+function drawHeader(
+  context: CanvasRenderingContext2D,
+  data: CharacterExportData,
+  layout: Layout,
+  logo: HTMLImageElement | undefined,
+): void {
+  const center = canvasWidth / 2
+  const ornamentY = layout.logoTop + layout.logoSize / 2
+
+  context.fillStyle = colors.green
+  context.fillRect(155, ornamentY, 265, 2)
+  context.fillRect(660, ornamentY, 265, 2)
+  context.fillRect(436, ornamentY - 4, 8, 8)
+  context.fillRect(636, ornamentY - 4, 8, 8)
+
+  drawLogo(context, logo, center, layout.logoTop, layout.logoSize)
+
+  drawFittedText(
+    context, 'ADVENTURE FILES', center, layout.brandY,
+    contentWidth, 43, 30, colors.green, 'center',
+  )
+  drawFittedText(
+    context, data.title, center, layout.titleY,
+    contentWidth, 25, 19, colors.cream, 'center',
+  )
+}
 
 function drawArtwork(
   context: CanvasRenderingContext2D,
   artwork: HTMLImageElement,
   layout: Layout,
 ): void {
-  const width = canvasWidth - margin * 2
-
   drawPanel(
-    context,
-    margin,
-    layout.artworkTop,
-    width,
-    layout.artworkHeight,
+    context, margin, layout.artworkTop,
+    contentWidth, layout.artworkHeight,
   )
 
-  const availableWidth = width - 50
-
-  const availableHeight =
-    layout.artworkHeight - 40
-
+  const availableWidth = contentWidth - 50
+  const availableHeight = layout.artworkHeight - 38
   const scale = Math.min(
     availableWidth / artwork.naturalWidth,
     availableHeight / artwork.naturalHeight,
   )
-
-  const imageWidth =
-    artwork.naturalWidth * scale
-
-  const imageHeight =
-    artwork.naturalHeight * scale
-
-  const imageX =
-    (canvasWidth - imageWidth) / 2
-
-  const imageY =
-    layout.artworkTop +
-    (layout.artworkHeight - imageHeight) / 2
+  const imageWidth = artwork.naturalWidth * scale
+  const imageHeight = artwork.naturalHeight * scale
 
   context.save()
-
   context.imageSmoothingEnabled = false
-
   context.beginPath()
-
   context.rect(
-    margin + 4,
-    layout.artworkTop + 4,
-    width - 8,
-    layout.artworkHeight - 8,
+    margin + 5, layout.artworkTop + 5,
+    contentWidth - 10, layout.artworkHeight - 10,
   )
-
   context.clip()
-
   context.drawImage(
     artwork,
-    imageX,
-    imageY,
-    imageWidth,
-    imageHeight,
+    (canvasWidth - imageWidth) / 2,
+    layout.artworkTop + (layout.artworkHeight - imageHeight) / 2,
+    imageWidth, imageHeight,
   )
-
   context.restore()
 }
 
-/*
- * Draws one section with its two
- * character customization fields.
- */
+function drawIdentityPanel(
+  context: CanvasRenderingContext2D,
+  label: string,
+  value: string,
+  x: number,
+  y: number,
+  height: number,
+  valueColor: string,
+  valueSize: number,
+): void {
+  drawPanel(context, x, y, columnWidth, height)
+  const center = x + columnWidth / 2
+  const labelY = y + (height < 120 ? 37 : 42)
+
+  context.fillStyle = colors.border
+  context.fillRect(x + 30, labelY - 7, 115, 2)
+  context.fillRect(x + columnWidth - 145, labelY - 7, 115, 2)
+
+  drawFittedText(
+    context, label, center, labelY,
+    columnWidth - 300, 17, 12, colors.muted, 'center',
+  )
+  drawFittedText(
+    context, value, center, y + height - 34,
+    columnWidth - 50, valueSize, 17, valueColor, 'center',
+  )
+}
 
 function drawSection(
   context: CanvasRenderingContext2D,
   section: CharacterExportSection,
   x: number,
   y: number,
-  width: number,
   height: number,
 ): void {
-  drawPanel(
-    context,
-    x,
-    y,
-    width,
-    height,
-  )
-
-  const textX = x + 26
-  const textWidth = width - 52
+  drawPanel(context, x, y, columnWidth, height)
+  const padding = 24
+  const innerWidth = columnWidth - padding * 2
 
   drawFittedText(
-    context,
-    section.title,
-    textX,
-    y + 45,
-    textWidth,
-    18,
-    12,
-    colors.green,
+    context, section.title, x + padding, y + 42,
+    innerWidth, 20, 12, colors.green,
   )
 
   context.fillStyle = colors.border
+  context.fillRect(x + padding, y + 63, innerWidth, 2)
 
+  const firstY = y + (height < 240 ? 113 : 138)
+  const secondY = y + (height < 240 ? 177 : 232)
+
+  context.fillStyle = colors.border
   context.fillRect(
-    x + 26,
-    y + 65,
-    width - 52,
-    2,
+    x + padding, (firstY + secondY) / 2,
+    innerWidth, 1,
   )
 
-  section.fields.forEach((field, index) => {
-    const labelY =
-      y +
-      Math.round(
-        height * (index === 0 ? 0.32 : 0.65),
-      )
-
-    const valueY = labelY + 39
+  section.fields.slice(0, 2).forEach((field, index) => {
+    const labelAndValueWidth = (innerWidth - 16) / 2
+    const rowY = index === 0 ? firstY : secondY
 
     drawFittedText(
-      context,
-      field.label.toUpperCase(),
-      textX,
-      labelY,
-      textWidth,
-      15,
-      11,
-      colors.muted,
+      context, field.label,
+      x + padding, rowY,
+      labelAndValueWidth, 15, 10, colors.muted,
     )
-
     drawFittedText(
-      context,
-      field.value,
-      textX,
-      valueY,
-      textWidth,
-      23,
-      14,
-      colors.cream,
+      context, field.value,
+      x + columnWidth - padding, rowY,
+      labelAndValueWidth, 18, 11, colors.cream, 'right',
     )
   })
 }
 
-/*
- * Renders a complete saved-character
- * sheet into a canvas.
- *
- * The Story and Portrait formats use
- * independent vertical layouts.
- */
+function drawFooter(
+  context: CanvasRenderingContext2D,
+  layout: Layout,
+  logo: HTMLImageElement | undefined,
+): void {
+  const lineY = layout.footerY - 15
+  context.fillStyle = colors.green
+  context.fillRect(80, lineY, 200, 2)
+  context.fillRect(800, lineY, 200, 2)
+  context.fillRect(298, lineY - 4, 8, 8)
+  context.fillRect(774, lineY - 4, 8, 8)
+
+  drawLogo(context, logo, 380, layout.footerY - 49, 45)
+
+  drawFittedText(
+    context, 'ADVENTURE FILES', 420, layout.footerY,
+    380, 16, 12, colors.green, 'left',
+  )
+}
 
 export function renderCharacterPng(
   data: CharacterExportData,
   artwork: HTMLImageElement,
   format: CharacterPngFormat,
+  logo?: HTMLImageElement,
 ): HTMLCanvasElement {
-  const dimensions =
-    characterPngDimensions[format]
-
+  const dimensions = characterPngDimensions[format]
   const layout = layouts[format]
-
-  const canvas =
-    document.createElement('canvas')
+  const canvas = document.createElement('canvas')
 
   canvas.width = dimensions.width
   canvas.height = dimensions.height
 
   const context = canvas.getContext('2d')
-
   if (!context) {
-    throw new Error(
-      'Canvas rendering is unavailable.',
-    )
+    throw new Error('Canvas rendering is unavailable.')
   }
-
-  if (
-    artwork.naturalWidth <= 0 ||
-    artwork.naturalHeight <= 0
-  ) {
-    throw new Error(
-      'Character artwork is invalid.',
-    )
+  if (artwork.naturalWidth <= 0 || artwork.naturalHeight <= 0) {
+    throw new Error('Character artwork is invalid.')
   }
-
-  const contentWidth =
-    canvasWidth - margin * 2
+  if (logo && (logo.naturalWidth <= 0 || logo.naturalHeight <= 0)) {
+    throw new Error('Character sheet logo is invalid.')
+  }
 
   context.fillStyle = colors.background
+  context.fillRect(0, 0, canvas.width, canvas.height)
 
-  context.fillRect(
-    0,
-    0,
-    canvas.width,
-    canvas.height,
+  drawOuterFrame(context, canvas.height)
+  drawHeader(context, data, layout, logo)
+  drawArtwork(context, artwork, layout)
+
+  const nameLabel = data.title === 'CHARACTER SHEET' ? 'NAME' : 'NOME'
+  drawIdentityPanel(
+    context, nameLabel, data.name,
+    margin, layout.identityTop, layout.identityHeight,
+    colors.cream, 30,
+  )
+  drawIdentityPanel(
+    context, data.classFieldLabel, data.classLabel,
+    margin + columnWidth + columnGap,
+    layout.identityTop, layout.identityHeight,
+    colors.green, 25,
   )
 
-  /*
-   * Header
-   */
+  data.sections.forEach((section, index) => {
+    const column = index % 2
+    const row = Math.floor(index / 2)
+    const x = margin + column * (columnWidth + columnGap)
+    const y = layout.sectionsTop +
+      row * (layout.sectionHeight + layout.sectionGap)
 
-  drawFittedText(
-    context,
-    'ADVENTURE FILES',
-    margin,
-    79,
-    contentWidth,
-    23,
-    16,
-    colors.green,
-  )
+    drawSection(context, section, x, y, layout.sectionHeight)
+  })
 
-  drawFittedText(
-    context,
-    data.title,
-    margin,
-    123,
-    contentWidth,
-    20,
-    14,
-    colors.cream,
-  )
-
-  /*
-   * Character artwork
-   */
-
-  drawArtwork(
-    context,
-    artwork,
-    layout,
-  )
-
-  /*
-   * Character identity
-   */
-
-  drawFittedText(
-    context,
-    data.name,
-    canvasWidth / 2,
-    layout.nameY,
-    contentWidth,
-    45,
-    18,
-    colors.cream,
-    'center',
-  )
-
-  const classText =
-    `${data.classFieldLabel.toUpperCase()}: ` +
-    data.classLabel
-
-  drawFittedText(
-    context,
-    classText,
-    canvasWidth / 2,
-    layout.classY,
-    contentWidth,
-    22,
-    14,
-    colors.green,
-    'center',
-  )
-
-  /*
-   * Four information sections
-   */
-
-  const sectionWidth =
-    (contentWidth - columnGap) / 2
-
-  data.sections.forEach(
-    (section, index) => {
-      const column = index % 2
-      const row = Math.floor(index / 2)
-
-      const x =
-        margin +
-        column *
-          (sectionWidth + columnGap)
-
-      const y =
-        layout.sectionsTop +
-        row *
-          (
-            layout.sectionHeight +
-            layout.sectionGap
-          )
-
-      drawSection(
-        context,
-        section,
-        x,
-        y,
-        sectionWidth,
-        layout.sectionHeight,
-      )
-    },
-  )
-
-  /*
-   * Footer
-   */
-
-  drawFittedText(
-    context,
-    'ADVENTURE FILES',
-    canvasWidth / 2,
-    layout.footerY,
-    contentWidth,
-    16,
-    12,
-    colors.muted,
-    'center',
-  )
-
+  drawFooter(context, layout, logo)
   return canvas
 }
 
-/*
- * Loads the existing class illustration.
- */
+function loadImage(source: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const image = new Image()
 
-function loadArtwork(
-  source: string,
-): Promise<HTMLImageElement> {
-  return new Promise(
-    (resolve, reject) => {
-      const artwork = new Image()
-
-      artwork.onload = () => {
-        if (
-          artwork.naturalWidth <= 0 ||
-          artwork.naturalHeight <= 0
-        ) {
-          reject(
-            new Error(
-              'Character artwork is invalid.',
-            ),
-          )
-
-          return
-        }
-
-        resolve(artwork)
+    image.onload = () => {
+      if (image.naturalWidth <= 0 || image.naturalHeight <= 0) {
+        reject(new Error('Image is invalid.'))
+        return
       }
+      resolve(image)
+    }
 
-      artwork.onerror = () => {
-        reject(
-          new Error(
-            'Unable to load character artwork.',
-          ),
-        )
-      }
-
-      artwork.src = source
-    },
-  )
+    image.onerror = () => reject(new Error('Unable to load image.'))
+    image.src = source
+  })
 }
-
-/*
- * Generates a valid PNG Blob.
- */
 
 export async function createCharacterPng(
   character: Character,
   language: Language,
   format: CharacterPngFormat,
 ): Promise<Blob> {
-  const data =
-    prepareCharacterExportData(
-      character,
-      language,
-    )
+  const data = prepareCharacterExportData(character, language)
 
   if (document.fonts) {
     await document.fonts.ready
   }
 
-  const artwork = await loadArtwork(
-    data.artworkSource,
-  )
+  const [artwork, logo] = await Promise.all([
+    loadImage(data.artworkSource),
+    loadImage(characterSheetLogoSource),
+  ])
 
-  const canvas = renderCharacterPng(
-    data,
-    artwork,
-    format,
-  )
+  const canvas = renderCharacterPng(data, artwork, format, logo)
 
-  return new Promise(
-    (resolve, reject) => {
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) {
-            reject(
-              new Error(
-                'Unable to generate PNG.',
-              ),
-            )
-
-            return
-          }
-
-          resolve(blob)
-        },
-        'image/png',
-      )
-    },
-  )
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        reject(new Error('Unable to generate PNG.'))
+        return
+      }
+      resolve(blob)
+    }, 'image/png')
+  })
 }
-
-/*
- * Creates a safe download filename.
- */
 
 export function getCharacterPngFilename(
   name: string,
@@ -593,47 +456,22 @@ export function getCharacterPngFilename(
     .replace(/^-+|-+$/g, '')
     .slice(0, 50)
 
-  const safeName =
-    normalizedName || 'personagem'
-
-  return (
-    `adventure-files-${safeName}-${format}.png`
-  )
+  const safeName = normalizedName || 'personagem'
+  return 'adventure-files-' + safeName + '-' + format + '.png'
 }
-
-/*
- * Downloads the generated PNG.
- *
- * No generated file is uploaded
- * or stored by the application.
- */
 
 export async function downloadCharacterPng(
   character: Character,
   language: Language,
   format: CharacterPngFormat,
 ): Promise<void> {
-  const blob = await createCharacterPng(
-    character,
-    language,
-    format,
-  )
-
+  const blob = await createCharacterPng(character, language, format)
   const url = URL.createObjectURL(blob)
-
-  const link =
-    document.createElement('a')
+  const link = document.createElement('a')
 
   link.href = url
-
-  link.download =
-    getCharacterPngFilename(
-      character.name,
-      format,
-    )
-
+  link.download = getCharacterPngFilename(character.name, format)
   document.body.appendChild(link)
-
   link.click()
   link.remove()
 

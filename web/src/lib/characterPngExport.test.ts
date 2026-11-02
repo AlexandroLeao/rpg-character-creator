@@ -16,6 +16,7 @@ import {
 
 import {
   characterPngDimensions,
+  characterSheetLogoSource,
   getCharacterPngFilename,
   renderCharacterPng,
 } from './characterPngExport'
@@ -60,10 +61,11 @@ const character: Character = {
 function mockCanvas() {
   const fillText = vi.fn()
   const drawImage = vi.fn()
+  const strokeRect = vi.fn()
 
   const context = {
     fillRect: vi.fn(),
-    strokeRect: vi.fn(),
+    strokeRect,
 
     save: vi.fn(),
     restore: vi.fn(),
@@ -97,6 +99,7 @@ function mockCanvas() {
   return {
     fillText,
     drawImage,
+    strokeRect,
     artwork,
   }
 }
@@ -155,9 +158,8 @@ describe('Character PNG export', () => {
       'ANTONIO',
     )
 
-    expect(renderedTexts).toContain(
-      'CLASSE: DRUIDA',
-    )
+    expect(renderedTexts).toContain('CLASSE')
+    expect(renderedTexts).toContain('DRUIDA')
   })
 
   it('renders all fields in Portrait format', () => {
@@ -195,6 +197,51 @@ describe('Character PNG export', () => {
         'LIBERDADE',
       ]),
     )
+  })
+
+  it('uses the same PNG as the browser favicon', () => {
+    expect(characterSheetLogoSource).toBe('/favicon.png')
+  })
+
+  it('aligns identity boxes to the two section columns', () => {
+    const mock = mockCanvas()
+    const data = prepareCharacterExportData(character, 'pt')
+
+    renderCharacterPng(data, mock.artwork, 'portrait')
+
+    const panels = mock.strokeRect.mock.calls.filter(
+      (call) => call[2] > 400 && call[2] < 600,
+    )
+
+    // Identity panels (first row) and four section panels share
+    // the exact same horizontal grid and card widths.
+    const leftCards = panels.filter((call) => call[0] === 40)
+    const rightCards = panels.filter((call) => call[0] === 549)
+
+    expect(leftCards).toHaveLength(3)
+    expect(rightCards).toHaveLength(3)
+    expect(new Set(leftCards.map((call) => call[2])).size).toBe(1)
+    expect(new Set(rightCards.map((call) => call[2])).size).toBe(1)
+  })
+
+  it('draws the supplied favicon twice in either export format', () => {
+    for (const format of ['story', 'portrait'] as const) {
+      const mock = mockCanvas()
+      const data = prepareCharacterExportData(character, 'en')
+      const logo = {
+        naturalWidth: 256,
+        naturalHeight: 256,
+      } as HTMLImageElement
+
+      renderCharacterPng(data, mock.artwork, format, logo)
+
+      const logoDraws = mock.drawImage.mock.calls.filter(
+        (call) => call[0] === logo,
+      )
+
+      expect(logoDraws).toHaveLength(2)
+      expect(mock.drawImage).toHaveBeenCalledTimes(3)
+    }
   })
 
   it('creates safe PNG filenames', () => {
