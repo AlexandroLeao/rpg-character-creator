@@ -167,7 +167,7 @@ describe('Character saving flow', () => {
     ).toHaveBeenCalledWith(
       'valid-token',
       {
-        name: 'Luna',
+        name: 'LUNA',
         characterClass: 'mage',
         ancestry: 'elf',
         background: 'scholar',
