@@ -3,7 +3,7 @@
 - **Status:** In development
 - **Product name:** Adventure Files
 - **Product type:** Full-stack RPG-inspired character creator
-- **Development environment:** Google Cloud Shell Editor
+- **Development environment:** GitHub Codespaces (browser-based); Cloud Shell optional
 - **Repository:** AlexandroLeao/rpg-character-creator
 
 ## 1. Project Vision
@@ -384,13 +384,13 @@ The account remains available for creating another character afterward.
 | API tests | Vitest and Supertest |
 | Version control | Git and GitHub |
 | Continuous integration | GitHub Actions |
-| Development environment | Google Cloud Shell Editor |
+| Development environment | GitHub Codespaces (browser-based); Cloud Shell optional |
 
 Production hosting and deployment details must be validated during the deployment phase.
 
 ## 7. Current Implementation Status
 
-Adventure Files is in active development on a feature branch. The core character-creation and management journeys have been implemented and manually exercised, while final security, accessibility, and production checks remain.
+Adventure Files is in active development on a feature branch. Core character creation, management, and both exports are implemented. Local manual UX/accessibility/security-flow homologation is complete; controlled staging authorization, operational, and production checks remain.
 
 ### Implemented
 
@@ -403,14 +403,14 @@ Adventure Files is in active development on a feature branch. The core character
 - Browser-generated PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350) downloads using the saved record and class artwork.
 - Automated frontend, API, and database security checks with GitHub Actions.
 
-The latest reported local frontend verification passed lint, build, and **141 tests across 17 test files**. Manual checks included separate accounts, edit/save, deletion confirmation, and exports after editing.
+On November 2, 2026, local manual QA reported no issues across the start screen, authentication, six-stage flow, saved-character CRUD, PNG exports, responsive layouts, PT/EN, keyboard accessibility, reduced-motion behavior, and recoverable errors. Two test accounts were exercised without observed cross-account mixing. Local checks passed **146 frontend tests (17 files)** and **97 API tests (8 files)**, plus lint and builds. The two opt-in Express/Supabase integration tests are intentionally skipped in the standard API suite and were run previously against isolated local Supabase. GitHub Actions database security checks passed.
 
 ### Remaining Release Validation
 
-1. Verify that one account cannot read, edit, or delete another account's character, including direct API and RLS-negative tests.
-2. Review small-screen layouts, keyboard accessibility, loading/error feedback, and reduced-motion behavior.
-3. Validate production API/Auth/SMTP configuration, deployment, and complete end-to-end flows.
-4. Finalize review of the draft pull request and merge only when release criteria pass.
+1. Recheck negative cross-account API/RLS behavior and migration/legacy-data compatibility in the intended staging environment, using disposable users.
+2. Configure hosted frontend/API routing, HTTPS, restricted CORS, monitoring, and production-ready Auth/email settings.
+3. Repeat complete sign-up/confirmation/recovery, save/edit/delete, and both PNG export flows on the hosted preview.
+4. Review dependency security and deployment documentation, rerun CI, and merge draft PR #23 only after the release gates pass (tracked in [issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24)).
 
 The approved scope no longer includes a PDF download. Additional illustration variants for individual customization choices remain deferred.
 
