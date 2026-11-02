@@ -357,7 +357,7 @@
 }
 
 /* ==========================================
-   COMPACT SAVED SHEET — DESKTOP
+   BALANCED SAVED SHEET — DESKTOP
    ========================================== */
 
 @media (min-width: 900px) {
@@ -367,46 +367,50 @@
 
   .character-sheet__hero {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 14px;
-    padding: 10px;
+    align-items: stretch;
+    gap: 18px;
+    padding: 11px;
   }
 
   .character-sheet__artwork .character-preview {
-    min-height: 156px;
-    height: 156px;
-    padding: 5px;
+    min-height: 192px;
+    height: 192px;
+    padding: 6px;
   }
 
   .character-sheet__identity {
-    gap: 10px;
-    padding: 5px 8px;
+    gap: 13px;
+    padding: 8px 12px;
   }
 
   .character-sheet__name-details,
   .character-sheet__class-details {
-    gap: 4px;
+    gap: 6px;
   }
 
+  /* Two cards per row, with two choices side by side in each card. */
   .character-sheet__sections {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 12px;
   }
 
   .character-sheet__section {
-    padding: 11px;
+    min-width: 0;
+    padding: 11px 14px;
   }
 
   .character-sheet__section-heading {
     padding-bottom: 7px;
-    margin-bottom: 9px;
+    margin-bottom: 10px;
   }
 
   .character-sheet__fields {
-    gap: 9px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
 
   .character-sheet__field {
-    gap: 3px;
+    gap: 5px;
   }
 
   .character-sheet__field dt {
@@ -414,7 +418,7 @@
   }
 
   .character-sheet__field dd {
-    font-size: 9px;
+    font-size: 10px;
     line-height: 1.6;
   }
 }
