@@ -152,11 +152,11 @@ describe('Character PNG export', () => {
       )
 
     expect(renderedTexts).toContain(
-      'Antonio',
+      'ANTONIO',
     )
 
     expect(renderedTexts).toContain(
-      'CLASSE: Druida',
+      'CLASSE: DRUIDA',
     )
   })
 
@@ -185,14 +185,14 @@ describe('Character PNG export', () => {
 
     expect(renderedTexts).toEqual(
       expect.arrayContaining([
-        'Elfo',
-        'Artesão',
-        'Adaga',
-        'Bússola Rúnica',
-        'Curioso',
-        'Natureza',
-        'Coruja',
-        'Liberdade',
+        'ELFO',
+        'ARTESÃO',
+        'ADAGA',
+        'BÚSSOLA RÚNICA',
+        'CURIOSO',
+        'NATUREZA',
+        'CORUJA',
+        'LIBERDADE',
       ]),
     )
   })
