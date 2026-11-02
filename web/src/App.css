@@ -966,3 +966,14 @@
     padding: 9px 12px;
   }
 }
+
+/* Sign out is part of the four-button footer on saved sheets. */
+.auth-window:has(.character-sheet) .auth-success > button {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .auth-window:has(.character-sheet) .auth-content {
+    padding: 14px 16px 12px;
+  }
+}
