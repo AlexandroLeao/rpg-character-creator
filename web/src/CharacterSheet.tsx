@@ -71,11 +71,13 @@ const sections = [
 type CharacterSheetProps = {
   character: Character
   language: Language
+  showExport?: boolean
 }
 
 export function CharacterSheet({
   character,
   language,
+  showExport = true,
 }: CharacterSheetProps) {
   const copy = characterTranslations[language]
 
@@ -121,7 +123,8 @@ export function CharacterSheet({
           />
         </div>
 
-        <div className="character-sheet__identity">
+        <div className="character-sheet__details">
+          <div className="character-sheet__identity">
           {/* CHARACTER NAME */}
 
           <div className="character-sheet__name-details">
@@ -150,8 +153,7 @@ export function CharacterSheet({
               {className}
             </p>
           </div>
-        </div>
-      </div>
+          </div>
 
       {/* ====================================
           CHARACTER CUSTOMIZATION
@@ -202,16 +204,19 @@ export function CharacterSheet({
             </dl>
           </section>
         ))}
+        </div>
       </div>
 
       {/* ====================================
           CHARACTER EXPORT
           ==================================== */}
 
-      <CharacterExportPanel
-        character={character}
-        language={language}
-      />
+      {showExport && (
+        <CharacterExportPanel
+          character={character}
+          language={language}
+        />
+      )}
     </article>
   )
 }
