@@ -734,7 +734,7 @@ The remaining steps toward release are:
 1. Verify deployed API and database ownership isolation in a controlled staging environment, using disposable users and never modifying existing character records.
 2. Confirm the revised catalog, Motivation field, migration state, and legacy records in the intended deployment environment.
 3. Complete production authentication/email configuration, API deployment, observability, and end-to-end checks.
-4. Review accessibility, responsive behavior, and deployment documentation.
+4. Preserve the completed local desktop/mobile, keyboard-accessibility, reduced-motion, and error-state QA evidence while rechecking these flows on the hosted preview; keep deployment documentation current.
 
 For the guarded local integration command and cleanup behavior, see [Supabase database documentation](../supabase/README.md).
 
