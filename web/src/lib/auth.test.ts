@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 
+import type { Session } from '@supabase/supabase-js'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockAuth = vi.hoisted(() => ({
@@ -7,6 +8,8 @@ const mockAuth = vi.hoisted(() => ({
   signInWithPassword: vi.fn(),
   resetPasswordForEmail: vi.fn(),
   updateUser: vi.fn(),
+  getUser: vi.fn(),
+  getSession: vi.fn(),
   signOut: vi.fn(),
 }))
 
@@ -71,12 +74,71 @@ describe('Supabase authentication helpers', () => {
     )
   })
 
-  it('updates the authenticated user password', () => {
-    updatePassword('NewPassword123!')
+  const recoveredSession = {
+    access_token: 'verified-recovery-access-token',
+    user: { id: 'recovered-user-id' },
+  } as Session
 
+  it('updates the verified recovery account password', async () => {
+    mockAuth.getUser.mockResolvedValue({
+      data: { user: { id: 'recovered-user-id' } },
+      error: null,
+    })
+    mockAuth.getSession.mockResolvedValue({
+      data: { session: recoveredSession },
+      error: null,
+    })
+    mockAuth.updateUser.mockResolvedValue({ error: null })
+
+    const result = await updatePassword(
+      'NewPassword123!',
+      recoveredSession,
+    )
+
+    expect(result.error).toBeNull()
     expect(mockAuth.updateUser).toHaveBeenCalledWith({
       password: 'NewPassword123!',
     })
+  })
+
+  it('refuses to update a different authenticated account', async () => {
+    mockAuth.getUser.mockResolvedValue({
+      data: { user: { id: 'other-user-id' } },
+      error: null,
+    })
+
+    const result = await updatePassword(
+      'NewPassword123!',
+      recoveredSession,
+    )
+
+    expect(result.error).toBeTruthy()
+    expect(mockAuth.getSession).not.toHaveBeenCalled()
+    expect(mockAuth.updateUser).not.toHaveBeenCalled()
+  })
+
+  it('refuses recovery after the browser session changes', async () => {
+    mockAuth.getUser.mockResolvedValue({
+      data: { user: { id: 'recovered-user-id' } },
+      error: null,
+    })
+    mockAuth.getSession.mockResolvedValue({
+      data: {
+        session: {
+          ...recoveredSession,
+          access_token: 'different-session-token',
+        },
+      },
+      error: null,
+    })
+
+    const result = await updatePassword(
+      'NewPassword123!',
+      recoveredSession,
+    )
+
+    expect(result.error).toBeTruthy()
+    expect(mockAuth.updateUser).not.toHaveBeenCalled()
   })
 
   it('signs out through Supabase Auth', () => {
