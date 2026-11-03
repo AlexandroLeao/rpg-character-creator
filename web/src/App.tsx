@@ -44,6 +44,22 @@ function getInitialLanguage(): Language {
   }
 }
 
+// An OTP email opens the recovery route without a credential in its URL.
+// Older emailed PKCE/token-hash links must still complete Auth verification.
+function getInitialAuthMode(): AuthMode {
+  if (window.location.pathname !== '/reset-password') {
+    return 'signIn'
+  }
+
+  const params = new URLSearchParams(window.location.search)
+  const hasLegacyRecoveryLink =
+    params.has('code') ||
+    (params.get('type') === 'recovery' && params.has('token_hash')) ||
+    window.location.hash.includes('access_token=')
+
+  return hasLegacyRecoveryLink ? 'resetPassword' : 'verifyRecoveryCode'
+}
+
 function App() {
   /*
    * SESSION AND AUTHENTICATION
@@ -74,11 +90,7 @@ function App() {
 
   const [showLoginReveal, setShowLoginReveal] = useState(false)
 
-  const [mode, setMode] = useState<AuthMode>(() =>
-    window.location.pathname === '/reset-password'
-      ? 'resetPassword'
-      : 'signIn',
-  )
+  const [mode, setMode] = useState<AuthMode>(getInitialAuthMode)
 
   /*
    * LANGUAGE

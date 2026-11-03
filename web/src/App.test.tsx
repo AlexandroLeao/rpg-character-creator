@@ -366,33 +366,34 @@ describe('Authentication interface', () => {
    * INVALID RECOVERY SESSION
    */
 
-  it('rejects a reset page without a recovery session', async () => {
-    window.history.replaceState(
-      null,
-      '',
-      '/reset-password',
-    )
+  it('opens the code form for a recovery email without a magic link', async () => {
+    window.history.replaceState(null, '', '/reset-password')
 
     render(<App />)
 
     expect(
-      await screen.findByRole('alert'),
-    ).toHaveProperty(
-      'textContent',
-      expect.stringContaining(
-        'Your recovery link could not be verified.',
-      ),
+      await screen.findByRole('heading', { name: 'Verify Recovery Code' }),
+    ).toBeTruthy()
+    expect(screen.getByLabelText('Recovery Code')).toBeTruthy()
+    expect(screen.getByLabelText('Email')).toBeTruthy()
+    expect(mocks.updatePassword).not.toHaveBeenCalled()
+  })
+
+  it('still rejects unverified legacy recovery links', async () => {
+    window.history.replaceState(
+      null,
+      '',
+      '/reset-password?code=unverified-old-link',
     )
 
-    expect(
-      screen.getByRole('button', {
-        name: 'Request a New Link',
-      }),
-    ).toBeTruthy()
+    render(<App />)
 
-    expect(
-      mocks.updatePassword,
-    ).not.toHaveBeenCalled()
+    expect(await screen.findByRole('alert')).toHaveProperty(
+      'textContent',
+      expect.stringContaining('Your recovery link could not be verified.'),
+    )
+    expect(screen.getByRole('button', { name: 'I Have a Recovery Code' })).toBeTruthy()
+    expect(mocks.updatePassword).not.toHaveBeenCalled()
   })
 
   /*

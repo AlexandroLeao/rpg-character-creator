@@ -639,6 +639,48 @@
   }
 }
 
+/* Recovery instructions should remain readable at mobile widths. */
+.auth-form #recoveryCodeHelp {
+  margin: 0 0 6px;
+  color: var(--auth-muted);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  font-weight: normal;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+/* Let long translated links wrap instead of overflowing the login card. */
+.auth-nav {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.auth-nav button {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.auth-nav button:only-child {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
+@media (max-width: 380px) {
+  .auth-nav {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Keep browser-autofilled addresses legible on the dark UI. */
+.auth-form input:-webkit-autofill,
+.auth-form input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--auth-cream);
+  -webkit-box-shadow: 0 0 0 1000px #060d09 inset;
+  caret-color: var(--auth-cream);
+}
+
 /* ==========================================
    CHARACTER CREATOR
    ========================================== */
