@@ -33,7 +33,7 @@ export const authTranslations = {
     newPassword: 'New Password',
     confirmPassword: 'Confirm Password',
     recoveryCode: 'Recovery Code',
-    recoveryCodeHelp: 'Enter the code sent by email.'
+    recoveryCodeHelp: 'Enter the code sent by email.',
 
     accountOptions: 'Account options',
     createAccount: 'Create Account',
@@ -128,7 +128,7 @@ export const authTranslations = {
     newPassword: 'Nova Senha',
     confirmPassword: 'Confirmar Senha',
     recoveryCode: 'Código de Recuperação',
-    recoveryCodeHelp: 'Digite o código recebido por e-mail.'
+    recoveryCodeHelp: 'Digite o código recebido por e-mail.',
 
     accountOptions: 'Opções da conta',
     createAccount: 'Criar Conta',
