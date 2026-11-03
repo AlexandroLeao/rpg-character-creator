@@ -7,7 +7,7 @@
 - Normal **Sign out** uses the Supabase `local` scope. It does not revoke other independent sessions.
 - Successful password recovery uses the `global` scope on purpose: other sessions of the recovered account must reauthenticate.
 - Recovery is authorized only after a server-verified recovery token or Supabase's `PASSWORD_RECOVERY` event, with user ID and session checks before `updateUser`.
-- A duplicated browser tab may initially inherit a *copy* of `sessionStorage`, depending on the browser. Sign out in the duplicate and sign in to the desired account; the original tab remains independent.
+- **Open a new blank tab and type the URL** for a truly independent login. The browser's **Duplicate Tab** action may copy `sessionStorage`, including the same session/refresh token. Signing out of such a cloned session may cause the original copy to require reauthentication; avoid Duplicate Tab when testing account isolation.
 - Existing `localStorage` sessions from older deployments are **not migrated**. A fresh sign-in may be required after this change.
 
 ## Required deployment configuration
