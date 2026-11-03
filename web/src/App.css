@@ -134,6 +134,24 @@
   gap: 12px;
 }
 
+.auth-recovery-account {
+  margin: 0;
+  color: var(--auth-muted);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  line-height: 1.8;
+}
+
+.auth-recovery-account strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--auth-cream);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  font-weight: bold;
+  overflow-wrap: anywhere;
+}
+
 .auth-form label {
   color: var(--auth-muted);
 
