@@ -17,6 +17,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
 } from '@testing-library/react'
 
 import App from './App'
@@ -278,7 +279,9 @@ describe('Authentication sessions and errors', () => {
       'NewPassword123!',
       testSession,
     )
-    expect(mocks.signOut).toHaveBeenCalledTimes(1)
+    await waitFor(() => {
+      expect(mocks.signOut).toHaveBeenCalledTimes(1)
+    })
 
     expect(
       await screen.findByText(
