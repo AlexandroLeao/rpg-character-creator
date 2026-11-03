@@ -48,6 +48,10 @@ function App() {
 
   const [session, setSession] = useState<Session | null>(null)
 
+  // A normal persisted login must not authorize password recovery.
+  const [recoverySession, setRecoverySession] =
+    useState<Session | null>(null)
+
   const [checkingSession, setCheckingSession] = useState(true)
 
   const [hasStarted, setHasStarted] = useState(
@@ -100,7 +104,15 @@ function App() {
   const copy = authTranslations[language]
 
   const isDashboard =
-    session !== null && mode !== 'resetPassword'
+    session !== null &&
+    mode !== 'resetPassword' &&
+    mode !== 'forgotPassword'
+
+  const canResetPassword =
+    recoverySession !== null &&
+    session !== null &&
+    recoverySession.user.id === session.user.id &&
+    recoverySession.access_token === session.access_token
 
   /*
    * SUPABASE SESSION
@@ -122,6 +134,30 @@ function App() {
         if (!nextSession) {
           setCreatorStep(null)
         }
+
+        setRecoverySession((verified) => {
+          if (event === 'PASSWORD_RECOVERY') {
+            return nextSession
+          }
+
+          if (!verified || !nextSession) {
+            return null
+          }
+
+          if (
+            event === 'TOKEN_REFRESHED' &&
+            nextSession.user.id === verified.user.id
+          ) {
+            return nextSession
+          }
+
+          // Switching users or sessions invalidates the recovery grant.
+          const sameSession =
+            nextSession.user.id === verified.user.id &&
+            nextSession.access_token === verified.access_token
+
+          return sameSession ? verified : null
+        })
 
         if (event === 'PASSWORD_RECOVERY') {
           setMode('resetPassword')
@@ -162,6 +198,7 @@ function App() {
   }
 
   function requestNewRecoveryLink() {
+    setRecoverySession(null)
     window.history.replaceState(null, '', '/')
     changeMode('forgotPassword')
   }
@@ -253,35 +290,51 @@ function App() {
        */
 
       if (mode === 'resetPassword') {
-        if (!session) {
+        if (!canResetPassword || !recoverySession) {
           setFeedback({
             kind: 'error',
             text: copy.invalidRecoverySession,
           })
-
           return
         }
 
-        const { error } = await updatePassword(password)
+        const { error } = await updatePassword(
+          password,
+          recoverySession,
+        )
 
         if (error) {
           setFeedback({
             kind: 'error',
             text: copy.updatePasswordFailure,
           })
-
           return
         }
 
+        // Never display a previously authenticated account after reset.
+        try {
+          const { error: signOutError } = await signOut()
+          if (signOutError) {
+            throw signOutError
+          }
+        } catch {
+          setRecoverySession(null)
+          setFeedback({
+            kind: 'error',
+            text: copy.passwordUpdatedSignOutFailure,
+          })
+          return
+        }
+
+        setRecoverySession(null)
+        setSession(null)
+        setEmail(recoverySession.user.email ?? '')
         window.history.replaceState(null, '', '/')
-
         setMode('signIn')
-
         setFeedback({
           kind: 'success',
           text: copy.updatePasswordSuccess,
         })
-
         return
       }
 
@@ -479,7 +532,7 @@ function App() {
             <p role="status">
               {copy.checkingSession}
             </p>
-          ) : mode === 'resetPassword' && !session ? (
+          ) : mode === 'resetPassword' && !canResetPassword ? (
             /*
              * INVALID PASSWORD RECOVERY SESSION
              */
@@ -534,6 +587,15 @@ function App() {
                 className="auth-form"
                 onSubmit={handleSubmit}
               >
+                {/* VERIFIED RECOVERY ACCOUNT */}
+
+                {mode === 'resetPassword' && canResetPassword && (
+                  <p className="auth-recovery-account">
+                    {copy.recoveryAccountLabel}
+                    <strong>{recoverySession?.user.email}</strong>
+                  </p>
+                )}
+
                 {/* DISPLAY NAME */}
 
                 {mode === 'signUp' && (
