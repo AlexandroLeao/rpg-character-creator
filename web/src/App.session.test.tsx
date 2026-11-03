@@ -367,17 +367,14 @@ describe('Authentication sessions and errors', () => {
     expect(window.location.search).toBe('')
   })
 
-  it('rejects a reset page opened with only a persisted login', () => {
+  it('requires a recovery code even when another login is persisted', () => {
     window.history.replaceState(null, '', '/reset-password')
     mockSessionEvent('INITIAL_SESSION', testSession)
 
     render(<App />)
 
-    expect(
-      screen.getByText(
-        'Your recovery link could not be verified. It may be invalid or expired.',
-      ),
-    ).toBeTruthy()
+    expect(screen.getByLabelText('Recovery Code')).toBeTruthy()
+    expect(screen.getByLabelText('Email')).toBeTruthy()
     expect(screen.queryByLabelText('New Password')).toBeNull()
     expect(mocks.updatePassword).not.toHaveBeenCalled()
   })
