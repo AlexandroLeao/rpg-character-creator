@@ -37,7 +37,6 @@ rectangle "Adventure Files" {
     usecase "Delete Character" as Delete
 
     usecase "Export Character Sheet" as Export
-    usecase "Export PDF A4" as ExportPDF
     usecase "Export Story/Status PNG" as ExportStory
     usecase "Export Portrait PNG" as ExportPortrait
 }
@@ -68,7 +67,6 @@ Create .> Save : <<include>>
 Edit .> Review : <<include>>
 Edit .> Save : <<include>>
 
-ExportPDF .> Export : <<extend>>
 ExportStory .> Export : <<extend>>
 ExportPortrait .> Export : <<extend>>
 
@@ -104,7 +102,6 @@ end note
 note bottom of Export
   Approved download formats:
 
-  PDF A4
   PNG Story/Status: 1080x1920
   PNG Portrait: 1080x1350
 

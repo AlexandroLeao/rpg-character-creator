@@ -1,6 +1,6 @@
 # Adventure Files — Customization Catalog
 
-- **Status:** Approved target catalog and six-step character creation flow; implementation alignment pending.
+- **Status:** Implemented on the feature branch; hosted staging and legacy-data verification pending.
 - **Language:** Code, technical documentation, and stored identifiers use English. User-facing labels and messages support Portuguese and English.
 
 ## Rules
@@ -285,42 +285,30 @@ Is replaced in the approved catalog by:
 
 ### New Motivation Field
 
-The character model must include a motivation field.
+The character model includes a `motivation` field. New characters must select exactly one of the eight approved motivation identifiers. Older records without this field remain readable through the compatibility path.
 
-The field must accept exactly one of the eight approved motivation identifiers.
+### Implementation Alignment and Remaining Verification
 
-### Required Backend and Database Alignment
+The six-stage character creator, frontend types, backend request/response contract, catalog allowlist validation, and saved-character display/editing are implemented on `feat/adventure-files-character-creator`.
 
-Before enabling character saving with the revised catalog, the following components must be aligned:
+The version-controlled SQL migration `supabase/migrations/20261031000000_extend_characters_for_six_steps.sql`, API tests, and database security tests support the revised catalog. The migration and compatibility checks have been exercised locally.
 
-1. Frontend character data types.
-2. Backend request and response types.
-3. Backend catalog allowlist validation.
-4. Database schema and applicable migrations.
-5. API validation tests.
-6. Database security and compatibility tests.
-7. Existing character data compatibility.
-8. Saved-character display and editing behavior.
+Before any hosted release, verify the actual target Supabase schema, inspect legacy character records and identifiers, apply reviewed migrations without discarding existing data, and rerun authorization/RLS and end-to-end tests in staging.
 
-Existing stored character values must not be deleted or invalidated without reviewing their compatibility and migration requirements.
-
-Legacy values may require compatibility handling or guided user reselection.
-
-New values must not be accepted only through frontend validation.
-
-The API and database changes must be verified before the completed character creator is released.
+Existing stored character values must not be silently deleted, rewritten, or invalidated. Legacy values may require compatibility handling or explicit user reselection. Server and database validation remain authoritative.
 
 ## Character Export
 
 Character export becomes available after the character has been successfully saved.
 
-The approved export formats are:
+The only approved export formats are:
 
 | Format | Dimensions | Intended use |
 |---|---|---|
-| PDF | A4 | Archiving and printing |
 | PNG Story/Status | 1080 × 1920 | Instagram Stories and WhatsApp Status |
 | PNG Portrait | 1080 × 1350 | Social posts and general sharing |
+
+PDF export was removed from scope on November 1, 2026.
 
 Each format may use a dedicated visual layout.
 
@@ -337,4 +325,4 @@ Direct publishing integrations with Instagram or WhatsApp are not required for t
 - Character randomization may select only valid catalog options.
 - New customization options must be introduced through reviewed, version-controlled changes.
 - Future catalog revisions must remain compatible with the application's persistence and validation requirements.
-- Additional export templates may be considered after the initial three formats are implemented.
+- Any additional export template requires a separate scope decision; PDF is currently excluded.

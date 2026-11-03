@@ -2,13 +2,13 @@
 
 - **Project:** Adventure Files
 - **Document type:** Entity relationship and data persistence specification
-- **Status:** Approved target model; database alignment pending
+- **Status:** Implemented on the feature branch; target Supabase deployment and legacy-data verification pending
 
 ## 1. Entity Relationship Diagram
 
 The following diagram represents the approved target data model.
 
-The `motivation` field and revised catalog constraints require a reviewed database migration before they can be considered implemented.
+The feature branch includes the `motivation` field, updated validation and a version-controlled migration (`supabase/migrations/20261031000000_extend_characters_for_six_steps.sql`). Local tests have passed; this does not confirm that a hosted Supabase project has received the migration.
 
 ```mermaid
 erDiagram
@@ -198,7 +198,7 @@ The completed data model requires this value for newly saved characters.
 
 ## 5. Safe Database Migration Strategy
 
-The current database must not be assumed to match the approved target schema.
+A version-controlled migration is present in the feature branch and has been exercised locally. The target hosted database must still be inspected and validated before applying it; its schema must not be assumed to match this model.
 
 Before introducing new constraints, the implementation must inspect:
 
@@ -370,11 +370,10 @@ For legacy records, editing must provide an appropriate path to resolve missing 
 
 ## 9. Character Export
 
-Adventure Files supports three approved character-sheet formats.
+Adventure Files supports two approved PNG character-sheet formats. PDF export is out of scope.
 
 | Format | Dimensions |
 |---|---|
-| PDF | A4 |
 | PNG Story/Status | 1080 × 1920 pixels |
 | PNG Portrait | 1080 × 1350 pixels |
 
@@ -433,24 +432,18 @@ Portuguese and English labels are presentation concerns, not database values.
 
 ## 11. Implementation Status
 
-This document describes the approved target model.
+The approved six-stage character model is implemented on the feature branch, including:
 
-The existing backend and database were developed for the previous customization catalog.
+- The Motivation field and catalog validation in the frontend and API.
+- Authenticated character creation, retrieval, editing, and deletion with one character per user.
+- A version-controlled SQL migration for the revised columns and constraints.
+- Legacy-record compatibility handling for reading and editing older character data.
+- Automated frontend/API and database security checks, including local integration testing.
+- PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350) exports from saved character data.
 
-The following work remains necessary:
+Before deployment, inspect the intended Supabase project's actual schema and records, review and apply outstanding migrations safely, and rerun RLS, negative cross-account authorization, legacy compatibility and end-to-end staging tests.
 
-1. Inspect the current deployed schema and existing records.
-2. Add Motivation to the application data model.
-3. Update frontend character types.
-4. Update API validation.
-5. Update database constraints.
-6. Address legacy catalog compatibility.
-7. Implement the complete six-stage save workflow.
-8. Update frontend and backend tests.
-9. Verify authenticated CRUD operations.
-10. Validate exports against saved character data.
-
-The new schema must not be described as implemented until the migrations and integration tests have been completed.
+Implementation in code and local tests do **not** prove that a hosted environment has been migrated or is ready for production.
 
 ## 12. Related Documents
 
