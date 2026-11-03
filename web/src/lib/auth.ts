@@ -1,6 +1,13 @@
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './supabase'
 
+// Configure this to a stable, allowed application origin in Vercel.
+// Per-deployment preview URLs must not be used in recovery emails.
+function authRedirectOrigin(): string {
+  const configured = import.meta.env.VITE_AUTH_REDIRECT_ORIGIN?.trim()
+  return configured ? new URL(configured).origin : window.location.origin
+}
+
 export function signUpWithEmail(
   displayName: string,
   email: string,
@@ -10,7 +17,7 @@ export function signUpWithEmail(
     email: email.trim(),
     password,
     options: {
-      emailRedirectTo: `${window.location.origin}/`,
+      emailRedirectTo: `${authRedirectOrigin()}/`,
       data: {
         display_name: displayName.trim(),
       },
@@ -32,9 +39,18 @@ export function sendPasswordReset(email: string) {
   return supabase.auth.resetPasswordForEmail(
     email.trim(),
     {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${authRedirectOrigin()}/reset-password`,
     },
   )
+}
+
+// A custom recovery email can link directly to /reset-password with a
+// token_hash. Supabase verifies the single-use proof on the Auth server.
+export function verifyPasswordRecoveryToken(tokenHash: string) {
+  return supabase.auth.verifyOtp({
+    token_hash: tokenHash,
+    type: 'recovery',
+  })
 }
 
 export async function updatePassword(
@@ -66,6 +82,6 @@ export async function updatePassword(
   return supabase.auth.updateUser({ password })
 }
 
-export function signOut() {
-  return supabase.auth.signOut()
+export function signOut(scope: 'local' | 'global' = 'local') {
+  return supabase.auth.signOut({ scope })
 }

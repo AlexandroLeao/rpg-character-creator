@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import type { Session } from '@supabase/supabase-js'
 
 import { supabase } from './lib/supabase'
@@ -9,6 +9,7 @@ import {
   signOut,
   signUpWithEmail,
   updatePassword,
+  verifyPasswordRecoveryToken,
 } from './lib/auth'
 
 import {
@@ -53,6 +54,17 @@ function App() {
     useState<Session | null>(null)
 
   const [checkingSession, setCheckingSession] = useState(true)
+  const [verifyingRecoveryLink, setVerifyingRecoveryLink] = useState(
+    () =>
+      window.location.pathname === '/reset-password' &&
+      new URLSearchParams(window.location.search).get('type') ===
+        'recovery' &&
+      Boolean(new URLSearchParams(window.location.search).get('token_hash')),
+  )
+  const recoveryTokenHashRef = useRef<string | null>(null)
+  const recoveryVerificationRef = useRef<
+    ReturnType<typeof verifyPasswordRecoveryToken> | null
+  >(null)
 
   const [hasStarted, setHasStarted] = useState(
     () => window.location.pathname === '/reset-password',
@@ -119,6 +131,8 @@ function App() {
    */
 
   useEffect(() => {
+    let active = true
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
@@ -166,7 +180,62 @@ function App() {
       },
     )
 
-    return () => subscription.unsubscribe()
+    // The customized email template links directly to the application.
+    // Verify its single-use token on Supabase before enabling a reset.
+    const params = new URLSearchParams(window.location.search)
+    if (
+      window.location.pathname === '/reset-password' &&
+      params.get('type') === 'recovery' &&
+      params.get('token_hash')
+    ) {
+      recoveryTokenHashRef.current = params.get('token_hash')
+
+      // Never keep a recovery token in the address bar or browser history.
+      params.delete('token_hash')
+      params.delete('type')
+      const remaining = params.toString()
+      window.history.replaceState(
+        null,
+        '',
+        `/reset-password${remaining ? `?${remaining}` : ''}`,
+      )
+    }
+
+    if (recoveryTokenHashRef.current) {
+      // React StrictMode can run this effect twice in development.
+      // Reuse the request: an OTP must only be verified once.
+      if (!recoveryVerificationRef.current) {
+        recoveryVerificationRef.current =
+          verifyPasswordRecoveryToken(recoveryTokenHashRef.current)
+      }
+
+      void recoveryVerificationRef.current
+        .then(({ data, error }) => {
+          if (!active) return
+
+          if (!error && data.session) {
+            setSession(data.session)
+            setRecoverySession(data.session)
+            setMode('resetPassword')
+          } else {
+            setRecoverySession(null)
+          }
+
+          setCheckingSession(false)
+          setVerifyingRecoveryLink(false)
+        })
+        .catch(() => {
+          if (!active) return
+          setRecoverySession(null)
+          setCheckingSession(false)
+          setVerifyingRecoveryLink(false)
+        })
+    }
+
+    return () => {
+      active = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   /*
@@ -313,7 +382,7 @@ function App() {
 
         // Never display a previously authenticated account after reset.
         try {
-          const { error: signOutError } = await signOut()
+          const { error: signOutError } = await signOut('global')
           if (signOutError) {
             throw signOutError
           }
@@ -524,7 +593,7 @@ function App() {
         {/* WINDOW CONTENT */}
 
         <div className="auth-content">
-          {checkingSession ? (
+          {checkingSession || verifyingRecoveryLink ? (
             /*
              * CHECKING SESSION
              */

@@ -10,6 +10,7 @@ const mockAuth = vi.hoisted(() => ({
   updateUser: vi.fn(),
   getUser: vi.fn(),
   getSession: vi.fn(),
+  verifyOtp: vi.fn(),
   signOut: vi.fn(),
 }))
 
@@ -24,6 +25,7 @@ import {
   signInWithEmail,
   sendPasswordReset,
   updatePassword,
+  verifyPasswordRecoveryToken,
   signOut,
 } from './auth'
 
@@ -72,6 +74,15 @@ describe('Supabase authentication helpers', () => {
         redirectTo: `${window.location.origin}/reset-password`,
       },
     )
+  })
+
+  it('verifies the recovery token hash on the Auth server', () => {
+    verifyPasswordRecoveryToken('one-time-recovery-hash')
+
+    expect(mockAuth.verifyOtp).toHaveBeenCalledWith({
+      token_hash: 'one-time-recovery-hash',
+      type: 'recovery',
+    })
   })
 
   const recoveredSession = {
@@ -141,9 +152,19 @@ describe('Supabase authentication helpers', () => {
     expect(mockAuth.updateUser).not.toHaveBeenCalled()
   })
 
-  it('signs out through Supabase Auth', () => {
+  it('signs out only the current tab by default', () => {
     signOut()
 
-    expect(mockAuth.signOut).toHaveBeenCalledTimes(1)
+    expect(mockAuth.signOut).toHaveBeenCalledWith({
+      scope: 'local',
+    })
+  })
+
+  it('can revoke all account sessions after password recovery', () => {
+    signOut('global')
+
+    expect(mockAuth.signOut).toHaveBeenCalledWith({
+      scope: 'global',
+    })
   })
 })

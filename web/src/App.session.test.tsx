@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import type { Session } from '@supabase/supabase-js'
+import { StrictMode } from 'react'
 
 import {
   afterEach,
@@ -28,6 +29,7 @@ const mocks = vi.hoisted(() => ({
   signInWithEmail: vi.fn(),
   sendPasswordReset: vi.fn(),
   updatePassword: vi.fn(),
+  verifyPasswordRecoveryToken: vi.fn(),
   signOut: vi.fn(),
   dashboardRender: vi.fn(),
 }))
@@ -45,6 +47,7 @@ vi.mock('./lib/auth', () => ({
   signInWithEmail: mocks.signInWithEmail,
   sendPasswordReset: mocks.sendPasswordReset,
   updatePassword: mocks.updatePassword,
+  verifyPasswordRecoveryToken: mocks.verifyPasswordRecoveryToken,
   signOut: mocks.signOut,
 }))
 
@@ -280,7 +283,7 @@ describe('Authentication sessions and errors', () => {
       testSession,
     )
     await waitFor(() => {
-      expect(mocks.signOut).toHaveBeenCalledTimes(1)
+      expect(mocks.signOut).toHaveBeenCalledWith('global')
     })
 
     expect(
@@ -292,6 +295,76 @@ describe('Authentication sessions and errors', () => {
     expect(
       screen.getByRole('button', { name: 'Sign In' }),
     ).toBeTruthy()
+  })
+
+  it('verifies a direct recovery token even with another account previously signed in', async () => {
+    window.history.replaceState(
+      null,
+      '',
+      '/reset-password?token_hash=valid-hash&type=recovery',
+    )
+    const otherSession = {
+      ...testSession,
+      access_token: 'other-access-token',
+      user: { ...testSession.user, id: 'other-user', email: 'other@example.com' },
+    } as Session
+    mockSessionEvent('INITIAL_SESSION', otherSession)
+    mocks.verifyPasswordRecoveryToken.mockResolvedValue({
+      data: { session: testSession },
+      error: null,
+    })
+
+    render(<App />)
+
+    expect(await screen.findByLabelText('New Password')).toBeTruthy()
+    expect(screen.getByText('recovered@example.com')).toBeTruthy()
+    expect(mocks.verifyPasswordRecoveryToken).toHaveBeenCalledWith('valid-hash')
+    expect(window.location.search).toBe('')
+    expect(screen.queryByText('Meu personagem')).toBeNull()
+  })
+
+  it('uses a recovery token only once even under React StrictMode', async () => {
+    window.history.replaceState(
+      null,
+      '',
+      '/reset-password?token_hash=one-use-hash&type=recovery',
+    )
+    mocks.verifyPasswordRecoveryToken.mockResolvedValue({
+      data: { session: testSession },
+      error: null,
+    })
+
+    render(
+      <StrictMode>
+        <App />
+      </StrictMode>,
+    )
+
+    expect(await screen.findByLabelText('New Password')).toBeTruthy()
+    expect(mocks.verifyPasswordRecoveryToken).toHaveBeenCalledTimes(1)
+  })
+
+  it('rejects an expired or consumed direct recovery token', async () => {
+    window.history.replaceState(
+      null,
+      '',
+      '/reset-password?token_hash=expired-hash&type=recovery',
+    )
+    mockSessionEvent('INITIAL_SESSION', testSession)
+    mocks.verifyPasswordRecoveryToken.mockResolvedValue({
+      data: { session: null },
+      error: new Error('OTP expired'),
+    })
+
+    render(<App />)
+
+    expect(
+      await screen.findByText(
+        'Your recovery link could not be verified. It may be invalid or expired.',
+      ),
+    ).toBeTruthy()
+    expect(screen.queryByLabelText('New Password')).toBeNull()
+    expect(window.location.search).toBe('')
   })
 
   it('rejects a reset page opened with only a persisted login', () => {
