@@ -682,7 +682,7 @@
 
 .auth-window--recovery .auth-form input {
   font-family: 'Press Start 2P', monospace;
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1.8;
   letter-spacing: 0;
 }
@@ -691,7 +691,7 @@
   margin: 0 0 2px;
   color: var(--auth-muted);
   font-family: 'Press Start 2P', monospace;
-  font-size: 8px;
+  font-size: 10px;
   line-height: 1.8;
   letter-spacing: 0;
   overflow-wrap: anywhere;
@@ -709,7 +709,7 @@
   min-height: 36px;
   padding: 8px 3px;
   font-family: 'Press Start 2P', monospace;
-  font-size: 8px;
+  font-size: 10px;
   line-height: 1.65;
   letter-spacing: 0;
   overflow-wrap: normal;
@@ -720,7 +720,7 @@
   margin: 18px 0 0;
   padding: 12px 14px;
   font-family: 'Press Start 2P', monospace;
-  font-size: 8px;
+  font-size: 10px;
   font-weight: normal;
   line-height: 1.85;
   letter-spacing: 0;
@@ -735,7 +735,6 @@
 
   .auth-window--recovery .auth-nav button {
     padding: 8px 0;
-    font-size: 7px;
   }
 }
 
