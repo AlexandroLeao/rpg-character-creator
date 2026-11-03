@@ -601,6 +601,9 @@ function App() {
   const windowClassName = [
     'auth-window',
     isDashboard ? 'auth-window--dashboard' : '',
+    mode === 'forgotPassword' || mode === 'verifyRecoveryCode'
+      ? 'auth-window--recovery'
+      : '',
   ]
     .filter(Boolean)
     .join(' ')
@@ -917,7 +920,11 @@ function App() {
                         changeMode('signIn')
                       }
                     >
-                      {copy.backToSignIn}
+                      {mode === 'forgotPassword'
+                        ? copy.backFromRecovery
+                        : mode === 'verifyRecoveryCode'
+                          ? copy.backFromCode
+                          : copy.backToSignIn}
                     </button>
                   )}
 
@@ -933,7 +940,7 @@ function App() {
                       }
                     >
                       {mode === 'forgotPassword'
-                        ? copy.haveRecoveryCode
+                        ? copy.checkRecoveryCode
                         : copy.requestNewCode}
                     </button>
                   )}

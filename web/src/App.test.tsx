@@ -220,6 +220,29 @@ describe('Authentication interface', () => {
    * PASSWORD RECOVERY
    */
 
+  it('uses compact Portuguese recovery labels without changing other screens', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Português' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Esqueceu a Senha?' }))
+
+    expect(screen.getByRole('button', { name: 'Voltar' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Conferir Código' })).toBeTruthy()
+    expect(document.querySelector('.auth-window--recovery')).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Conferir Código' }))
+    expect(screen.getByRole('button', { name: 'Início' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Novo Código' })).toBeTruthy()
+    expect(screen.getByText('Digite o código recebido por e-mail.')).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Novo Código' }))
+    expect(screen.getByRole('button', { name: 'Voltar' })).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Voltar' }))
+    expect(screen.getByRole('heading', { name: 'Entrar' })).toBeTruthy()
+    expect(document.querySelector('.auth-window--recovery')).toBeNull()
+  })
+
   it('shows a neutral password recovery message', async () => {
     mocks.sendPasswordReset.mockResolvedValue({
       error: null,
@@ -256,7 +279,7 @@ describe('Authentication interface', () => {
 
     expect(
       await screen.findByText(
-        /If an account exists for this email/i,
+        /If registered, check your email/i,
       ),
     ).toBeTruthy()
 

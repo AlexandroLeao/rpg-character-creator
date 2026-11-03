@@ -33,12 +33,14 @@ export const authTranslations = {
     newPassword: 'New Password',
     confirmPassword: 'Confirm Password',
     recoveryCode: 'Recovery Code',
-    recoveryCodeHelp: 'Enter the one-time code sent to this email address.',
+    recoveryCodeHelp: 'Enter the code sent by email.'
 
     accountOptions: 'Account options',
     createAccount: 'Create Account',
     forgotPassword: 'Forgot Password?',
     backToSignIn: 'Back to Sign In',
+    backFromRecovery: 'Back',
+    backFromCode: 'Home',
 
     signOut: 'Sign Out',
     signingOut: 'Signing out...',
@@ -47,7 +49,8 @@ export const authTranslations = {
 
     requestNewLink: 'Request a New Link',
     haveRecoveryCode: 'I Have a Recovery Code',
-    requestNewCode: 'Request a New Code',
+    checkRecoveryCode: 'Check Code',
+    requestNewCode: 'New Code',
     recoveryAccountLabel: 'Changing the password for:',
 
     recoveryLinkInvalid:
@@ -63,14 +66,14 @@ export const authTranslations = {
       'Passwords do not match.',
 
     recoveryRequestFailure:
-      'Unable to process your request. Please try again later.',
+      'Unable to send email. Try again later.',
     recoveryRateLimited:
-      'Too many recovery attempts or emails have been sent. Please wait before trying again.',
+      'Too many recovery attempts. Wait and try again.',
     recoveryCodeInvalid:
-      'The recovery code is invalid or expired. Check the email and try again, or request a new code.',
+      'Code invalid or expired. Request a new one.',
 
     recoveryRequestSuccess:
-      'If an account exists for this email, a recovery message will be sent shortly.',
+      'If registered, check your email.',
 
     invalidRecoverySession:
       'Your recovery session is invalid or expired. Please request a new link.',
@@ -125,12 +128,14 @@ export const authTranslations = {
     newPassword: 'Nova Senha',
     confirmPassword: 'Confirmar Senha',
     recoveryCode: 'Código de Recuperação',
-    recoveryCodeHelp: 'Digite o código temporário enviado para este email.',
+    recoveryCodeHelp: 'Digite o código recebido por e-mail.'
 
     accountOptions: 'Opções da conta',
     createAccount: 'Criar Conta',
     forgotPassword: 'Esqueceu a Senha?',
     backToSignIn: 'Voltar para Entrar',
+    backFromRecovery: 'Voltar',
+    backFromCode: 'Início',
 
     signOut: 'Sair',
     signingOut: 'Saindo...',
@@ -139,7 +144,8 @@ export const authTranslations = {
 
     requestNewLink: 'Solicitar Novo Link',
     haveRecoveryCode: 'Já Tenho um Código',
-    requestNewCode: 'Solicitar Novo Código',
+    checkRecoveryCode: 'Conferir Código',
+    requestNewCode: 'Novo Código',
     recoveryAccountLabel: 'Alterando a senha da conta:',
 
     recoveryLinkInvalid:
@@ -155,14 +161,14 @@ export const authTranslations = {
       'As senhas não coincidem.',
 
     recoveryRequestFailure:
-      'Não foi possível processar sua solicitação. Tente novamente mais tarde.',
+      'Não foi possível enviar. Tente mais tarde.',
     recoveryRateLimited:
-      'Muitas solicitações de recuperação foram realizadas. Aguarde antes de tentar novamente.',
+      'Muitas tentativas. Aguarde e tente novamente.',
     recoveryCodeInvalid:
-      'O código é inválido ou expirou. Confira o email ou solicite um novo código.',
+      'Código inválido ou expirado. Peça outro.',
 
     recoveryRequestSuccess:
-      'Se existir uma conta com este email, enviaremos uma mensagem de recuperação em breve.',
+      'Se houver conta, confira seu e-mail.',
 
     invalidRecoverySession:
       'Sua sessão de recuperação é inválida ou expirou. Solicite um novo link.',
