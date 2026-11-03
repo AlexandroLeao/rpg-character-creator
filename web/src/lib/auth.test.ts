@@ -26,6 +26,8 @@ import {
   sendPasswordReset,
   updatePassword,
   verifyPasswordRecoveryToken,
+  verifyPasswordRecoveryCode,
+  isRecoveryRateLimited,
   signOut,
 } from './auth'
 
@@ -83,6 +85,27 @@ describe('Supabase authentication helpers', () => {
       token_hash: 'one-time-recovery-hash',
       type: 'recovery',
     })
+  })
+
+  it('verifies a one-time recovery code for the requested email', () => {
+    verifyPasswordRecoveryCode(
+      '  adventurer@example.com  ',
+      ' 123456 ',
+    )
+
+    expect(mockAuth.verifyOtp).toHaveBeenCalledWith({
+      email: 'adventurer@example.com',
+      token: '123456',
+      type: 'recovery',
+    })
+  })
+
+  it('distinguishes Auth rate limits without exposing account details', () => {
+    expect(isRecoveryRateLimited({ status: 429 })).toBe(true)
+    expect(isRecoveryRateLimited({ code: 'over_email_send_rate_limit' })).toBe(true)
+    expect(isRecoveryRateLimited({ code: 'over_request_rate_limit' })).toBe(true)
+    expect(isRecoveryRateLimited({ status: 400 })).toBe(false)
+    expect(isRecoveryRateLimited(null)).toBe(false)
   })
 
   const recoveredSession = {

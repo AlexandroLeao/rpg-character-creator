@@ -4,11 +4,13 @@ import type { Session } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 
 import {
+  isRecoveryRateLimited,
   sendPasswordReset,
   signInWithEmail,
   signOut,
   signUpWithEmail,
   updatePassword,
+  verifyPasswordRecoveryCode,
   verifyPasswordRecoveryToken,
 } from './lib/auth'
 
@@ -94,6 +96,7 @@ function App() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [recoveryCode, setRecoveryCode] = useState('')
 
   const [working, setWorking] = useState(false)
   const [feedback, setFeedback] = useState<Feedback>(null)
@@ -118,7 +121,8 @@ function App() {
   const isDashboard =
     session !== null &&
     mode !== 'resetPassword' &&
-    mode !== 'forgotPassword'
+    mode !== 'forgotPassword' &&
+    mode !== 'verifyRecoveryCode'
 
   const canResetPassword =
     recoverySession !== null &&
@@ -263,6 +267,7 @@ function App() {
     setMode(nextMode)
     setPassword('')
     setConfirmPassword('')
+    setRecoveryCode('')
     setFeedback(null)
   }
 
@@ -339,11 +344,18 @@ function App() {
       if (mode === 'forgotPassword') {
         const { error } = await sendPasswordReset(email)
 
+        if (!error) {
+          // Support both custom OTP emails and legacy recovery links.
+          setMode('verifyRecoveryCode')
+        }
+
         setFeedback(
           error
             ? {
                 kind: 'error',
-                text: copy.recoveryRequestFailure,
+                text: isRecoveryRateLimited(error)
+                  ? copy.recoveryRateLimited
+                  : copy.recoveryRequestFailure,
               }
             : {
                 kind: 'success',
@@ -351,6 +363,55 @@ function App() {
               },
         )
 
+        return
+      }
+
+      /*
+       * VERIFY EMAIL + ONE-TIME RECOVERY CODE
+       */
+
+      if (mode === 'verifyRecoveryCode') {
+        const { data, error } = await verifyPasswordRecoveryCode(
+          email,
+          recoveryCode,
+        )
+
+        const verifiedSession = data?.session
+        const expectedEmail = email.trim().toLowerCase()
+        const identityMatches =
+          verifiedSession &&
+          data.user?.id === verifiedSession.user.id &&
+          data.user?.email?.toLowerCase() === expectedEmail &&
+          verifiedSession.user.email?.toLowerCase() === expectedEmail
+
+        if (error || !verifiedSession || !identityMatches) {
+          if (!error && verifiedSession) {
+            // Never authorize a mismatched account, even if Auth
+            // unexpectedly issued a session during verification.
+            try {
+              await signOut('local')
+            } catch {
+              // Refuse recovery even if revocation temporarily fails.
+            }
+            setSession(null)
+            setRecoverySession(null)
+          }
+
+          setFeedback({
+            kind: 'error',
+            text: error && isRecoveryRateLimited(error)
+              ? copy.recoveryRateLimited
+              : copy.recoveryCodeInvalid,
+          })
+          return
+        }
+
+        // Keep this verified grant bound to the exact Auth session.
+        setSession(verifiedSession)
+        setRecoverySession(verifiedSession)
+        setMode('resetPassword')
+        setFeedback(null)
+        window.history.replaceState(null, '', '/reset-password')
         return
       }
 
@@ -452,14 +513,17 @@ function App() {
           text: copy.signInFailure,
         })
       }
-    } catch {
+    } catch (error) {
       setFeedback({
         kind: 'error',
-        text: copy.unexpectedError,
+        text: isRecoveryRateLimited(error)
+          ? copy.recoveryRateLimited
+          : copy.unexpectedError,
       })
     } finally {
       setPassword('')
       setConfirmPassword('')
+      setRecoveryCode('')
       setWorking(false)
     }
   }
@@ -617,6 +681,13 @@ function App() {
               >
                 {copy.requestNewLink}
               </button>
+
+              <button
+                type="button"
+                onClick={() => changeMode('verifyRecoveryCode')}
+              >
+                {copy.haveRecoveryCode}
+              </button>
             </div>
           ) : isDashboard && session ? (
             /*
@@ -708,9 +779,35 @@ function App() {
                   </>
                 )}
 
+                {/* ONE-TIME RECOVERY CODE */}
+
+                {mode === 'verifyRecoveryCode' && (
+                  <>
+                    <label htmlFor="recoveryCode">
+                      {copy.recoveryCode}
+                    </label>
+                    <input
+                      id="recoveryCode"
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="one-time-code"
+                      required
+                      value={recoveryCode}
+                      onChange={(event) =>
+                        setRecoveryCode(event.target.value)
+                      }
+                      aria-describedby="recoveryCodeHelp"
+                    />
+                    <p id="recoveryCodeHelp">
+                      {copy.recoveryCodeHelp}
+                    </p>
+                  </>
+                )}
+
                 {/* PASSWORD */}
 
-                {mode !== 'forgotPassword' && (
+                {mode !== 'forgotPassword' &&
+                  mode !== 'verifyRecoveryCode' && (
                   <>
                     <label htmlFor="password">
                       {mode === 'resetPassword'
@@ -809,6 +906,23 @@ function App() {
                       }
                     >
                       {copy.backToSignIn}
+                    </button>
+                  )}
+
+                  {(mode === 'forgotPassword' ||
+                    mode === 'verifyRecoveryCode') && (
+                    <button
+                      type="button"
+                      disabled={working}
+                      onClick={() =>
+                        mode === 'forgotPassword'
+                          ? changeMode('verifyRecoveryCode')
+                          : changeMode('forgotPassword')
+                      }
+                    >
+                      {mode === 'forgotPassword'
+                        ? copy.haveRecoveryCode
+                        : copy.requestNewCode}
                     </button>
                   )}
                 </nav>

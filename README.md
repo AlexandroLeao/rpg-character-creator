@@ -364,6 +364,60 @@ The configured application URL and its password recovery route must be included 
 
 Google Cloud Shell preview URLs may change between environments.
 
+### Staging Recovery Email: One-Time Code
+
+Supabase's built-in SMTP is a development-only sender with a shared limit of
+**two emails per hour**. Configure custom SMTP under **Authentication → SMTP
+Settings** before testing recovery at scale. A dedicated Gmail SMTP account is
+acceptable for small staging tests but is **not a reliable production email
+service**. Do not commit SMTP credentials or reuse a personal Gmail password.
+When using Gmail SMTP, store a Google **app password** only in Supabase:
+
+- Sender email / SMTP user: the same dedicated Gmail account.
+- Sender name: `Adventure Files`.
+- Host: `smtp.gmail.com`.
+- Port: `465` (TLS).
+- Password: Google app password (requires Google 2-Step Verification).
+
+**After custom SMTP is enabled**, in **Authentication → Emails → Reset password**
+set a custom template that sends an OTP instead of an auto-verifying link.
+This prevents email security scanners from consuming a single-use recovery URL
+before the user opens it. Suggested subject:
+
+```text
+Adventure Files — Your recovery code / Código de recuperação
+```
+
+Suggested HTML body (the Go-template variables are processed by Supabase):
+
+```html
+<h2>Adventure Files — Recuperação de senha / Password recovery</h2>
+<p>Seu código temporário / Your one-time recovery code:</p>
+<p><strong>{{ .Token }}</strong></p>
+<p><a href="{{ .RedirectTo }}">Abrir recuperação / Open recovery page</a></p>
+<p>Digite seu e-mail e o código para definir uma nova senha.</p>
+<p>Enter your email address and this code to set a new password.</p>
+<p>Se você não solicitou isso, ignore esta mensagem.</p>
+<p>If you did not request this, ignore this message.</p>
+```
+
+**Do not include** `{{ .ConfirmationURL }}` in this recovery template: clicking
+that link would verify and consume the token automatically. The app verifies
+`email + code` directly with Supabase Auth using `verifyOtp` with
+`type: 'recovery'`, then shows the password form only for the verified
+account. Legacy emailed links continue to work while this configuration
+is being rolled out.
+
+Keep `VITE_AUTH_REDIRECT_ORIGIN` pointed to a **stable** Vercel environment
+alias rather than a per-deployment URL, and allow its `/reset-password`
+route in **Authentication → URL Configuration**. Never place SMTP secrets in
+`VITE_*` variables; Vite exposes them in browser bundles.
+
+Test with two separate accounts, using the newest email/code, verifying that
+wrong, expired and previously used codes fail. Verify that updating the
+password of account A never changes account B or any characters belonging
+to B, and that sign-out affects the intended session scope.
+
 ### Production Email Delivery
 
 Before enabling public registration, configure a production-ready email provider.

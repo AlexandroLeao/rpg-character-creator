@@ -53,6 +53,29 @@ export function verifyPasswordRecoveryToken(tokenHash: string) {
   })
 }
 
+// Email + one-time code is less vulnerable to mail scanners consuming
+// single-use links before the user opens them.
+export function verifyPasswordRecoveryCode(email: string, code: string) {
+  return supabase.auth.verifyOtp({
+    email: email.trim(),
+    token: code.trim(),
+    type: 'recovery',
+  })
+}
+
+// Keep response codes private while providing useful, non-enumerating
+// feedback when the Auth service refuses too many recovery attempts.
+export function isRecoveryRateLimited(error: unknown): boolean {
+  if (!error || typeof error !== 'object') return false
+
+  const authError = error as { status?: unknown; code?: unknown }
+  return (
+    authError.status === 429 ||
+    authError.code === 'over_email_send_rate_limit' ||
+    authError.code === 'over_request_rate_limit'
+  )
+}
+
 export async function updatePassword(
   password: string,
   recoverySession: Session,

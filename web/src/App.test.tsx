@@ -23,6 +23,8 @@ const mocks = vi.hoisted(() => ({
   signUpWithEmail: vi.fn(),
   signInWithEmail: vi.fn(),
   sendPasswordReset: vi.fn(),
+  verifyPasswordRecoveryCode: vi.fn(),
+  isRecoveryRateLimited: vi.fn(),
   updatePassword: vi.fn(),
   signOut: vi.fn(),
 }))
@@ -39,6 +41,8 @@ vi.mock('./lib/auth', () => ({
   signUpWithEmail: mocks.signUpWithEmail,
   signInWithEmail: mocks.signInWithEmail,
   sendPasswordReset: mocks.sendPasswordReset,
+  verifyPasswordRecoveryCode: mocks.verifyPasswordRecoveryCode,
+  isRecoveryRateLimited: mocks.isRecoveryRateLimited,
   updatePassword: mocks.updatePassword,
   signOut: mocks.signOut,
 }))
@@ -46,6 +50,10 @@ vi.mock('./lib/auth', () => ({
 describe('Authentication interface', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+
+    mocks.isRecoveryRateLimited.mockImplementation(
+      (error: { status?: number }) => error?.status === 429,
+    )
 
     window.localStorage.removeItem(
       'adventure-files-language',
@@ -257,6 +265,101 @@ describe('Authentication interface', () => {
     ).toHaveBeenCalledWith(
       'adventurer@example.com',
     )
+
+    expect(
+      screen.getByRole('heading', {
+        name: 'Verify Recovery Code',
+      }),
+    ).toBeTruthy()
+  })
+
+  it('shows a meaningful rate-limit error without revealing account existence', async () => {
+    mocks.sendPasswordReset.mockResolvedValue({
+      error: { status: 429, code: 'over_email_send_rate_limit' },
+    })
+
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Forgot Password?' }))
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: 'adventurer@example.com' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Send Recovery Email' }))
+
+    expect(await screen.findByRole('alert')).toHaveProperty(
+      'textContent',
+      expect.stringContaining('Too many recovery attempts'),
+    )
+    expect(screen.getByRole('heading', { name: 'Recover Password' })).toBeTruthy()
+  })
+
+  it('requires a valid email and one-time code before enabling a password reset', async () => {
+    const verifiedSession = {
+      access_token: 'verified-access-token',
+      user: { id: 'account-a', email: 'adventurer@example.com' },
+    }
+    mocks.sendPasswordReset.mockResolvedValue({ error: null })
+    mocks.verifyPasswordRecoveryCode.mockResolvedValue({
+      data: { session: verifiedSession, user: verifiedSession.user },
+      error: null,
+    })
+
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Forgot Password?' }))
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: 'adventurer@example.com' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Send Recovery Email' }))
+    expect(await screen.findByLabelText('Recovery Code')).toBeTruthy()
+
+    fireEvent.change(screen.getByLabelText('Recovery Code'), {
+      target: { value: '123456' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Verify Code' }))
+
+    expect(await screen.findByRole('heading', { name: 'Reset Password' })).toBeTruthy()
+    expect(mocks.verifyPasswordRecoveryCode).toHaveBeenCalledWith(
+      'adventurer@example.com',
+      '123456',
+    )
+    expect(screen.getByText('adventurer@example.com')).toBeTruthy()
+    expect(screen.getByLabelText('New Password')).toBeTruthy()
+    expect(mocks.updatePassword).not.toHaveBeenCalled()
+  })
+
+  it('rejects a recovery code that resolves to another account', async () => {
+    const otherSession = {
+      access_token: 'other-access-token',
+      user: { id: 'account-b', email: 'other@example.com' },
+    }
+    mocks.sendPasswordReset.mockResolvedValue({ error: null })
+    mocks.verifyPasswordRecoveryCode.mockResolvedValue({
+      data: { session: otherSession, user: otherSession.user },
+      error: null,
+    })
+    mocks.signOut.mockResolvedValue({ error: null })
+
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Forgot Password?' }))
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: 'adventurer@example.com' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Send Recovery Email' }))
+    expect(await screen.findByLabelText('Recovery Code')).toBeTruthy()
+
+    fireEvent.change(screen.getByLabelText('Recovery Code'), {
+      target: { value: '123456' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Verify Code' }))
+
+    expect(await screen.findByRole('alert')).toHaveProperty(
+      'textContent',
+      expect.stringContaining('invalid or expired'),
+    )
+    expect(mocks.signOut).toHaveBeenCalledWith('local')
+    expect(mocks.updatePassword).not.toHaveBeenCalled()
   })
 
   /*

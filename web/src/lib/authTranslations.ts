@@ -2,6 +2,7 @@ export type AuthMode =
   | 'signIn'
   | 'signUp'
   | 'forgotPassword'
+  | 'verifyRecoveryCode'
   | 'resetPassword'
 
 export type Language = 'en' | 'pt'
@@ -12,6 +13,7 @@ export const authTranslations = {
       signIn: 'Sign In',
       signUp: 'Create Account',
       forgotPassword: 'Recover Password',
+      verifyRecoveryCode: 'Verify Recovery Code',
       resetPassword: 'Reset Password',
     },
 
@@ -19,6 +21,7 @@ export const authTranslations = {
       signIn: 'Sign In',
       signUp: 'Create Account',
       forgotPassword: 'Send Recovery Email',
+      verifyRecoveryCode: 'Verify Code',
       resetPassword: 'Update Password',
     },
 
@@ -29,6 +32,8 @@ export const authTranslations = {
     password: 'Password',
     newPassword: 'New Password',
     confirmPassword: 'Confirm Password',
+    recoveryCode: 'Recovery Code',
+    recoveryCodeHelp: 'Enter the one-time code sent to this email address.',
 
     accountOptions: 'Account options',
     createAccount: 'Create Account',
@@ -41,6 +46,8 @@ export const authTranslations = {
     checkingSession: 'Checking your session...',
 
     requestNewLink: 'Request a New Link',
+    haveRecoveryCode: 'I Have a Recovery Code',
+    requestNewCode: 'Request a New Code',
     recoveryAccountLabel: 'Changing the password for:',
 
     recoveryLinkInvalid:
@@ -57,6 +64,10 @@ export const authTranslations = {
 
     recoveryRequestFailure:
       'Unable to process your request. Please try again later.',
+    recoveryRateLimited:
+      'Too many recovery attempts or emails have been sent. Please wait before trying again.',
+    recoveryCodeInvalid:
+      'The recovery code is invalid or expired. Check the email and try again, or request a new code.',
 
     recoveryRequestSuccess:
       'If an account exists for this email, a recovery message will be sent shortly.',
@@ -94,6 +105,7 @@ export const authTranslations = {
       signIn: 'Entrar',
       signUp: 'Criar Conta',
       forgotPassword: 'Recuperar Senha',
+      verifyRecoveryCode: 'Validar Código',
       resetPassword: 'Nova Senha',
     },
 
@@ -101,6 +113,7 @@ export const authTranslations = {
       signIn: 'Entrar',
       signUp: 'Criar Conta',
       forgotPassword: 'Enviar Email',
+      verifyRecoveryCode: 'Validar Código',
       resetPassword: 'Atualizar Senha',
     },
 
@@ -111,6 +124,8 @@ export const authTranslations = {
     password: 'Senha',
     newPassword: 'Nova Senha',
     confirmPassword: 'Confirmar Senha',
+    recoveryCode: 'Código de Recuperação',
+    recoveryCodeHelp: 'Digite o código temporário enviado para este email.',
 
     accountOptions: 'Opções da conta',
     createAccount: 'Criar Conta',
@@ -123,6 +138,8 @@ export const authTranslations = {
     checkingSession: 'Verificando sua sessão...',
 
     requestNewLink: 'Solicitar Novo Link',
+    haveRecoveryCode: 'Já Tenho um Código',
+    requestNewCode: 'Solicitar Novo Código',
     recoveryAccountLabel: 'Alterando a senha da conta:',
 
     recoveryLinkInvalid:
@@ -139,6 +156,10 @@ export const authTranslations = {
 
     recoveryRequestFailure:
       'Não foi possível processar sua solicitação. Tente novamente mais tarde.',
+    recoveryRateLimited:
+      'Muitas solicitações de recuperação foram realizadas. Aguarde antes de tentar novamente.',
+    recoveryCodeInvalid:
+      'O código é inválido ou expirou. Confira o email ou solicite um novo código.',
 
     recoveryRequestSuccess:
       'Se existir uma conta com este email, enviaremos uma mensagem de recuperação em breve.',
