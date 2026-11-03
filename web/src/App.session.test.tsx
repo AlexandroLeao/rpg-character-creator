@@ -12,6 +12,7 @@ import {
 } from 'vitest'
 
 import {
+  act,
   cleanup,
   fireEvent,
   render,
@@ -68,6 +69,7 @@ const testSession = {
 
   user: {
     id: 'test-user',
+    email: 'recovered@example.com',
     aud: 'authenticated',
     app_metadata: {},
     user_metadata: {},
@@ -242,6 +244,7 @@ describe('Authentication sessions and errors', () => {
     mocks.updatePassword.mockResolvedValue({
       error: null,
     })
+    mocks.signOut.mockResolvedValue({ error: null })
 
     render(<App />)
 
@@ -273,12 +276,111 @@ describe('Authentication sessions and errors', () => {
       mocks.updatePassword,
     ).toHaveBeenCalledWith(
       'NewPassword123!',
+      testSession,
     )
+    expect(mocks.signOut).toHaveBeenCalledTimes(1)
 
     expect(
       await screen.findByText(
         'Your password has been updated successfully.',
       ),
     ).toBeTruthy()
+    expect(screen.queryByText('Meu personagem')).toBeNull()
+    expect(
+      screen.getByRole('button', { name: 'Sign In' }),
+    ).toBeTruthy()
+  })
+
+  it('rejects a reset page opened with only a persisted login', () => {
+    window.history.replaceState(null, '', '/reset-password')
+    mockSessionEvent('INITIAL_SESSION', testSession)
+
+    render(<App />)
+
+    expect(
+      screen.getByText(
+        'Your recovery link could not be verified. It may be invalid or expired.',
+      ),
+    ).toBeTruthy()
+    expect(screen.queryByLabelText('New Password')).toBeNull()
+    expect(mocks.updatePassword).not.toHaveBeenCalled()
+  })
+
+  it('invalidates recovery when another account signs in', () => {
+    window.history.replaceState(null, '', '/reset-password')
+
+    let emitAuthEvent: AuthCallback = () => {
+      throw new Error('Auth callback not registered')
+    }
+
+    mocks.onAuthStateChange.mockImplementation(
+      (callback: AuthCallback) => {
+        emitAuthEvent = callback
+        callback('PASSWORD_RECOVERY', testSession)
+        return {
+          data: {
+            subscription: {
+              unsubscribe: vi.fn(),
+            },
+          },
+        }
+      },
+    )
+
+    render(<App />)
+
+    expect(
+      screen.getByText('recovered@example.com'),
+    ).toBeTruthy()
+
+    const anotherSession = {
+      ...testSession,
+      access_token: 'another-account-token',
+      user: {
+        ...testSession.user,
+        id: 'another-user',
+        email: 'another@example.com',
+      },
+    } as Session
+
+    act(() => {
+      emitAuthEvent('SIGNED_IN', anotherSession)
+    })
+
+    expect(screen.queryByLabelText('New Password')).toBeNull()
+    expect(mocks.updatePassword).not.toHaveBeenCalled()
+    expect(
+      screen.getByText(
+        'Your recovery link could not be verified. It may be invalid or expired.',
+      ),
+    ).toBeTruthy()
+  })
+
+  it('never opens the dashboard if sign-out fails after reset', async () => {
+    window.history.replaceState(null, '', '/reset-password')
+    mockSessionEvent('PASSWORD_RECOVERY', testSession)
+    mocks.updatePassword.mockResolvedValue({ error: null })
+    mocks.signOut.mockResolvedValue({
+      error: new Error('Sign-out failure'),
+    })
+
+    render(<App />)
+
+    fireEvent.change(screen.getByLabelText('New Password'), {
+      target: { value: 'NewPassword123!' },
+    })
+    fireEvent.change(screen.getByLabelText('Confirm Password'), {
+      target: { value: 'NewPassword123!' },
+    })
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Update Password' }),
+    )
+
+    expect(
+      await screen.findByText(
+        'Password updated, but sign-out failed. Please sign out before continuing.',
+      ),
+    ).toBeTruthy()
+    expect(screen.queryByText('Meu personagem')).toBeNull()
   })
 })
