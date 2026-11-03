@@ -403,12 +403,14 @@ Adventure Files is in active development on a feature branch. Core character cre
 - Browser-generated PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350) downloads using the saved record and class artwork.
 - Automated frontend, API, and database security checks with GitHub Actions.
 
-On November 2, 2026, local manual QA reported no issues across the start screen, authentication, six-stage flow, saved-character CRUD, PNG exports, responsive layouts, PT/EN, keyboard accessibility, reduced-motion behavior, and recoverable errors. Two test accounts were exercised without observed cross-account mixing. Local checks passed **146 frontend tests (17 files)** and **97 API tests (8 files)**, plus lint and builds. The two opt-in Express/Supabase integration tests are intentionally skipped in the standard API suite and were run previously against isolated local Supabase. GitHub Actions database security checks passed.
+On November 2, 2026, local manual QA reported no issues across the start screen, authentication, six-stage flow, saved-character CRUD, PNG exports, responsive layouts, PT/EN, keyboard accessibility, reduced-motion behavior, and recoverable errors. Two test accounts were exercised without observed cross-account mixing. Local checks passed **146 frontend tests (17 files)** and **97 API tests (8 files)**, plus lint and builds. The two opt-in Express/Supabase integration tests are intentionally skipped in the standard API suite and were run previously against isolated local Supabase.
+
+**November 3 update:** the most recent feature-branch CI passed **167 frontend tests (18 files)**, 97 API tests, lint/builds, and local database RLS tests. Vercel reported the latest staging deployment as ready, and the developer reported successful recovery email/OTP and responsive QA. These are staging/CI observations, not an independently verified deployed API authorization or production-readiness assessment.
 
 ### Remaining Release Validation
 
 1. Recheck negative cross-account API/RLS behavior and migration/legacy-data compatibility in the intended staging environment, using disposable users.
-2. Configure hosted frontend/API routing, HTTPS, restricted CORS, monitoring, and production-ready Auth/email settings.
+2. Verify the configured Vercel `/api` rewrite to the Render staging backend, HTTPS, restricted CORS, monitoring, and separate production routing; configure production-ready Auth/email settings before public release.
 3. Repeat complete sign-up/confirmation/recovery, save/edit/delete, and both PNG export flows on the hosted preview.
 4. Review dependency security and deployment documentation, rerun CI, and merge draft PR #23 only after the release gates pass (tracked in [issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24)).
 

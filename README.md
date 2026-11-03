@@ -49,14 +49,15 @@ Adventure Files is under active development. The six-stage guided character crea
 
 - Manual QA passed for desktop/mobile layout, keyboard accessibility, reduced motion, PT/EN, all six creator stages, CRUD, error states, and both PNG downloads.
 - The developer exercised two separate test accounts and reported no cross-account character mixing in normal application flows.
-- Frontend: **146 passing tests across 17 files**, ESLint and Vite/TypeScript build passed.
+- Frontend on November 2: **146 passing tests across 17 files**, ESLint and Vite/TypeScript build passed.
+- Latest feature-branch GitHub Actions on November 3: **167 frontend tests across 18 files**, **97 API tests** (2 opt-in integration tests skipped by default), builds/lint, and local database security checks all passed at commit `6cb8087`.
 - API: **97 passing tests across 8 files**, ESLint and TypeScript build passed; 2 opt-in local Supabase integration tests are skipped by default but were exercised previously against an isolated local environment.
 - GitHub Actions Frontend, API, and Database Security workflows passed at the last implementation commit; `GET /api/health` returned 200 and an unauthenticated character GET returned 401.
 
 ### Remaining Before Release
 
 - Recheck cross-account authorization, RLS, migration state, and legacy-character compatibility against an isolated deployed/staging environment.
-- Configure staging/production API routing, HTTPS, CORS, authentication redirect URLs, production-ready email, and monitoring.
+- Vercel staging currently has a `/api` rewrite configured toward a Render staging API and a stable authentication redirect origin. Independently verify deployed API health/authorization, HTTPS, CORS, security headers, logs and environment isolation; production routing and production-ready email are still pending.
 - Validate end-to-end authentication, persistence, and both exports on the hosted preview; review dependency security.
 - Complete final review, rerun CI after changes, and merge draft PR #23 only after release gates are met. See [release-readiness issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
 
@@ -522,7 +523,7 @@ The initial release does not include:
 
 ## Current Development Milestone
 
-The six-stage character flow, saved-character creation/editing/deletion, and both PNG downloads are implemented. The November 2 manual QA of frontend flows, PT/EN, mobile/desktop layouts, reduced motion, keyboard access, error states, and two test accounts found no reported issues. The latest local checks passed **146 frontend tests** (17 files) and **97 API tests** (8 files), lint, and production builds; GitHub Actions database security checks passed.
+The six-stage character flow, saved-character creation/editing/deletion, and both PNG downloads are implemented. November 2 manual QA of frontend flows, PT/EN, mobile/desktop layouts, reduced motion, keyboard access, error states, and two test accounts found no reported issues; the November 2 local run passed 146 frontend and 97 API tests. **Latest November 3 feature-branch CI:** 167 frontend tests (18 files), 97 API tests (2 opt-in integration tests skipped), ESLint/builds, and local Supabase security checks passed. The developer also reported successful staged recovery-code/email checks using custom SMTP; formal deployed API/DB security checks remain pending.
 
 The next milestone is controlled **staging** deployment and verification: repeat cross-account authorization/RLS checks, migration and legacy-data compatibility, email/recovery flows, API routing, and operational readiness on the hosted preview. The feature branch remains in draft PR #23 and is not merged into `main`. Progress is tracked in [issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
 

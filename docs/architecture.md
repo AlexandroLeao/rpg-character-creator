@@ -41,7 +41,7 @@ PostgreSQL owns persistent character records, database constraints, and Row Leve
 | API testing | Vitest + Supertest + integration/ownership checks |
 | Version control | Git + GitHub |
 | CI/CD | GitHub Actions |
-| Deployment | Vercel frontend; API deployment mode validated before release |
+| Deployment | Vercel staging frontend; `/api` rewritten to Render staging API; production environment separation and hosted checks pending |
 | Development | GitHub Codespaces (browser-based); Cloud Shell optional |
 
 PNG exports are generated client-side from the authorized saved character using browser canvas/image APIs. PNG output dimensions and fields have automated tests; browser and device compatibility remain part of release verification.
@@ -520,8 +520,9 @@ The completed workflow must be validated through integration tests.
 
 - Development currently runs in GitHub Codespaces; Google Cloud Shell remains an optional alternative.
 - Frontend and backend scripts remain in `web/` and `api/`.
-- The frontend is intended for deployment to Vercel with environment-specific public configuration.
-- Express API deployment must use a compatible Node runtime.
+- The feature-branch frontend is deployed to Vercel staging with environment-specific public configuration. The checked-in `web/vercel.json` forwards `/api` requests to `https://adventure-files-api-staging.onrender.com` and provides an SPA fallback for `/reset-password`.
+- The Express API targets a compatible long-running Node service on Render staging; independent live API health, CORS, HTTPS, and negative authorization checks are still required.
+- Before a production release, review the hard-coded staging API destination and separate frontend, API, database, and auth redirect settings by environment. Do not route public production traffic to the staging backend by accident.
 - Serverless deployment requires an appropriate handler rather than assuming an ordinary long-running process will work unchanged.
 - Supabase hosts authentication and PostgreSQL.
 - Use appropriately separated development, test, and production credentials.

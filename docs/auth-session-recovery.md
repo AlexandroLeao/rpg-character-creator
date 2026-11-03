@@ -6,36 +6,53 @@
 - Short-lived PKCE code verifiers are stored in `localStorage` so an email callback opened in another tab of the **same browser** can complete. User sessions and refresh tokens are **not** stored there by this client.
 - Normal **Sign out** uses the Supabase `local` scope. It does not revoke other independent sessions.
 - Successful password recovery uses the `global` scope on purpose: other sessions of the recovered account must reauthenticate.
-- Recovery is authorized only after a server-verified recovery token or Supabase's `PASSWORD_RECOVERY` event, with user ID and session checks before `updateUser`.
+- Recovery is authorized only after Supabase verifies the one-time recovery code (`email` + `token`, `type: 'recovery'`), a compatible legacy `token_hash`, or a verified `PASSWORD_RECOVERY` event. User ID and recovery-session checks are required before `updateUser`.
 - **Open a new blank tab and type the URL** for a truly independent login. The browser's **Duplicate Tab** action may copy `sessionStorage`, including the same session/refresh token. Signing out of such a cloned session may cause the original copy to require reauthentication; avoid Duplicate Tab when testing account isolation.
 - Existing `localStorage` sessions from older deployments are **not migrated**. A fresh sign-in may be required after this change.
 
 ## Required deployment configuration
 
-1. Choose one stable HTTPS staging origin that points to the current tested application build. Avoid Vercel's generated per-deployment preview URLs for email redirects.
-2. In Vercel's environment settings for the frontend, set `VITE_AUTH_REDIRECT_ORIGIN` to that origin (origin only, for example `https://YOUR-STABLE-STAGING-DOMAIN`). Redeploy the frontend so Vite includes the value.
-3. In **Supabase Dashboard → Authentication → URL Configuration**, change **Site URL** from `http://localhost:3000` to the same public, stable origin. Add both the origin and `https://YOUR-STABLE-STAGING-DOMAIN/reset-password` to **Redirect URLs**. Keep localhost development callback URLs separately when needed.
-4. In **Supabase Dashboard → Authentication → Email Templates → Reset Password**, configure the recovery link to point directly to your app using Supabase's hash token (this works across browser tabs and devices, without reliance on the PKCE verifier from the requesting tab):
+1. Choose a stable HTTPS environment alias for staging (for example, `https://adventure-files-staging.vercel.app`), not a generated per-deployment Vercel preview URL. The alias must point to the intended tested frontend build.
+2. In Vercel's **Preview** environment set `VITE_AUTH_REDIRECT_ORIGIN` to that origin only. Redeploy after changes. Production must use its own reviewed origin and API/database configuration when public release is approved.
+3. In **Supabase Dashboard → Authentication → URL Configuration**, set **Site URL** to the intended stable app origin. Allow both the origin and its `/reset-password` path in **Redirect URLs**. Retain only development callback URLs that are still needed.
+4. In **Supabase Dashboard → Authentication → SMTP Settings**, configure a sender that can deliver recovery and confirmation messages. A dedicated Gmail account with an app password can be used for small staging tests; it is not a production email-delivery guarantee. Keep SMTP passwords in Supabase only, never in Vercel `VITE_*` variables or Git.
+5. In **Supabase Dashboard → Authentication → Emails → Reset password**, use the currently approved **one-time recovery code (OTP)** email. The user opens the app and enters the email address and code; the email link must not itself consume or verify the code. Example body:
 
    ```html
-   <a href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=recovery">Redefinir minha senha</a>
+   <h2>Adventure Files — Recuperação de senha</h2>
+   <p>Seu código temporário:</p>
+   <p><strong>{{ .Token }}</strong></p>
+   <p><a href="{{ .RedirectTo }}">Abrir recuperação</a></p>
+   <p>Digite seu e-mail e o código na página para definir uma nova senha.</p>
    ```
 
-   The application consumes the `token_hash` with `verifyOtp({ token_hash, type: 'recovery' })`, removes it from the visible URL, and only then enables the password form. Keep the template's other text and branding as desired. Use this template only for the Reset Password email.
-5. If the staging hostname is protected by **Vercel Authentication**, an incognito user will see Vercel's login before reaching the app. For external testing, use a permitted, narrowly scoped shareable link or an explicit deployment-protection exception for the chosen staging hostname. Do **not** disable protection for every preview merely to test independent sessions.
-6. The Supabase hosted email service rate-limits recovery requests (normally 60 seconds per user). Wait between requests; do not conclude that a link is newest merely by Gmail ordering. The Auth server decides whether a one-time token is valid; client code cannot revoke previously issued tokens by itself.
+   **Do not use `{{ .ConfirmationURL }}`** in this template: following an auto-verifying link could consume the single-use proof before the person enters it. The application checks `email + code` using Supabase `verifyOtp({ email, token, type: 'recovery' })`, binds the verified session to that account, and only then enables the new-password form. Preserve the approved OTP template while it is working.
+6. If the stable staging hostname is protected by Vercel Authentication, external testers need an explicitly permitted staging access path. Do not turn off protection for every Preview to test independent sessions.
+7. Observe Supabase's email/request rate limits and cooldowns. The Auth server decides token validity, expiry, and one-time use; client-side checks cannot replace server verification.
+
+### Older recovery-link compatibility
+
+The code still accepts previously issued `token_hash` recovery links and Supabase-verified recovery events where applicable. This is a compatibility path, **not** the template currently recommended for new emails. Do not switch the working OTP template back to a hash-link template without a separately reviewed decision.
+
+### November 3, 2026 staging evidence
+
+- The developer reported that the dedicated Gmail SMTP sender saved successfully and delivered recovery messages.
+- The developer manually tested the email/code/password flow, previously used and invalid codes, independent browser tabs, and desktop/mobile behavior successfully.
+- The Vercel Preview commit status is green, and the GitHub Actions checks passed (167 frontend tests across 18 files, 97 API tests plus two skipped opt-in integration tests, and local database security tests).
+- These reports do **not** certify live deployed API ownership isolation, target migration history, external email deliverability at scale, or production readiness.
 
 ## Regression checklist (Preview only)
 
-- [ ] New tab A: sign into account A; refresh; characters stay scoped to A.
-- [ ] New tab B, opened by entering the URL in the address bar: sign into account B; refresh; characters stay scoped to B.
-- [ ] Sign out of tab B; tab A remains authenticated.
-- [ ] Sign into A on mobile; signing out of desktop tab A does not sign out the mobile session.
-- [ ] Request reset for account B. Open the newest message and ensure the app shows B's address before allowing the change.
-- [ ] Use the link once; the same link must not authorize a second password reset.
-- [ ] Request another link after the cooldown; verify the earlier link is rejected and the new one succeeds. If the earlier link is accepted, investigate Auth server token issuance; do not attempt to enforce this only in the browser.
-- [ ] Try `/reset-password` without a token. It must not accept an ordinary saved login.
-- [ ] Verify account A's password still works unchanged; B's old password no longer works.
-- [ ] Check Auth audit logs for which account has `user_updated_password`.
+- [ ] In a new browser tab A, sign into account A, refresh, and verify its own character remains visible.
+- [ ] Open a separate blank tab B by entering the app URL (not Duplicate Tab); sign into account B and verify its own character after reload.
+- [ ] Sign out of tab B and confirm tab A remains authenticated.
+- [ ] Check independent login on mobile and tab-specific sign-out behavior.
+- [ ] Request recovery for account B. The email must contain the one-time code and a link to the recovery screen; following the link must not consume the code.
+- [ ] Enter B's email and valid newest code. Confirm the app identifies the correct account before updating its password.
+- [ ] Verify that an incorrect, expired, previously used, or older superseded code cannot authorize another password update.
+- [ ] Request a fresh code after the cooldown and confirm the new code works without altering account A.
+- [ ] Visit `/reset-password` without valid proof. An ordinary saved login must not authorize a password update.
+- [ ] Confirm account A's password still works, while B's old password no longer does after the update.
+- [ ] Review Supabase Auth audit logs for the recovered account and sign-out scope.
 
-Do not merge the PR to `main` until the manual checks above pass.
+Do not merge PR #23 to `main` until the remaining hosted security, migration, release and review gates in issue #24 are satisfied. Use disposable accounts; never run destructive checks against existing production characters.

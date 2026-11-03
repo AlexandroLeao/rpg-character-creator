@@ -63,11 +63,13 @@ The two integration tests are skipped during ordinary `npm test` runs unless `RU
 
 The database test suite verifies these rules at the SQL layer. The API additionally has isolated mock-based authorization tests and an opt-in integration suite using real local Auth tokens with disposable accounts. These local results do not substitute for controlled validation of production authentication, API deployment, and RLS configuration.
 
-## Later: deploy the reviewed migration
+## Verify migration history safely before another deployment
 
-**Do not do this during the initial review.** After GitHub Actions tests pass and the pull request is approved, confirm the migration is safe for the selected target environment. Use the Supabase CLI migration workflow (`supabase link`, inspect `supabase migration list`, then `supabase db push`) from a controlled environment with appropriate access. Use secure interactive authentication; keep database passwords and service-role credentials out of Git history, screenshots and chat.
+The feature-branch PR reports that the development Supabase project already has the six-stage Motivation schema, and manual SQL metadata inspection previously confirmed RLS and owner-scoped policies. **That does not prove the target's Supabase CLI migration history matches Git**, nor certify compatibility with existing records.
 
-The hosted project is currently a **development project** even though the dashboard labels its branch `PRODUCTION`. Public registration and email verification also require correct Site URL / Redirect URLs and a production SMTP sender, which are out of scope for this database-only issue.
+Before changing any hosted database, use a controlled, read-only schema/migration inspection (`supabase link`, then inspect `supabase migration list` and applicable table/constraint metadata). Compare existing characters and legacy catalog values, check backup/recovery options, and obtain explicit approval for any proposed `supabase db push`. Never blindly reapply `create table` migrations or modify existing character records to test RLS.
+
+The currently used Supabase project is treated as a **development/staging environment**, even if its dashboard branch is labeled `PRODUCTION`. Its configured custom Gmail SMTP has been manually tested for recovery, but production-scale email delivery, rate limits, and public registration still need separate approval and validation. Use secure interactive authentication; do not put database passwords or SMTP/service-role keys in Git, screenshots, or chat.
 
 Official references:
 

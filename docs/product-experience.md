@@ -955,9 +955,9 @@ The six-stage flow, character management, and both PNG export layouts are implem
 - Saved-character dashboard using class artwork and showing all customization choices.
 - Character editing and confirmation-based deletion.
 - Browser downloads of PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350).
-- Frontend/API/database automated checks; the latest local run passed lint, builds, 146 frontend tests in 17 files, and 97 API tests in 8 files (with 2 opt-in local-integration tests skipped by default).
+- Frontend/API/database automated checks: the November 2 local run passed lint/builds, 146 frontend tests in 17 files, and 97 API tests in 8 files (with 2 opt-in local-integration tests skipped by default). The latest November 3 feature-branch CI passed **167 frontend tests in 18 files**, 97 API tests, lint/builds, and local database RLS checks.
 
-Manual QA was completed on November 2, 2026 across the complete creator/CRUD/export flow, desktop/mobile, PT/EN, keyboard accessibility, error handling, and reduced-motion behavior. Two separate test accounts showed no cross-account character mixing during normal UI flows; no issues were reported. Local API authorization and RLS integration checks were also exercised previously.
+Manual QA was completed on November 2, 2026 across the complete creator/CRUD/export flow, desktop/mobile, PT/EN, keyboard accessibility, error handling, and reduced-motion behavior. Two separate test accounts showed no cross-account character mixing during normal UI flows; no issues were reported. Local API authorization and RLS integration checks were also exercised previously. On November 3 the developer additionally reported successful staged recovery-code/email flows and final authentication-screen visual QA; a formal deployed API/RLS test remains separate.
 
 ### Remaining Review and Release Work
 

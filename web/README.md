@@ -86,7 +86,11 @@ npm run build
 
 On November 2, 2026, the developer completed local manual QA of desktop/mobile UX, PT/EN, accessibility/reduced motion, the six-stage flow, save/edit/delete, two test accounts, error states, and both exports; no issues were reported.
 
-The latest local frontend run passed **146 tests across 17 files**, lint, and the production build. API and database security checks also passed. The two additional opt-in Express/Supabase integration tests are intentionally skipped during the default API suite.
+The November 2 local frontend run passed **146 tests across 17 files**, lint, and the production build. On November 3 the latest feature-branch GitHub Actions run passed **167 frontend tests across 18 files**, **97 API tests** (with two opt-in integration tests skipped by default), lint/builds, and database security checks.
+
+Vercel's staging frontend uses `web/vercel.json` to forward `/api` calls to a Render staging backend. The `/reset-password` route is also configured for SPA fallback. Hosted API health, CORS, cross-account authorization, and production environment separation must still be independently verified; do not assume a green build proves those endpoints are live.
+
+The developer reported successful manual email/code/password recovery and desktop/mobile QA on November 3. Custom Gmail SMTP is a small-scale staging solution, not yet a production email-delivery service.
 
 The feature branch is being reviewed in [draft PR #23](https://github.com/AlexandroLeao/rpg-character-creator/pull/23). **Do not merge or publish for general access yet**: deployed staging authorization, migration compatibility, authentication email/recovery, API routing, and operational checks remain in [release-readiness issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
 
