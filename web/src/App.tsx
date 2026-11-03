@@ -601,6 +601,7 @@ function App() {
   const windowClassName = [
     'auth-window',
     isDashboard ? 'auth-window--dashboard' : '',
+    mode === 'signUp' ? 'auth-window--signup' : '',
     mode === 'forgotPassword' || mode === 'verifyRecoveryCode'
       ? 'auth-window--recovery'
       : '',

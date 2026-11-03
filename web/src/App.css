@@ -680,13 +680,6 @@
    the approved new-password screen is untouched.
    ========================================== */
 
-.auth-window--recovery .auth-form input {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 11px;
-  line-height: 1.8;
-  letter-spacing: 0;
-}
-
 .auth-window--recovery .auth-form #recoveryCodeHelp {
   margin: 0 0 2px;
   color: var(--auth-muted);
@@ -735,6 +728,51 @@
 
   .auth-window--recovery .auth-nav button {
     padding: 8px 0;
+  }
+}
+
+
+/* Keep account links aligned with the left and right edges of the form. */
+.auth-nav > button:first-child {
+  justify-self: start;
+  text-align: left;
+}
+
+.auth-nav > button:last-child:not(:first-child) {
+  justify-self: end;
+  text-align: right;
+}
+
+.auth-nav > button:only-child {
+  justify-self: start;
+  text-align: left;
+}
+
+/*
+ * Fit the create-account form into a typical browser viewport by reducing
+ * vertical whitespace only. Field sizes, fonts and colors are unchanged.
+ */
+.auth-window--signup .auth-content {
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
+
+.auth-window--signup .auth-form {
+  gap: 8px;
+}
+
+.auth-window--signup .auth-form button[type='submit'] {
+  margin-top: 8px;
+}
+
+.auth-window--signup .auth-nav {
+  margin-top: 12px;
+}
+
+@media (max-height: 680px) {
+  .auth-shell:has(.auth-window--signup) {
+    padding-top: 12px;
+    padding-bottom: 12px;
   }
 }
 
