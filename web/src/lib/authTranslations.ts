@@ -41,6 +41,7 @@ export const authTranslations = {
     checkingSession: 'Checking your session...',
 
     requestNewLink: 'Request a New Link',
+    recoveryAccountLabel: 'Changing the password for:',
 
     recoveryLinkInvalid:
       'Your recovery link could not be verified. It may be invalid or expired.',
@@ -68,6 +69,9 @@ export const authTranslations = {
 
     updatePasswordSuccess:
       'Your password has been updated successfully.',
+
+    passwordUpdatedSignOutFailure:
+      'Password updated, but sign-out failed. Please sign out before continuing.',
 
     signUpFailure:
       'Unable to create an account. Please review your details.',
@@ -119,6 +123,7 @@ export const authTranslations = {
     checkingSession: 'Verificando sua sessão...',
 
     requestNewLink: 'Solicitar Novo Link',
+    recoveryAccountLabel: 'Alterando a senha da conta:',
 
     recoveryLinkInvalid:
       'Não foi possível verificar o link de recuperação. Ele pode ser inválido ou ter expirado.',
@@ -146,6 +151,9 @@ export const authTranslations = {
 
     updatePasswordSuccess:
       'Sua senha foi atualizada com sucesso.',
+
+    passwordUpdatedSignOutFailure:
+      'Senha alterada, mas não foi possível encerrar a sessão. Saia da conta antes de continuar.',
 
     signUpFailure:
       'Não foi possível criar a conta. Confira as informações.',
