@@ -1,3 +1,4 @@
+import type { Session } from '@supabase/supabase-js'
 import { supabase } from './supabase'
 
 export function signUpWithEmail(
@@ -36,10 +37,33 @@ export function sendPasswordReset(email: string) {
   )
 }
 
-export function updatePassword(password: string) {
-  return supabase.auth.updateUser({
-    password,
-  })
+export async function updatePassword(
+  password: string,
+  recoverySession: Session,
+) {
+  // Verify the authenticated identity using the Auth server.
+  // A persisted session for a different account must never authorize recovery.
+  const { data: userData, error: userError } =
+    await supabase.auth.getUser()
+
+  if (userError || userData.user?.id !== recoverySession.user.id) {
+    return { error: new Error('Recovery account mismatch') }
+  }
+
+  // Also require the exact session issued for the recovery event.
+  // This prevents another tab's sign-in from switching accounts mid-flow.
+  const { data: sessionData, error: sessionError } =
+    await supabase.auth.getSession()
+
+  if (
+    sessionError ||
+    sessionData.session?.user.id !== recoverySession.user.id ||
+    sessionData.session?.access_token !== recoverySession.access_token
+  ) {
+    return { error: new Error('Recovery session mismatch') }
+  }
+
+  return supabase.auth.updateUser({ password })
 }
 
 export function signOut() {
