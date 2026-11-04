@@ -1,6 +1,6 @@
 # Adventure Files — Project Overview
 
-- **Status:** In development
+- **Status:** Feature-complete release candidate; final technical release verification and merge pending.
 - **Product name:** Adventure Files
 - **Product type:** Full-stack RPG-inspired character creator
 - **Development environment:** GitHub Codespaces (browser-based); Cloud Shell optional

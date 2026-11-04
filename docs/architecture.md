@@ -1,6 +1,6 @@
 # Adventure Files — System Architecture
 
-- **Status:** Core character flow and two PNG exports implemented; local UX, reduced-motion, and API/RLS checks completed. Controlled staging security, deployment, and production verification remain pending.
+- **Status:** Feature-complete release candidate on the feature branch. Developer-reported staged UX/auth/account-deletion QA and local hosted RLS checks passed; final anti-abuse, headers, backup posture, branch alignment and public smoke remain release gates.
 - **Product name:** Adventure Files
 - **Linked specs:** [Requirements](./requirements.md), [Catalog](./customization-catalog.md), [Product Experience](./product-experience.md).
 

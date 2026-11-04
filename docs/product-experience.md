@@ -2,7 +2,7 @@
 
 - **Project:** Adventure Files
 - **Document type:** Product experience and visual design specification
-- **Status:** Approved direction; implementation in progress
+- **Status:** Implemented and visually accepted in PT/EN on desktop/mobile; release validation pending. New visual features are deferred.
 
 ## 1. Experience Overview
 

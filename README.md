@@ -442,11 +442,9 @@ wrong, expired and previously used codes fail. Verify that updating the
 password of account A never changes account B or any characters belonging
 to B, and that sign-out affects the intended session scope.
 
-### Production Email Delivery
+### Public-Demo Email Delivery
 
-Before enabling public registration, configure a production-ready email provider.
-
-Review authentication rate limits, account verification, abuse prevention, and security settings before production deployment.
+The existing dedicated Gmail custom SMTP has passed low-volume email/OTP testing; it is **not** a guaranteed transactional email service. Before opening public registration, verify configured rate limits, email confirmation/recovery and abuse protection, and explicitly accept the free-tier delivery limits. If usage grows or delivery becomes unreliable, evaluate a dedicated transactional provider as a **post-launch operational decision**, not an unapproved paid dependency.
 
 ## Database Security
 
@@ -545,6 +543,8 @@ The initial release does not include:
 - A custom administration dashboard.
 
 ## Current Development Milestone
+
+**Release candidate:** the implemented product is functionally accepted on desktop/mobile, PT/EN. The remaining work is an intentionally bounded engineering handoff, not new RPG features or social-media promotion.
 
 The six-stage character creator, protected CRUD, two PNG exports, session recovery, hosted database migration/RLS verification, two-account isolation and hosted account deletion are complete on the feature branch. The creator manually approved the PT/EN desktop/mobile signup Terms of Use and Privacy Notice flow, including a successful new-account registration. At application commit `39cb50c`, GitHub Actions passed all three workflows: **177 frontend tests (19 files), 107 API tests (2 opt-in integration tests skipped)**, frontend/API lint and builds, and isolated database security/pgTAP.
 

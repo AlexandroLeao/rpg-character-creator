@@ -2,7 +2,7 @@
 
 - **Project:** Adventure Files
 - **Document type:** Functional and non-functional requirements
-- **Status:** Approved product specification; implementation in progress
+- **Status:** Approved functional specification implemented on the feature branch; final public-release gates pending.
 
 ## 1. Purpose and Scope
 

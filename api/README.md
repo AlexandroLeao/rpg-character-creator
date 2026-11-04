@@ -1,6 +1,6 @@
-# RPG Character Creator API
+# Adventure Files API
 
-REST API for the RPG Character Creator application.
+REST API for the Adventure Files character-creator application.
 
 Built with Node.js, Express, TypeScript, and Supabase Auth.
 

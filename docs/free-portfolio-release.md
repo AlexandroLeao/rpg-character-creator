@@ -1,6 +1,6 @@
 # Adventure Files — Zero-Budget Portfolio Release
 
-> Status: release candidate (November 3–4, 2026). The application is functional, but public registration, merging and repository visibility changes are **not yet approved or completed**. Track the final decisions in [PR #23](https://github.com/AlexandroLeao/rpg-character-creator/pull/23), [Issue #15](https://github.com/AlexandroLeao/rpg-character-creator/issues/15) and [Issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
+> Status: feature-complete release candidate (November 4, 2026). The creator accepted the PT/EN desktop/mobile product and signup terms, and all GitHub Actions checks passed at documentation commit `11e717b`. **Final technical release approval, merge and public smoke are still pending; LinkedIn/social promotion is explicitly outside this project's definition of done.** Track the final decisions in [PR #23](https://github.com/AlexandroLeao/rpg-character-creator/pull/23), [Issue #15](https://github.com/AlexandroLeao/rpg-character-creator/issues/15) and [Issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
 
 ## 1. Release objective and scope freeze
 
@@ -22,9 +22,9 @@ Do not add PDF, Google OAuth, multiplayer, gameplay, a new design system, social
 
 This is a **proposed single-environment release** to minimize time and cost. It does **not** imply production/staging isolation, guaranteed uptime or unlimited email delivery. The `web/vercel.json` rewrite is hard-coded to Render staging; this is intentional only if the same service is explicitly promoted as the public demo. Do not claim to have two separate API environments.
 
-Known free-tier trade-offs: Render may sleep after idle and cold-start slowly; Supabase Free projects may pause for inactivity; Vercel Hobby is restricted to personal non-commercial use; SMTP can be rate-limited or blocked. Include these limitations in the public README, not in users' passwords or character data.
+Known free-tier trade-offs: Render may sleep after idle and cold-start slowly; Supabase Free projects may pause for inactivity **and have no automatic daily database backups** (the Supabase dashboard reports “No backups”); Vercel Hobby is restricted to personal non-commercial use; SMTP can be rate-limited or blocked. Before onboarding real public users, record a recoverability decision: keep migrations in Git, consider a manual, access-controlled Supabase CLI data dump stored outside the repository, and never include Auth credentials/user PII in commits or support screenshots. Include these limitations in the public README, not in users' passwords or character data.
 
-Official provider references: [Vercel Hobby](https://vercel.com/docs/plans/hobby), [Render Free](https://render.com/docs/free), [Supabase free project pausing](https://supabase.com/docs/guides/platform/free-project-pausing), [Supabase custom SMTP](https://supabase.com/docs/guides/auth/auth-smtp).
+Official provider references: [Vercel Hobby](https://vercel.com/docs/plans/hobby), [Render Free](https://render.com/docs/free), [Supabase free project pausing](https://supabase.com/docs/guides/platform/free-project-pausing), [Supabase free backups](https://supabase.com/kb/faqs/platform/free-plan-backups), [Supabase manual exports](https://supabase.com/docs/guides/platform/backups), [Supabase custom SMTP](https://supabase.com/docs/guides/auth/auth-smtp).
 
 ## 3. Verified evidence (completed)
 
@@ -58,53 +58,40 @@ The 23 combined findings are **not 23 distinct vulnerabilities**: the reported t
 
 Earlier scoped text/history checks examined 109 files and 145 accessible commit patches with no high-confidence credential matches. This is **not an exhaustive secret or licensing review**; binary assets, personal media and source-history publication still need final human sign-off.
 
-## 4. Must complete before public registration and LinkedIn sharing
+## 4. Final software-release gates — only items that affect delivery
 
-- [ ] **Security and dependencies:** Review `npm audit` results for `web/` and `api/`; investigate findings rather than blindly upgrading. Verify HTTP security headers/HTTPS, CORS, safe errors/logs, public vs secret environment variables and production redirects. Re-run CI for any code change.
-- [ ] **Anti-abuse and email:** Confirm Supabase Auth email/signup/OTP rate limits; decide on free Cloudflare Turnstile integration (requires frontend `captchaToken` support **before** enabling Supabase CAPTCHA). Test one fresh external recipient, including confirmation and recovery, within provider limits; never disable email verification to get around delivery limits.
-- [ ] **Privacy:** The signup UI now displays compact bilingual expandable Terms of Use and a Privacy Notice covering account and fictional-character data, owner-only access, providers, deletion and support. It requires an unchecked terms acknowledgement before signup, but **does not store an auditable terms-acceptance version**. Review wording and persistent accessibility before public release; confirm database cascade directly with disposable records before claiming comprehensive deletion proof.
-- [ ] **Stable public demo:** Choose a free permanent `.vercel.app` URL; open in an anonymous browser to confirm it is externally accessible and serving the feature version. Validate Supabase `Site URL`/redirect allowlist, `VITE_AUTH_REDIRECT_ORIGIN`, and the Render CORS origin list; verify the direct `/reset-password` deep link after deployment.
-- [ ] **SEO/sharing:** Initial static title/description, Open Graph/Twitter tags and existing original title-art image were added using the configured `adventure-files-staging.vercel.app` stable Production hostname. The PT/EN selector now updates the HTML language, and Vercel `/reset-password` is configured `noindex`. **Still verify** the final domain after merge, the actual HTTP noindex header, preview image crop/link unfurl, README screenshots, architecture overview and working public demo URL. No private character fields should appear in public metadata.
-- [ ] **Repository visibility:** The GitHub repository is currently private. Before switching to public, inspect the *entire Git history* and current tree for secrets, tokens, credentials, private user data and questionable licensing; review screenshot/media contents. Do not publish the repository automatically.
-- [ ] **Review + integration:** Final review of PR #23 (draft → ready when reviewable), keep `main` stable, merge only after approved criteria. Close API Issue #15 after integration and its acceptance record; keep Release Issue #24 open until public smoke tests pass.
-- [ ] **Post-release smoke:** Without exposing credentials, test signup/confirmation, login/logout, recovery, own character create/edit/delete and both PNG exports on desktop/mobile. Check health, logs, performance after idle and failure messaging. Record the results and then close Issue #24.
+The product UX, character catalog, account deletion and PNG exports are **frozen and accepted**. No additional artwork, PDF, AWS infrastructure, OAuth, social sharing or SEO promotion campaign is necessary to complete the application. Before enabling public registration, finish only these engineering gates:
 
-**No new database migrations or destructive data operations are required by the current SQL evidence.** If a data change becomes necessary, stop for review and a recoverability plan.
+1. **Abuse protection and email (required):** Integrate the already provisioned Cloudflare Turnstile **in the frontend auth calls** and test signup, sign-in and recovery with real allowed hostnames **before** switching on Supabase CAPTCHA. Do not toggle it on while the frontend lacks `captchaToken`. Confirm email verification and provider rate limits; the Gmail SMTP is a best-effort, low-volume choice, not a delivery SLA.
+2. **Runtime security (required):** Verify HTTPS, strict Render CORS origins, no-store for authenticated API responses, appropriate browser security headers, safe errors/logs, and the separation of Vercel publishable keys from the server-only Render/Supabase secret. Production-only npm audits previously reported zero vulnerabilities; the known moderate `minimatch` development-toolchain advisory has a recorded risk triage, not an approved forced upgrade. If a check exposes a real defect, fix narrowly and rerun affected CI.
+3. **Privacy and recoverability (required):** Review the existing bilingual signup notice against the actual data flow, test account deletion using disposable accounts (developer has already reported positive PT/EN and isolation results), and acknowledge backup/retention limitations. A UI checkbox is not a versioned legal-consent database; do not claim legal certification. Supabase Free does not include automated backups; make a recoverability choice without adding a paid service or storing personal data in Git.
+4. **Integration and operations (required):** Review draft PR #23 and current Actions, obtain explicit owner approval to merge into `main`, align Vercel Production and Render's connected branch to the approved version, check Supabase Site URL/redirects and CORS, and execute one end-to-end live smoke in an anonymous browser and a disposable account. Keep existing protected data intact. No unapproved destructive migrations.
+5. **Technical indexing hygiene (small final verification):** After the real public domain serves the approved build, verify canonical/title/description/OG image and `/reset-password` `noindex`. Do not index authenticated characters. Search Console, LinkedIn, promotional screenshots and public GitHub visibility/licensing are **separate optional communication/source-publication decisions**, not criteria for the application's technical completion.
 
-## 5. Next-day time-boxed delivery (November 4, 2026)
+**Already supported:** the creator verified desktop/mobile/PT/EN visuals, real signup with required terms, recovery, account isolation/deletion, character CRUD and PNG exports; CI passed all three workflows at `39cb50c` and again at docs-only `11e717b`. Verification of production runtime headers/Turnstile and final branch deployment is not yet recorded.
 
-### Morning — Release safety (highest priority)
+**Stop condition:** Do not merge if a new critical security issue or a blocking auth regression appears. Otherwise do not extend the MVP with unrelated improvements.
 
-1. Review documentation/issue/PR status and approve the single-free-environment approach.
-2. Run dependency and current/history secret audit; review needed HTTP headers and auth abuse controls. Make **only** bounded fixes with tests.
-3. Recheck public URL and any required Auth redirect/SMTP/CORS settings without sharing secrets.
+## 5. Final release execution — bounded sequence
 
-### Afternoon — CI, accessibility and public presentation
+1. **Finish Turnstile once:** implement tokens with safe fallback/configuration, test all three Supabase auth flows in an authorized Preview hostname, then enable CAPTCHA and retest. Keep the approved pixel-art layout unchanged. Do not ask the developer to repeat previously passed character-creator tests.
+2. **Complete the operational check:** collect sanitized HTTP header/CORS results, confirm the Render-only admin credential is not in the browser, review the zero-cost backup/recovery trade-off, and sign off the short privacy notice. Correct only observed problems.
+3. **Freeze the feature:** re-run frontend (177 currently passing), API (107), and DB RLS/pgTAP CI after final changes; review PR #23 for accidental changes, secret exposure and migration risk.
+4. **Owner-approved integration:** request explicit merge authorization. Only then merge into `main`, align Vercel/Render deployed branches and redirect origin settings, and verify the stable production URL serves the approved commit.
+5. **Live smoke and handoff:** test public page, email signup/confirmation, login/recovery, protected character create/edit/delete, two PNGs and own-account deletion using disposable data. Confirm basic logs/health and `noindex` on recovery. Record evidence; close #15 after integration, #24 after live smoke. **The project can then be considered delivered.**
 
-4. Complete final PR code review and rerun Frontend, API and Database Security workflows on the final commit.
-5. Complete minimal privacy/account deletion instructions, SEO/social metadata, README demo links/screenshots and GitHub-publication decision.
-6. Confirm mobile/PT-EN/PNG flows only where final changes or stable URL may have affected them; do not retest every approved component needlessly.
+Do not require a LinkedIn post, a Search Console ranking, public source visibility, extra characters, AWS or a second paid environment to declare the application complete.
 
-### Evening — Controlled release and handoff
+## 6. Definition of done — technical delivery only
 
-7. Approve Ready for review and merge PR #23 only after checks are green and critical findings resolved.
-8. Check the **actual final public URL** anonymously, create one disposable test account and perform the final smoke checklist.
-9. Close Issue #15 after integration, Issue #24 after release evidence; publish the GitHub repository only after the separate secret-history audit and explicit visibility approval.
-10. Prepare LinkedIn/portfolio presentation: problem, architecture (React/Express/Supabase), security design, 6-stage UX, original pixel art, CI/test numbers, lessons learned and a live demo link.
+- [ ] Reviewed feature integrated into `main` with all final applicable CI checks green.
+- [ ] Stable Vercel Production URL serves the approved code over HTTPS and routes to the correct Render API.
+- [ ] Authentication, abuse controls, email confirmation/recovery and owner-only CRUD/account deletion work with disposable accounts in the final environment.
+- [ ] Minimal privacy/support details and free-tier backup/retention limitations are documented; no secrets or private user data exposed.
+- [ ] Accepted PT/EN desktop/mobile UI and two PNG exports remain intact; major security risks are closed or explicitly documented and accepted.
+- [ ] Public production smoke evidence recorded; #15 and #24 closed according to their acceptance conditions.
 
-If a high-severity security or exposure problem is discovered, **do not force the release deadline**. Record the blocker, preserve the working MVP, and defer public signup until fixed. If only optional improvements remain, deliver and track them as post-release follow-up.
-
-## 6. Definition of done
-
-- [ ] Feature commit integrated into `main` with green final checks and reviewed changes.
-- [ ] One publicly accessible stable demo URL, HTTPS, functional sign-up/recovery, protected CRUD and two PNG exports.
-- [ ] Explicitly accepted free-tier limitations and functioning logs/health check.
-- [ ] Basic privacy/account deletion instructions, accurate architecture/UML/README and non-sensitive configuration.
-- [ ] No known unresolved critical/high findings from the scoped security audit.
-- [ ] Public launch evidence recorded; #15 and #24 closed according to their respective gates.
-- [ ] LinkedIn-ready screenshots/demo explanation and a conscious decision on publishing source history.
-
-`Adventure Files` is a portfolio demonstration; no statement above promises absolute security, uptime or unlimited free usage.
+Promotion (LinkedIn), optional Search Console ownership, GitHub visibility and future AWS/class expansions are **not** part of the software delivery acceptance criteria.
 
 ## November 4 — Approved dashboard refinements (implementation gated)
 
