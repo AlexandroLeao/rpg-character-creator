@@ -37,13 +37,15 @@ A compact bilingual **Extras** panel in the authenticated dashboard contains cre
 
 ## Current Development Status
 
-Adventure Files is under active development. The six-stage guided character creator, saved-character management, and two PNG export formats are implemented on the feature branch and have been exercised in the browser.
+Adventure Files is a feature-complete release candidate. The six-stage guided character creator, saved-character management, and two PNG export formats are implemented and have been manually exercised on the feature branch. The final controlled deployment and infrastructure security checks remain pending.
 
 ### Implemented
 
 - React, Vite, and TypeScript frontend; Node.js, Express, and TypeScript API.
 - Supabase email/password authentication, account confirmation, recovery, sign-out, and session restoration.
 - Bilingual signup with expandable Terms of Use / Privacy Notice and an unchecked, mandatory terms acknowledgement before the signup UI can submit.
+- Optional Cloudflare Turnstile security proof on registration, sign-in and recovery, forwarded to Supabase Auth. The hosted CAPTCHA toggle **must stay off** until every active frontend has the site key and passes the rollout checks.
+- Fifteen-character minimum on signup/reset, matching the last verified Supabase Auth policy; limited browser-hardening response headers without changing the approved pixel-art UI.
 - PostgreSQL schema, user-scoped character storage, Row Level Security (RLS), and protected character CRUD endpoints.
 - One saved character per account.
 - Responsive retro START screen, original desktop/mobile artwork, and iris transition.
@@ -59,9 +61,9 @@ Adventure Files is under active development. The six-stage guided character crea
 - Manual QA passed for desktop/mobile layout, keyboard accessibility, reduced motion, PT/EN, all six creator stages, CRUD, error states, and both PNG downloads.
 - The developer exercised two separate test accounts and reported no cross-account character mixing in normal application flows.
 - Frontend on November 2: **146 passing tests across 17 files**, ESLint and Vite/TypeScript build passed.
-- Latest feature-branch GitHub Actions on November 4, commit `0b89fa2`: **173 frontend tests across 19 files**, **107 API tests** (2 opt-in integration tests skipped by default), frontend/API lint and builds, and database security/pgTAP all passed. The November 3 baseline was 167 frontend and 97 API tests.
+- November 4 feature-branch implementation `27b0829` adds final auth/security compatibility fixes and **180 frontend tests across 20 files**. **All three workflows passed at `27b0829`**: frontend 180 tests, lint/build; API 107 tests with 2 optional integration checks skipped, lint/build; isolated database security/pgTAP. The previous baseline at `4560955` was 177 frontend / 107 API.
 - API: **97 passing tests across 8 files**, ESLint and TypeScript build passed; 2 opt-in local Supabase integration tests are skipped by default but were exercised previously against an isolated local environment.
-- GitHub Actions Frontend, API, and Database Security workflows passed at the last implementation commit; `GET /api/health` returned 200 and an unauthenticated character GET returned 401.
+- The latest feature-branch implementation passed the Frontend, API, and Database Security workflows. The user-reported hosted `GET /api/health` returned 200 and an unauthenticated character GET returned 401; recheck the stable public host after merging.
 
 ### Staging Validation — November 3–4, 2026
 
@@ -75,9 +77,10 @@ Adventure Files is under active development. The six-stage guided character crea
 
 ### Remaining Before Public Portfolio Demo
 
-- Complete dependency/security-header checks, secret/history review and authentication abuse/rate-limit assessment. The compact PT/EN terms and privacy notice are now available during signup; perform final wording/accessibility review before launch (UI acceptance is not a stored legal audit record).
+- Configure allowed Cloudflare Turnstile hostnames and the public Vercel site key; verify registration, sign-in and recovery tokens in Preview. **Do not enable Supabase CAPTCHA** until the approved token-enabled build serves the stable Production hostname too. Then enable Supabase-side verification with its private secret and smoke-test all three flows, with an immediate rollback plan.
+- Verify actual hosted browser security headers, HTTPS, Render CORS and secret isolation; accept or mitigate the Supabase Free no-backup risk and confirm the accepted bilingual Terms/Privacy notice reflects real data handling (checkbox is not an auditable legal consent register). Production-only dependency audits had zero findings; the moderate dev-only minimatch risk is documented in the runbook.
 - Verify the stable public Vercel URL in a signed-out browser, its authentication redirect allowlist, HTTPS, critical recovery flow, and the chosen single free-hosting environment.
-- Review PR #23, rerun CI if changes are made, merge only after approval, and smoke-test the final public URL. Close Issue #15 after integration and Issue #24 after launch evidence.
+- Review draft PR #23 and final three GitHub Actions checks; merge into `main` **only after Alexandro approves**, align Render/Vercel branch and Auth origin settings, and smoke-test the final public URL. Close Issue #15 after integration and Issue #24 after live acceptance.
 - Known free-tier trade-offs include Render cold starts, possible Supabase inactivity pausing, and limited personal Gmail SMTP throughput. These affect availability; do not describe the demo as a commercial service with an uptime guarantee.
 
 See the [zero-budget portfolio release runbook](docs/free-portfolio-release.md) and [release-readiness issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24). The MVP scope remains frozen: no PDF, playable game, OAuth expansion, or new artwork variants for this release.
