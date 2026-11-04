@@ -6,7 +6,7 @@ type TurnstileOptions = {
   action: string
   theme: 'dark'
   appearance: 'interaction-only'
-  size: 'flexible'
+  size: 'flexible' | 'compact'
   language: 'pt-BR' | 'en'
   'response-field': false
   callback: (token: string) => void
@@ -88,7 +88,7 @@ export function TurnstileChallenge({
           action,
           theme: 'dark',
           appearance: 'interaction-only',
-          size: 'flexible',
+          size: window.innerWidth <= 420 ? 'compact' : 'flexible',
           language: language === 'pt' ? 'pt-BR' : 'en',
           'response-field': false,
           callback: (token) => {
