@@ -39,6 +39,23 @@ Official provider references: [Vercel Hobby](https://vercel.com/docs/plans/hobby
 
 Local and manual tests are strong evidence; they are **not** a guarantee of complete security or production availability.
 
+### November 4, 2026 — npm dependency audit
+
+The developer ran all four commands on clean feature-branch commit `47d9b52` after `git pull --ff-only`:
+
+| Command | Reported result | Scope |
+|---|---|---|
+| `npm --prefix api audit --omit=dev` | **0 vulnerabilities** | API production dependencies |
+| `npm --prefix web audit --omit=dev` | **0 vulnerabilities** | Frontend production dependencies |
+| `npm --prefix api audit` | **11 moderate findings** | Development-toolchain dependency paths |
+| `npm --prefix web audit` | **12 moderate findings** | Development-toolchain dependency paths |
+
+The 23 combined findings are **not 23 distinct vulnerabilities**: the reported transitive chains point to `minimatch@10.2.6` through ESLint/TypeScript-ESLint. [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249) concerns possible denial of service from attacker-controlled glob patterns; the upstream patched version is `11.0.1`. Current development tools depend on `minimatch` 10.x. npm offers only a potentially breaking forced change or no compatible fix; **do not run `npm audit fix --force` or force a major override without testing compatibility**.
+
+**Risk triage (open):** The production-only audits did not report this package; no public app endpoint is known to expose its glob-pattern processing. Direct public-runtime risk appears lower, but is not guaranteed absent. Record this **known moderate development-dependency risk**, monitor upstream compatible updates, and require passing lint, tests, builds and final CI before merging. The overall security/release gate stays unchecked until remaining controls are verified. No dependencies were changed during this documentation update.
+
+Earlier scoped text/history checks examined 109 files and 145 accessible commit patches with no high-confidence credential matches. This is **not an exhaustive secret or licensing review**; binary assets, personal media and source-history publication still need final human sign-off.
+
 ## 4. Must complete before public registration and LinkedIn sharing
 
 - [ ] **Security and dependencies:** Review `npm audit` results for `web/` and `api/`; investigate findings rather than blindly upgrading. Verify HTTP security headers/HTTPS, CORS, safe errors/logs, public vs secret environment variables and production redirects. Re-run CI for any code change.
