@@ -88,7 +88,7 @@ npm run build
 
 ## Verification and Release
 
-Developer-reported desktop/mobile, PT/EN, keyboard/reduced-motion, six-stage creator, save/edit/delete and PNG Story/Portrait QA passed. At feature-branch commit `0b89fa2` on November 4, CI passed **173 frontend tests across 19 files**, **107 API tests** (2 opt-in integration tests skipped by default), frontend/API lint and builds, and database security/pgTAP.
+Developer-reported desktop/mobile, PT/EN, keyboard/reduced-motion, six-stage creator, save/edit/delete and PNG Story/Portrait QA passed. At feature-branch commit `39cb50c` on November 4, CI passed **177 frontend tests across 19 files**, **107 API tests** (2 opt-in integration tests skipped by default), frontend/API lint and builds, and database security/pgTAP. The creator also reported a successful desktop/mobile PT/EN signup-terms acceptance and real new-account creation test.
 
 On November 3–4, hosted staging testing confirmed the Vercel `/api` rewrite to Render and the `/reset-password` SPA fallback. The developer reported successful Gmail SMTP recovery, expired/used-code rejection, per-tab session isolation, and two-account ownership checks. Read-only hosted database migration/RLS checks also passed. These manual results are not equivalent to a formal penetration test or production-scale email certification.
 

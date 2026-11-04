@@ -546,11 +546,20 @@ The initial release does not include:
 
 ## Current Development Milestone
 
-The six-stage character creator, protected CRUD, two PNG exports, session recovery, hosted database migration/RLS verification and developer-reported negative staging authorization tests are complete. Latest feature-branch CI at `c115039` passed frontend/API/database workflows (167 frontend tests, 97 API tests, two opt-in local integration tests skipped by default).
+The six-stage character creator, protected CRUD, two PNG exports, session recovery, hosted database migration/RLS verification, two-account isolation and hosted account deletion are complete on the feature branch. The creator manually approved the PT/EN desktop/mobile signup Terms of Use and Privacy Notice flow, including a successful new-account registration. At application commit `39cb50c`, GitHub Actions passed all three workflows: **177 frontend tests (19 files), 107 API tests (2 opt-in integration tests skipped)**, frontend/API lint and builds, and isolated database security/pgTAP.
 
 **Next milestone:** one bounded public-demo release audit: dependencies, security headers/secrets, auth abuse/email limits, stable free domain, privacy notice, PR review and final smoke checks. We are **not** rebuilding validated screens or introducing new product features. The feature branch remains in draft PR #23 pending launch approval; Issue #15 closes after integration and Issue #24 after the public smoke tests. See the [release runbook](docs/free-portfolio-release.md).
 
 The roadmap includes **only two character-sheet downloads**: PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350). PDF is explicitly out of scope.
+
+### Optional Improvements After the First Public Release
+
+The following are **ideas for a future milestone, not pending requirements for the current MVP**. Any implementation should be separately approved, tested, and reviewed without changing the already accepted retro UI:
+
+- **New character classes or appearance choices:** commission/create original matching pixel art, add PT/EN descriptions, update shared selection catalogs and class-slug validation, review API/database allowlists and saved-record compatibility, and extend frontend/API/RLS/export tests. Keep the current one-character-per-account limit unless the product scope is explicitly revisited.
+- **More role-playing options:** propose additional origins, companions, or equipment with accessible bilingual labels and data-driven validation rather than introducing unchecked values or breaking previously saved characters.
+- **AWS as a learning exercise, not a mandatory migration:** evaluate a small isolated proof of concept for S3/CloudFront asset hosting or SES transactional email, with IAM least privilege, cost budgets/alerts, provider quotas, deployment/rollback plans and comparison to the current free Vercel/Render/Supabase stack. No paid or irreversible cloud setup is required for the current release.
+- **Operational maturity:** consider observability and broader integration testing after the public demo is stable, prioritizing fixes to actual incidents or user feedback.
 
 ---
 
