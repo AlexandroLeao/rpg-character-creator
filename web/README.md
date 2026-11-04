@@ -82,12 +82,12 @@ npm run build
 - Original artwork and `favicon.png` live in `public/`.
 - Browser registration/sign-in/recovery use Supabase Auth directly.
 - Protected character requests use `GET/PUT/DELETE /api/characters/me` with the verified account's access token.
-- Account deletion uses `DELETE /api/account/me`, with the current password and an explicit confirmation; it cannot work until `SUPABASE_SECRET_KEY` is configured **only** in the API service environment.
+- Account deletion uses `DELETE /api/account/me`, with the current password and explicit confirmation. Its `SUPABASE_SECRET_KEY` must exist **only** in the API environment. The developer reported successful hosted PT/EN deletion and account isolation tests on November 4, using the privately configured backend; this is manual acceptance evidence, not an independent security assessment.
 - PNG generation uses browser Canvas, without uploading generated exports or including private account data.
 
 ## Verification and Release
 
-Developer-reported desktop/mobile, PT/EN, keyboard/reduced-motion, six-stage creator, save/edit/delete and PNG Story/Portrait QA passed. The latest feature-branch CI passed 167 frontend tests in 18 files, 97 API tests (2 opt-in integration tests skipped by default), lint/builds and database security checks.
+Developer-reported desktop/mobile, PT/EN, keyboard/reduced-motion, six-stage creator, save/edit/delete and PNG Story/Portrait QA passed. At feature-branch commit `0b89fa2` on November 4, CI passed **173 frontend tests across 19 files**, **107 API tests** (2 opt-in integration tests skipped by default), frontend/API lint and builds, and database security/pgTAP.
 
 On November 3–4, hosted staging testing confirmed the Vercel `/api` rewrite to Render and the `/reset-password` SPA fallback. The developer reported successful Gmail SMTP recovery, expired/used-code rejection, per-tab session isolation, and two-account ownership checks. Read-only hosted database migration/RLS checks also passed. These manual results are not equivalent to a formal penetration test or production-scale email certification.
 

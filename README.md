@@ -49,7 +49,7 @@ Adventure Files is under active development. The six-stage guided character crea
 - Portuguese/English interface and saved-character translations.
 - All six creator stages: Identity, Origins, Equipment, Essence, Journey, and Final Review.
 - Required selections, preserved drafts, explicit Save, and the revised catalog with Motivation.
-- Illustrated My Character dashboard with editing, confirmed character deletion, an Extras/Credits panel, and self-service account deletion (server credential and hosted QA required).
+- Illustrated My Character dashboard with editing, confirmed character deletion, Extras/Credits, and password-reconfirmed self-service account deletion executed only by the server (hosted manual QA reported on November 4).
 - PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350) exports using the saved character.
 - Automated frontend/API/security test suites and GitHub Actions workflows.
 
@@ -58,7 +58,7 @@ Adventure Files is under active development. The six-stage guided character crea
 - Manual QA passed for desktop/mobile layout, keyboard accessibility, reduced motion, PT/EN, all six creator stages, CRUD, error states, and both PNG downloads.
 - The developer exercised two separate test accounts and reported no cross-account character mixing in normal application flows.
 - Frontend on November 2: **146 passing tests across 17 files**, ESLint and Vite/TypeScript build passed.
-- Latest feature-branch GitHub Actions on November 3: **167 frontend tests across 18 files**, **97 API tests** (2 opt-in integration tests skipped by default), builds/lint, and local database security checks all passed at documentation commit `c115039`.
+- Latest feature-branch GitHub Actions on November 4, commit `0b89fa2`: **173 frontend tests across 19 files**, **107 API tests** (2 opt-in integration tests skipped by default), frontend/API lint and builds, and database security/pgTAP all passed. The November 3 baseline was 167 frontend and 97 API tests.
 - API: **97 passing tests across 8 files**, ESLint and TypeScript build passed; 2 opt-in local Supabase integration tests are skipped by default but were exercised previously against an isolated local environment.
 - GitHub Actions Frontend, API, and Database Security workflows passed at the last implementation commit; `GET /api/health` returned 200 and an unauthenticated character GET returned 401.
 
@@ -69,6 +69,8 @@ Adventure Files is under active development. The six-stage guided character crea
 - Read-only hosted Supabase checks confirmed migrations `20261028000000` and `20261031000000`, RLS enabled on `public.characters`, four owner-scoped policies, the six-stage schema, and **2 characters / 0 records missing Motivation** at the time of inspection.
 - The Render staging API was redeployed successfully after an origin-specific CORS configuration update. The developer rechecked the health and unauthenticated endpoints.
 - The frontend, API, and database security GitHub Actions checks passed on documentation commit `c115039`.
+
+- On November 4, the developer reported successful **hosted account deletion in Portuguese and English**, inability to sign back into a deleted account, successful re-registration with the same email after confirmation, and preservation of a separate account. These are valuable manual acceptance results; they do **not** independently prove the removed character row or cover every token failure mode. Render startup logs show a Live service; no server-side account data was accessed for this report.
 
 ### Remaining Before Public Portfolio Demo
 
