@@ -78,6 +78,36 @@ describe('Supabase authentication helpers', () => {
     )
   })
 
+  it('forwards the security proof to Supabase registration, sign-in and recovery', () => {
+    signUpWithEmail(
+      'Test Adventurer',
+      'adventurer@example.com',
+      'LongPassword123!',
+      'signup-proof',
+    )
+    expect(mockAuth.signUp).toHaveBeenCalledWith(
+      expect.objectContaining({
+        options: expect.objectContaining({ captchaToken: 'signup-proof' }),
+      }),
+    )
+
+    signInWithEmail('adventurer@example.com', 'LongPassword123!', 'signin-proof')
+    expect(mockAuth.signInWithPassword).toHaveBeenCalledWith({
+      email: 'adventurer@example.com',
+      password: 'LongPassword123!',
+      options: { captchaToken: 'signin-proof' },
+    })
+
+    sendPasswordReset('adventurer@example.com', 'recovery-proof')
+    expect(mockAuth.resetPasswordForEmail).toHaveBeenCalledWith(
+      'adventurer@example.com',
+      {
+        redirectTo: `${window.location.origin}/reset-password`,
+        captchaToken: 'recovery-proof',
+      },
+    )
+  })
+
   it('verifies the recovery token hash on the Auth server', () => {
     verifyPasswordRecoveryToken('one-time-recovery-hash')
 

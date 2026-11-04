@@ -12,12 +12,14 @@ export function signUpWithEmail(
   displayName: string,
   email: string,
   password: string,
+  captchaToken?: string,
 ) {
   return supabase.auth.signUp({
     email: email.trim(),
     password,
     options: {
       emailRedirectTo: `${authRedirectOrigin()}/`,
+      ...(captchaToken ? { captchaToken } : {}),
       data: {
         display_name: displayName.trim(),
       },
@@ -28,18 +30,21 @@ export function signUpWithEmail(
 export function signInWithEmail(
   email: string,
   password: string,
+  captchaToken?: string,
 ) {
   return supabase.auth.signInWithPassword({
     email: email.trim(),
     password,
+    ...(captchaToken ? { options: { captchaToken } } : {}),
   })
 }
 
-export function sendPasswordReset(email: string) {
+export function sendPasswordReset(email: string, captchaToken?: string) {
   return supabase.auth.resetPasswordForEmail(
     email.trim(),
     {
       redirectTo: `${authRedirectOrigin()}/reset-password`,
+      ...(captchaToken ? { captchaToken } : {}),
     },
   )
 }

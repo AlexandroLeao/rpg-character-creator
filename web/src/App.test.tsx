@@ -184,7 +184,7 @@ describe('Authentication interface', () => {
       screen.getByLabelText('Password'),
       {
         target: {
-          value: 'Password123!',
+          value: 'LongPassword123!',
         },
       },
     )
@@ -193,7 +193,7 @@ describe('Authentication interface', () => {
       screen.getByLabelText('Confirm Password'),
       {
         target: {
-          value: 'Different123!',
+          value: 'DifferentPassword123!',
         },
       },
     )
@@ -222,6 +222,32 @@ describe('Authentication interface', () => {
     ).not.toHaveBeenCalled()
   })
 
+
+  it('matches the configured Supabase 15-character password minimum', async () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Create Account' }))
+    fireEvent.change(screen.getByLabelText('Display Name'), {
+      target: { value: 'Test Adventurer' },
+    })
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: 'adventurer@example.com' },
+    })
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: 'Password123456' },
+    })
+    fireEvent.change(screen.getByLabelText('Confirm Password'), {
+      target: { value: 'Password123456' },
+    })
+    fireEvent.click(screen.getByRole('checkbox', {
+      name: /I accept the Terms of Use/i,
+    }))
+    fireEvent.click(screen.getByRole('button', { name: 'Create Account' }))
+    expect(screen.getByRole('alert').textContent).toBe(
+      'Password must contain at least 15 characters.',
+    )
+    expect(mocks.signUpWithEmail).not.toHaveBeenCalled()
+  })
 
   it('requires an explicit terms acceptance before account creation and resets it on navigation', () => {
     render(<App />)
@@ -340,6 +366,7 @@ describe('Authentication interface', () => {
       'Test Adventurer',
       'adventurer@example.com',
       'LongPassword123!',
+      undefined,
     )
   })
 
@@ -414,6 +441,7 @@ describe('Authentication interface', () => {
       mocks.sendPasswordReset,
     ).toHaveBeenCalledWith(
       'adventurer@example.com',
+      undefined,
     )
 
     expect(

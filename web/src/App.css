@@ -1162,3 +1162,11 @@
     padding: 14px 16px 12px;
   }
 }
+
+/* Keep occasional Turnstile challenges centered without changing auth layout. */
+.auth-turnstile {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+}

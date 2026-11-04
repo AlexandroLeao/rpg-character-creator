@@ -82,6 +82,14 @@ The product UX, character catalog, account deletion and PNG exports are **frozen
 
 Do not require a LinkedIn post, a Search Console ranking, public source visibility, extra characters, AWS or a second paid environment to declare the application complete.
 
+### Final security-control rollout (pending owner configuration)
+
+- [x] The feature branch now contains optional Cloudflare Turnstile proof collection for **sign-in, registration and recovery requests** and forwards proofs with the existing Supabase Auth client. The UI remains unchanged until the owner configures the public site key. Proofs are single-use and reset on each Auth attempt; the 15-character client-side minimum matches the observed Supabase setting.
+- [x] The feature branch adds limited browser security headers (nosniff, frame deny, limited browser permissions and strict origin-aware referrer) while preserving the existing API no-store and recovery noindex rules. **Verify these on the deployed Vercel Preview and after merging**; no restrictive CSP/HSTS has been introduced without a host-specific compatibility test.
+- [ ] Allow stable Production and the exact tested Preview hostname in the existing Cloudflare Managed widget; assign the **public** Turnstile site key to the matching Vercel environments; redeploy, and verify the challenge is available on each of the three Auth actions without breaking PT/EN/mobile. Never share the secret in a VITE variable, repository or screenshot.
+- [ ] **Critical order:** Supabase CAPTCHA is a project-wide setting and must remain OFF while any active host still serves legacy frontend code. Obtain owner authorization to merge/deploy the token-enabled build to the actual Production URL **first**, then enable CAPTCHA using the Cloudflare **secret** in Supabase Attack Protection and run live disposable-user tests. If Auth fails, disable CAPTCHA immediately and investigate. See [web/README.md](../web/README.md) for the operational steps.
+- [ ] Record current environment configuration (hostname, Render origin allowlist, redirect URL, HTTPS/CORS and headers), agree on Supabase Free recoverability and privacy limitations, and complete final manual smoke before closing the release tracker.
+
 ## 6. Definition of done — technical delivery only
 
 - [ ] Reviewed feature integrated into `main` with all final applicable CI checks green.

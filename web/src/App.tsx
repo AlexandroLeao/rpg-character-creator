@@ -23,6 +23,7 @@ import {
 import { CharacterDashboard } from './CharacterDashboard'
 import { StartScreen } from './StartScreen'
 import { SignupTerms } from './SignupTerms'
+import { TurnstileChallenge } from './TurnstileChallenge'
 
 import './App.css'
 
@@ -32,6 +33,7 @@ type Feedback = {
 } | null
 
 const LANGUAGE_STORAGE_KEY = 'adventure-files-language'
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY?.trim()
 
 function getInitialLanguage(): Language {
   try {
@@ -115,6 +117,8 @@ function App() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [recoveryCode, setRecoveryCode] = useState('')
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const [captchaResetSignal, setCaptchaResetSignal] = useState(0)
 
   const [working, setWorking] = useState(false)
   const [feedback, setFeedback] = useState<Feedback>(null)
@@ -266,6 +270,7 @@ function App() {
 
   function changeLanguage(nextLanguage: Language) {
     setLanguage(nextLanguage)
+    setCaptchaToken(null)
 
     try {
       window.localStorage.setItem(
@@ -283,6 +288,7 @@ function App() {
 
   function changeMode(nextMode: AuthMode) {
     setMode(nextMode)
+    setCaptchaToken(null)
     setPassword('')
     setConfirmPassword('')
     setTermsAccepted(false)
@@ -337,7 +343,7 @@ function App() {
 
     if (
       requiresNewPassword &&
-      password.length < 8
+      password.length < 15
     ) {
       setFeedback({
         kind: 'error',
@@ -359,6 +365,14 @@ function App() {
       return
     }
 
+    const needsCaptcha =
+      mode === 'signIn' || mode === 'signUp' || mode === 'forgotPassword'
+
+    if (TURNSTILE_SITE_KEY && needsCaptcha && !captchaToken) {
+      setFeedback({ kind: 'error', text: copy.captchaRequired })
+      return
+    }
+
     setWorking(true)
 
     try {
@@ -367,7 +381,7 @@ function App() {
        */
 
       if (mode === 'forgotPassword') {
-        const { error } = await sendPasswordReset(email)
+        const { error } = await sendPasswordReset(email, captchaToken ?? undefined)
 
         if (!error) {
           // Support both custom OTP emails and legacy recovery links.
@@ -502,6 +516,7 @@ function App() {
           displayName,
           email,
           password,
+          captchaToken ?? undefined,
         )
 
         if (error) {
@@ -531,6 +546,7 @@ function App() {
       const { error } = await signInWithEmail(
         email,
         password,
+        captchaToken ?? undefined,
       )
 
       if (error) {
@@ -550,6 +566,10 @@ function App() {
       setPassword('')
       setConfirmPassword('')
       setRecoveryCode('')
+      setCaptchaToken(null)
+      if (TURNSTILE_SITE_KEY && needsCaptcha) {
+        setCaptchaResetSignal((signal) => signal + 1)
+      }
       setWorking(false)
     }
   }
@@ -912,6 +932,20 @@ function App() {
                     onAcceptedChange={setTermsAccepted}
                   />
                 )}
+
+                {TURNSTILE_SITE_KEY &&
+                  (mode === 'signIn' ||
+                    mode === 'signUp' ||
+                    mode === 'forgotPassword') && (
+                    <TurnstileChallenge
+                      key={mode}
+                      siteKey={TURNSTILE_SITE_KEY}
+                      language={language}
+                      action={mode}
+                      resetSignal={captchaResetSignal}
+                      onTokenChange={setCaptchaToken}
+                    />
+                  )}
 
                 {/* SUBMIT */}
 

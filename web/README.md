@@ -37,9 +37,11 @@ npm ci
 ```env
 VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_YOUR_PUBLIC_KEY
+# Set only after allowing the exact hostname in Cloudflare Turnstile:
+VITE_TURNSTILE_SITE_KEY=YOUR_PUBLIC_TURNSTILE_SITE_KEY
 ```
 
-These two values are frontend-visible configuration. **Never** put a Supabase service-role/secret key, database password, or other privileged credential in any `VITE_` variable or committed file.
+All three variables above are frontend-visible configuration; the Turnstile site key is optional during rollout. **Never** put a Supabase service-role/secret key, database password, or other privileged credential in any `VITE_` variable or committed file.
 
 3. Start the Express API in a **separate Codespaces terminal**:
 
@@ -60,6 +62,15 @@ npm run dev -- --host 0.0.0.0 --port 5174
 Open the forwarded port `5174` from the Codespaces **Ports** tab.
 
 The Vite **development** proxy forwards `/api` requests to the Express server at `127.0.0.1:3000`. Production hosting needs a separate forwarding/routing rule; the Vite development proxy does not run inside a production build.
+
+### Turnstile activation order (shared Supabase project)
+
+1. In Cloudflare Turnstile, allow **every actual hostname** used for Auth, including the stable `adventure-files-staging.vercel.app` and the exact Vercel Preview hostname being tested. Widget mode is Managed; no pre-clearance is required.
+2. Set only the **public** `VITE_TURNSTILE_SITE_KEY` for the appropriate Vercel environment(s); redeploy and confirm sign-in, sign-up and recovery render/issue a challenge token. Keep Supabase CAPTCHA **disabled** during this deployment stage.
+3. Before enabling Supabase CAPTCHA, the owner must approve merging the tested branch and must verify the **Production** URL also serves this token-enabled build. Supabase CAPTCHA applies to all frontend hosts using the same Supabase project; turning it on early would lock out clients still running older code.
+4. In Supabase Authentication → Attack Protection, set the Cloudflare Turnstile **secret** (never `VITE_`, GitHub or screenshots) and enable CAPTCHA only after all auth hosts are ready. Re-test signup, sign-in and password-recovery request in private browsing, PT/EN and mobile; test an expired/failed challenge, then monitor Auth errors and SMTP rate limits. If live auth fails, disable Supabase CAPTCHA promptly, investigate, and restore only after verification.
+
+The browser resets each single-use Turnstile proof after sending it to Supabase. The UI remains unchanged when the optional site key is absent; **that fallback is not equivalent to abuse protection**, so public launch requires completing the activation steps.
 
 ## Commands
 

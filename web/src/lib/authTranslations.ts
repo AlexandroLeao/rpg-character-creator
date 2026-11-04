@@ -60,7 +60,7 @@ export const authTranslations = {
       'Display name must contain at least 2 characters.',
 
     passwordTooShort:
-      'Password must contain at least 8 characters.',
+      'Password must contain at least 15 characters.',
 
     passwordsMismatch:
       'Passwords do not match.',
@@ -88,6 +88,7 @@ export const authTranslations = {
       'Password updated, but sign-out failed. Please sign out before continuing.',
 
     termsRequired: 'Accept the Terms of Use to create your account.',
+    captchaRequired: 'Complete the security check and try again.',
 
     signUpFailure:
       'Unable to create an account. Please review your details.',
@@ -157,7 +158,7 @@ export const authTranslations = {
       'O nome de exibição deve ter pelo menos 2 caracteres.',
 
     passwordTooShort:
-      'A senha deve ter pelo menos 8 caracteres.',
+      'A senha deve ter pelo menos 15 caracteres.',
 
     passwordsMismatch:
       'As senhas não coincidem.',
@@ -185,6 +186,7 @@ export const authTranslations = {
       'Senha alterada, mas não foi possível encerrar a sessão. Saia da conta antes de continuar.',
 
     termsRequired: 'Aceite os Termos de Uso para criar sua conta.',
+    captchaRequired: 'Conclua a verificação de segurança e tente novamente.',
 
     signUpFailure:
       'Não foi possível criar a conta. Confira as informações.',
