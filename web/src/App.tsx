@@ -22,6 +22,7 @@ import {
 
 import { CharacterDashboard } from './CharacterDashboard'
 import { StartScreen } from './StartScreen'
+import { SignupTerms } from './SignupTerms'
 
 import './App.css'
 
@@ -100,6 +101,10 @@ function App() {
     getInitialLanguage,
   )
 
+  useEffect(() => {
+    document.documentElement.lang = language === 'pt' ? 'pt-BR' : 'en'
+  }, [language])
+
   /*
    * AUTHENTICATION FORM
    */
@@ -108,6 +113,7 @@ function App() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const [recoveryCode, setRecoveryCode] = useState('')
 
   const [working, setWorking] = useState(false)
@@ -279,6 +285,7 @@ function App() {
     setMode(nextMode)
     setPassword('')
     setConfirmPassword('')
+    setTermsAccepted(false)
     setRecoveryCode('')
     setFeedback(null)
   }
@@ -312,6 +319,12 @@ function App() {
         text: copy.displayNameTooShort,
       })
 
+      return
+    }
+
+    /* A terms acknowledgement is required before sign-up. */
+    if (mode === 'signUp' && !termsAccepted) {
+      setFeedback({ kind: 'error', text: copy.termsRequired })
       return
     }
 
@@ -501,6 +514,7 @@ function App() {
         }
 
         setMode('signIn')
+        setTermsAccepted(false)
 
         setFeedback({
           kind: 'success',
@@ -891,11 +905,19 @@ function App() {
                   </>
                 )}
 
+                {mode === 'signUp' && (
+                  <SignupTerms
+                    language={language}
+                    accepted={termsAccepted}
+                    onAcceptedChange={setTermsAccepted}
+                  />
+                )}
+
                 {/* SUBMIT */}
 
                 <button
                   type="submit"
-                  disabled={working}
+                  disabled={working || (mode === 'signUp' && !termsAccepted)}
                 >
                   {working
                     ? copy.pleaseWait

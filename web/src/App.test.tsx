@@ -199,6 +199,12 @@ describe('Authentication interface', () => {
     )
 
     fireEvent.click(
+      screen.getByRole('checkbox', {
+        name: /I accept the Terms of Use/i,
+      }),
+    )
+
+    fireEvent.click(
       screen.getByRole('button', {
         name: 'Create Account',
       }),
@@ -214,6 +220,127 @@ describe('Authentication interface', () => {
     expect(
       mocks.signUpWithEmail,
     ).not.toHaveBeenCalled()
+  })
+
+
+  it('requires an explicit terms acceptance before account creation and resets it on navigation', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Create Account' }))
+
+    const checkbox = screen.getByRole('checkbox', {
+      name: /I accept the Terms of Use/i,
+    }) as HTMLInputElement
+    const submit = screen.getByRole('button', {
+      name: 'Create Account',
+    }) as HTMLButtonElement
+
+    expect(checkbox.checked).toBe(false)
+    expect(submit.disabled).toBe(true)
+    expect(mocks.signUpWithEmail).not.toHaveBeenCalled()
+
+    fireEvent.click(checkbox)
+    expect(checkbox.checked).toBe(true)
+    expect(submit.disabled).toBe(false)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Back to Sign In' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Create Account' }))
+
+    expect((screen.getByRole('checkbox', {
+      name: /I accept the Terms of Use/i,
+    }) as HTMLInputElement).checked).toBe(false)
+    expect((screen.getByRole('button', {
+      name: 'Create Account',
+    }) as HTMLButtonElement).disabled).toBe(true)
+  })
+
+  it('rejects a programmatic signup submit without terms acceptance', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Create Account' }))
+
+    fireEvent.change(screen.getByLabelText('Display Name'), {
+      target: { value: 'Test Adventurer' },
+    })
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: 'adventurer@example.com' },
+    })
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: 'LongPassword123!' },
+    })
+    fireEvent.change(screen.getByLabelText('Confirm Password'), {
+      target: { value: 'LongPassword123!' },
+    })
+
+    const form = screen.getByRole('button', {
+      name: 'Create Account',
+    }).closest('form')
+    expect(form).toBeTruthy()
+    fireEvent.submit(form!)
+
+    expect(screen.getByRole('alert').textContent).toBe(
+      'Accept the Terms of Use to create your account.',
+    )
+    expect(mocks.signUpWithEmail).not.toHaveBeenCalled()
+  })
+
+  it('makes the Portuguese terms and privacy notice readable within signup', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Português' }))
+    expect(document.documentElement.lang).toBe('pt-BR')
+    fireEvent.click(screen.getByRole('button', { name: 'Criar Conta' }))
+
+    const summary = screen.getByText('LER TERMOS E PRIVACIDADE')
+    const details = summary.closest('details') as HTMLDetailsElement
+    expect(details).toBeTruthy()
+    fireEvent.click(summary)
+    expect(details.open).toBe(true)
+    expect(screen.getByText('TERMOS DE USO')).toBeTruthy()
+    expect(screen.getByText('AVISO DE PRIVACIDADE')).toBeTruthy()
+    expect(screen.getByRole('link', {
+      name: 'adventurefiles.suporte@gmail.com',
+    }).getAttribute('href')).toBe('mailto:adventurefiles.suporte@gmail.com')
+
+    const checkbox = screen.getByRole('checkbox', {
+      name: /Aceito os Termos de Uso/i,
+    }) as HTMLInputElement
+    expect(checkbox.checked).toBe(false)
+    fireEvent.click(checkbox)
+    expect(checkbox.checked).toBe(true)
+  })
+
+  it('submits a valid signup after accepting terms', async () => {
+    mocks.signUpWithEmail.mockResolvedValue({ error: null })
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Create Account' }))
+
+    fireEvent.change(screen.getByLabelText('Display Name'), {
+      target: { value: 'Test Adventurer' },
+    })
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: 'adventurer@example.com' },
+    })
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: 'LongPassword123!' },
+    })
+    fireEvent.change(screen.getByLabelText('Confirm Password'), {
+      target: { value: 'LongPassword123!' },
+    })
+    fireEvent.click(screen.getByRole('checkbox', {
+      name: /I accept the Terms of Use/i,
+    }))
+    fireEvent.click(screen.getByRole('button', { name: 'Create Account' }))
+
+    expect(await screen.findByText(
+      /If registration is available for this email/i,
+    )).toBeTruthy()
+    expect(mocks.signUpWithEmail).toHaveBeenCalledWith(
+      'Test Adventurer',
+      'adventurer@example.com',
+      'LongPassword123!',
+    )
   })
 
   /*

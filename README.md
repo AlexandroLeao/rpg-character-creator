@@ -43,6 +43,7 @@ Adventure Files is under active development. The six-stage guided character crea
 
 - React, Vite, and TypeScript frontend; Node.js, Express, and TypeScript API.
 - Supabase email/password authentication, account confirmation, recovery, sign-out, and session restoration.
+- Bilingual signup with expandable Terms of Use / Privacy Notice and an unchecked, mandatory terms acknowledgement before the signup UI can submit.
 - PostgreSQL schema, user-scoped character storage, Row Level Security (RLS), and protected character CRUD endpoints.
 - One saved character per account.
 - Responsive retro START screen, original desktop/mobile artwork, and iris transition.
@@ -74,7 +75,7 @@ Adventure Files is under active development. The six-stage guided character crea
 
 ### Remaining Before Public Portfolio Demo
 
-- Complete dependency/security-header checks, secret/history review, authentication abuse/rate-limit assessment, and a minimal privacy/account-data deletion notice.
+- Complete dependency/security-header checks, secret/history review and authentication abuse/rate-limit assessment. The compact PT/EN terms and privacy notice are now available during signup; perform final wording/accessibility review before launch (UI acceptance is not a stored legal audit record).
 - Verify the stable public Vercel URL in a signed-out browser, its authentication redirect allowlist, HTTPS, critical recovery flow, and the chosen single free-hosting environment.
 - Review PR #23, rerun CI if changes are made, merge only after approval, and smoke-test the final public URL. Close Issue #15 after integration and Issue #24 after launch evidence.
 - Known free-tier trade-offs include Render cold starts, possible Supabase inactivity pausing, and limited personal Gmail SMTP throughput. These affect availability; do not describe the demo as a commercial service with an uptime guarantee.

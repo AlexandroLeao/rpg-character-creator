@@ -8,6 +8,7 @@ The web app is part of the [Adventure Files full-stack repository](../README.md)
 
 - Responsive Adventure Files START screen with original desktop/mobile artwork and reduced-motion support.
 - Supabase Auth email/password flows, recovery, session restoration, and PT/EN interface.
+- Signup-only expandable bilingual Terms of Use / Privacy Notice and an unchecked mandatory terms acknowledgement. This blocks the frontend signup until accepted; it is not an independently auditable server-side legal-consent record.
 - Guided creator with six stages: Identity, Origins, Equipment, Essence, Journey, and Final Review.
 - Eight character classes with original class artwork and ten character selections (class, name, ancestry, background, weapon, artifact, personality, aura, companion, motivation).
 - One saved character per account, with view, edit, and confirmation-based delete.
@@ -93,7 +94,7 @@ On November 3–4, hosted staging testing confirmed the Vercel `/api` rewrite to
 
 The initial zero-budget public portfolio demo may reuse the currently working Vercel Hobby + Render Free + Supabase Free setup after a specific launch approval. The API rewrite in `web/vercel.json` currently points to the staging Render service; do not assume the deployment already has a separate production backend. Verify the stable public URL and authentication redirect before publicity.
 
-The static `index.html` currently has a title/favicon but still needs a short SEO description and appropriate social-sharing metadata before the LinkedIn release. The public URL and sharing image must be chosen before setting canonical/og:url fields. Do not index authenticated/private character pages.
+The static `index.html` now has a descriptive title, meta description, Open Graph/Twitter sharing tags and an image URL referring to the existing original desktop title art. The canonical/og:url currently point to the configured stable production hostname `https://adventure-files-staging.vercel.app/`; **the Production deployment remains on the older `main` until a reviewed merge**. Validate the final link preview and image crop after promotion. The `/reset-password` response is configured with `X-Robots-Tag: noindex, nofollow` on Vercel; verify the live header after deployment. Do not index authenticated/private character data.
 
 See [the zero-budget release runbook](../docs/free-portfolio-release.md).
 

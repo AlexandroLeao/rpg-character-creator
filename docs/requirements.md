@@ -69,7 +69,7 @@ Each user can access only their own data.
 | ID | Requirement |
 |---|---|
 | FR-01 | The first public screen displays the Adventure Files title, original pixel-art adventure artwork, and a blinking "PRESS START" prompt. Authentication fields are not displayed on this screen. |
-| FR-02 | Registration collects a display name, email, password, and password confirmation. Unnecessary personal information is not requested. |
+| FR-02 | Registration collects a display name, email, password, and password confirmation. Unnecessary personal information is not requested. A bilingual, expandable Terms of Use and Privacy Notice is presented exclusively during signup; the terms checkbox starts unchecked and must be accepted before the frontend submits. |
 | FR-03 | Supabase Auth manages registration, password storage, email confirmation, and authentication sessions. Protected character operations require an authorized session. |
 | FR-04 | Users can sign in and sign out. Authentication failures display safe, generic messages that do not disclose whether an account exists. |
 | FR-05 | Password recovery uses the authentication provider's managed recovery flow. The request screen provides neutral feedback regardless of whether the email is registered. |

@@ -87,6 +87,8 @@ export const authTranslations = {
     passwordUpdatedSignOutFailure:
       'Password updated, but sign-out failed. Please sign out before continuing.',
 
+    termsRequired: 'Accept the Terms of Use to create your account.',
+
     signUpFailure:
       'Unable to create an account. Please review your details.',
 
@@ -181,6 +183,8 @@ export const authTranslations = {
 
     passwordUpdatedSignOutFailure:
       'Senha alterada, mas não foi possível encerrar a sessão. Saia da conta antes de continuar.',
+
+    termsRequired: 'Aceite os Termos de Uso para criar sua conta.',
 
     signUpFailure:
       'Não foi possível criar a conta. Confira as informações.',
