@@ -1,11 +1,11 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Language } from './lib/authTranslations'
 
 type TurnstileOptions = {
   sitekey: string
   action: string
   theme: 'dark'
-  appearance: 'interaction-only'
+  appearance: 'always'
   size: 'flexible' | 'compact'
   language: 'pt-BR' | 'en'
   'response-field': false
@@ -64,6 +64,7 @@ type TurnstileChallengeProps = {
   action: 'signIn' | 'signUp' | 'forgotPassword'
   resetSignal: number
   onTokenChange: (token: string | null) => void
+  verified: boolean
 }
 
 export function TurnstileChallenge({
@@ -72,9 +73,12 @@ export function TurnstileChallenge({
   action,
   resetSignal,
   onTokenChange,
+  verified,
 }: TurnstileChallengeProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const widgetRef = useRef<string | null>(null)
+  const [challengeFailed, setChallengeFailed] = useState(false)
+  const [retryAttempt, setRetryAttempt] = useState(0)
 
   useEffect(() => {
     let active = true
@@ -87,26 +91,41 @@ export function TurnstileChallenge({
           sitekey: siteKey,
           action,
           theme: 'dark',
-          appearance: 'interaction-only',
+          appearance: 'always',
           size: window.innerWidth <= 420 ? 'compact' : 'flexible',
           language: language === 'pt' ? 'pt-BR' : 'en',
           'response-field': false,
           callback: (token) => {
-            if (active) onTokenChange(token)
+            if (active) {
+              setChallengeFailed(false)
+              onTokenChange(token)
+            }
           },
           'expired-callback': () => {
-            if (active) onTokenChange(null)
+            if (active) {
+              setChallengeFailed(true)
+              onTokenChange(null)
+            }
           },
           'timeout-callback': () => {
-            if (active) onTokenChange(null)
+            if (active) {
+              setChallengeFailed(true)
+              onTokenChange(null)
+            }
           },
           'error-callback': () => {
-            if (active) onTokenChange(null)
+            if (active) {
+              setChallengeFailed(true)
+              onTokenChange(null)
+            }
           },
         })
       })
       .catch(() => {
-        if (active) onTokenChange(null)
+        if (active) {
+          setChallengeFailed(true)
+          onTokenChange(null)
+        }
       })
 
     return () => {
@@ -116,7 +135,7 @@ export function TurnstileChallenge({
         widgetRef.current = null
       }
     }
-  }, [siteKey, action, language, onTokenChange])
+  }, [siteKey, action, language, onTokenChange, retryAttempt])
 
   useEffect(() => {
     if (resetSignal > 0 && widgetRef.current !== null) {
@@ -125,13 +144,48 @@ export function TurnstileChallenge({
     }
   }, [resetSignal, onTokenChange])
 
+  function retryChallenge() {
+    onTokenChange(null)
+    setChallengeFailed(false)
+    setRetryAttempt((attempt) => attempt + 1)
+  }
+
   return (
-    <div
-      ref={containerRef}
-      className="auth-turnstile"
-      aria-label={language === 'pt'
-        ? 'Verificação de segurança'
-        : 'Security verification'}
-    />
+    <div className="auth-turnstile-group">
+      <div
+        ref={containerRef}
+        className="auth-turnstile"
+        aria-label={
+          language === 'pt' ? 'Verificação de segurança' : 'Security verification'
+        }
+      />
+      {!verified && (
+        <p
+          className={
+            challengeFailed
+              ? 'auth-turnstile-message auth-turnstile-message--error'
+              : 'auth-turnstile-message'
+          }
+          aria-live="polite"
+        >
+          {challengeFailed
+            ? language === 'pt'
+              ? 'Falha na verificação de segurança.'
+              : 'Security verification failed.'
+            : language === 'pt'
+              ? 'Aguarde a verificação de segurança.'
+              : 'Wait for security verification.'}
+        </p>
+      )}
+      {challengeFailed && (
+        <button
+          className="auth-turnstile-retry"
+          type="button"
+          onClick={retryChallenge}
+        >
+          {language === 'pt' ? 'TENTAR NOVAMENTE' : 'TRY AGAIN'}
+        </button>
+      )}
+    </div>
   )
 }

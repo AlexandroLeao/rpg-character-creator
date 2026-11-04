@@ -938,12 +938,13 @@ function App() {
                     mode === 'signUp' ||
                     mode === 'forgotPassword') && (
                     <TurnstileChallenge
-                      key={mode}
+                      key={`${mode}-${language}`}
                       siteKey={TURNSTILE_SITE_KEY}
                       language={language}
                       action={mode}
                       resetSignal={captchaResetSignal}
                       onTokenChange={setCaptchaToken}
+                      verified={Boolean(captchaToken)}
                     />
                   )}
 
@@ -951,7 +952,15 @@ function App() {
 
                 <button
                   type="submit"
-                  disabled={working || (mode === 'signUp' && !termsAccepted)}
+                  disabled={
+                    working ||
+                    (mode === 'signUp' && !termsAccepted) ||
+                    (Boolean(TURNSTILE_SITE_KEY) &&
+                      (mode === 'signIn' ||
+                        mode === 'signUp' ||
+                        mode === 'forgotPassword') &&
+                      !captchaToken)
+                  }
                 >
                   {working
                     ? copy.pleaseWait
