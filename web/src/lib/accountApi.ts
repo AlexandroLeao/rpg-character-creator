@@ -11,8 +11,11 @@ export type AccountDeleteErrorKind =
   | 'unavailable'
 
 export class AccountDeleteError extends Error {
-  constructor(public readonly kind: AccountDeleteErrorKind) {
+  readonly kind: AccountDeleteErrorKind
+
+  constructor(kind: AccountDeleteErrorKind) {
     super(kind)
+    this.kind = kind
     this.name = 'AccountDeleteError'
   }
 }
