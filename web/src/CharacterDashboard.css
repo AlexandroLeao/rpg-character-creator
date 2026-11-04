@@ -253,12 +253,12 @@
 }
 
 /* ==========================================
-   FOUR-ACTION CHARACTER FOOTER — DESKTOP
+   FIVE-ACTION CHARACTER FOOTER — DESKTOP
    ========================================== */
 
 @media (min-width: 900px) {
   .character-dashboard__actions {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     align-items: start;
     gap: 10px;
     margin-top: 12px;
@@ -299,7 +299,7 @@
   }
 }
 
-/* All four actions remain available in a readable mobile layout. */
+/* All five actions remain available on narrow screens. */
 @media (max-width: 899px) {
   .character-dashboard__signout-button {
     min-height: 48px;
@@ -315,25 +315,253 @@
 }
 
 /* ==========================================
-   MOBILE ACTION PRIORITY
-   Export > Edit > Delete > Sign out
-   Desktop retains its existing order.
+   ADDITIONAL DASHBOARD ACTIONS
    ========================================== */
 
+.character-dashboard__extras-button {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
+
+  border: 2px solid #60875e;
+  border-radius: 7px;
+
+  background: #142c1b;
+  color: #c8e8bb;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  line-height: 1.8;
+  cursor: pointer;
+}
+
+.character-dashboard__extras-button:hover:not(:disabled) {
+  background: #1d3a25;
+  border-color: #a4ed86;
+}
+
+.character-dashboard__extras-button:focus-visible {
+  outline: 2px solid #f5efd2;
+  outline-offset: 3px;
+}
+
+.character-empty .character-dashboard__extras-button,
+.character-empty .character-dashboard__empty-account-delete {
+  min-height: 50px;
+  margin-top: 12px;
+  font-size: 11px;
+}
+
+.character-dashboard__delete-menu {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.character-dashboard__delete-options {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+
+  border: 2px solid #5b6e53;
+  border-radius: 7px;
+  background: #0b1b11;
+}
+
+.character-dashboard__delete-options button {
+  min-height: 48px;
+  padding: 10px 8px;
+
+  border: 2px solid #94645e;
+  border-radius: 6px;
+  background: #201613;
+  color: #f5d2c8;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  line-height: 1.8;
+  cursor: pointer;
+}
+
+.character-dashboard__delete-options button:hover {
+  border-color: #c98e83;
+  background: #35201d;
+}
+
+.character-dashboard__delete-options button:focus-visible {
+  outline: 2px solid #f5efd2;
+  outline-offset: 3px;
+}
+
+@media (min-width: 900px) {
+  .character-dashboard__actions .character-dashboard__extras-button,
+  .character-dashboard__actions .character-dashboard__delete-menu > button {
+    width: 100%;
+    min-height: 44px;
+    margin: 0;
+    padding: 9px 7px;
+    font-size: 9px;
+    line-height: 1.5;
+  }
+
+  /* Pop upward like the already-approved PNG export selector. */
+  .character-dashboard__delete-options {
+    position: absolute;
+    bottom: calc(100% + 10px);
+    right: 0;
+    z-index: 11;
+    width: min(310px, 85vw);
+    box-shadow: 0 8px 24px #0009;
+  }
+}
+
 @media (max-width: 899px) {
-  .character-dashboard__actions .character-export {
-    order: 1;
+  /* Keep DOM and visual order identical: Sair, Editar, Exportar, Excluir, Extras. */
+  .character-dashboard__actions > * {
+    order: initial;
   }
 
-  .character-dashboard__actions .character-empty__create-button {
-    order: 2;
+  .character-dashboard__delete-options {
+    margin-top: 10px;
+  }
+}
+
+/* ==========================================
+   EXTRAS DIALOG
+   ========================================== */
+
+.extras-dialog {
+  max-width: 580px;
+}
+
+.extras-dialog__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.auth-content .extras-dialog__header h2 {
+  margin: 0;
+}
+
+.extras-dialog__close {
+  flex-shrink: 0;
+  min-height: 38px;
+  padding: 9px 12px;
+
+  border: 2px solid #60875e;
+  border-radius: 6px;
+  background: #142c1b;
+  color: #c8e8bb;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  cursor: pointer;
+}
+
+.extras-dialog__section {
+  padding: 13px 0;
+  border-top: 1px solid #456e4b;
+}
+
+.extras-dialog__section h3 {
+  margin: 0 0 8px;
+  color: #a4ed86;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  font-weight: normal;
+  line-height: 1.9;
+}
+
+.extras-dialog__section p {
+  margin: 0 0 6px;
+  color: #c8d6bd;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.extras-dialog__section strong {
+  color: #f5efd2;
+}
+
+.extras-dialog__section a {
+  color: #a4ed86;
+  overflow-wrap: anywhere;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.extras-dialog__section a:hover {
+  color: #c9ffb1;
+}
+
+.extras-dialog__close:focus-visible,
+.extras-dialog__section a:focus-visible {
+  outline: 2px solid #f5efd2;
+  outline-offset: 3px;
+}
+
+/* ==========================================
+   ACCOUNT DELETION — PASSWORD + CONFIRMATION
+   ========================================== */
+
+.account-delete-dialog__label {
+  display: block;
+  margin-top: 18px;
+  margin-bottom: 8px;
+  color: #a4ed86;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  line-height: 1.9;
+}
+
+.account-delete-dialog__input {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-height: 46px;
+  padding: 12px;
+
+  border: 2px solid #456e4b;
+  border-radius: 7px;
+  background: #07120a;
+  color: #f5efd2;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+}
+
+.account-delete-dialog__input:focus-visible {
+  outline: 2px solid #a4ed86;
+  outline-offset: 3px;
+}
+
+.account-delete-dialog__input:disabled {
+  opacity: 0.65;
+}
+
+.account-delete-dialog__error {
+  margin-top: 18px;
+  color: #ffd3c8;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+@media (max-width: 480px) {
+  .character-empty .character-dashboard__extras-button,
+  .character-empty .character-dashboard__empty-account-delete {
+    font-size: 10px;
   }
 
-  .character-dashboard__actions .character-dashboard__delete-button {
-    order: 3;
+  .extras-dialog__section h3,
+  .account-delete-dialog__label {
+    font-size: 8px;
   }
 
-  .character-dashboard__actions .character-dashboard__signout-button {
-    order: 4;
+  .extras-dialog__close {
+    font-size: 8px;
+    padding: 8px;
   }
 }

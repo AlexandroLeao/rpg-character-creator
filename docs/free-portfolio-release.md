@@ -103,3 +103,10 @@ If a high-severity security or exposure problem is discovered, **do not force th
 - [ ] LinkedIn-ready screenshots/demo explanation and a conscious decision on publishing source history.
 
 `Adventure Files` is a portfolio demonstration; no statement above promises absolute security, uptime or unlimited free usage.
+
+## November 4 — Approved dashboard refinements (implementation gated)
+
+- The empty dashboard action order is **Create Character / Extras / Delete Account / Sign Out**; the saved-character footer is **Sign Out / Edit / Export / Delete / Extras**, bilingual and responsive.
+- The two original PNG formats remain unchanged. The Delete menu separates confirmed character deletion from full-account deletion, which requires fresh password proof and a server-only Supabase privileged key.
+- Extras credits Alexandro Milhomes Leão for the **concept, original creative direction and development**. AI assistance is credited to **illustration refinement and development/documentation support**, not to conceptual authorship. Support and GitHub only; no LinkedIn link.
+- Staging is **not accepted** until the API secret is configured in Render, account deletion tests against disposable users prove owner isolation and data cascading, dialogs are checked at mobile/desktop PT/EN, and applicable CI/workflows pass. Keep the repo private and PR #23 in draft until final review and explicit publication approval.

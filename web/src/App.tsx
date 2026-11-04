@@ -544,6 +544,24 @@ function App() {
    * SIGN OUT
    */
 
+  async function handleAccountDeleted() {
+    // Auth user is already deleted on the server. Revoke this tab's local
+    // tokens even if the remote session is no longer available.
+    try {
+      await signOut('local')
+    } catch {
+      // The Auth user may already be unavailable after deletion.
+    }
+
+    setSession(null)
+    setRecoverySession(null)
+    setCreatorStep(null)
+    setHasStarted(false)
+    setMode('signIn')
+    setFeedback(null)
+    window.history.replaceState(null, '', '/')
+  }
+
   async function handleSignOut() {
     setWorking(true)
     setFeedback(null)
@@ -717,6 +735,7 @@ function App() {
                 language={language}
                 onCreatorStepChange={setCreatorStep}
                 onSignOut={handleSignOut}
+                onAccountDeleted={() => { void handleAccountDeleted() }}
                 signOutLabel={working ? copy.signingOut : copy.signOut}
                 signingOut={working}
               />

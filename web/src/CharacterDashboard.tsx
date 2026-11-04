@@ -23,6 +23,8 @@ import {
 import { CharacterSheet } from './CharacterSheet'
 import { CharacterExportPanel } from './CharacterExportPanel'
 import { CharacterCreator } from './CharacterCreator'
+import { AccountDeleteDialog } from './AccountDeleteDialog'
+import { ExtrasDialog } from './ExtrasDialog'
 
 import './CharacterDashboard.css'
 
@@ -52,6 +54,7 @@ type CharacterDashboardProps = {
   onSignOut?: () => void
   signOutLabel?: string
   signingOut?: boolean
+  onAccountDeleted?: () => void
 
   onCreatorStepChange?: (
     step: number | null,
@@ -98,6 +101,7 @@ export function CharacterDashboard({
   onSignOut,
   signOutLabel,
   signingOut = false,
+  onAccountDeleted,
   onCreatorStepChange,
 }: CharacterDashboardProps) {
   const [state, setState] =
@@ -122,6 +126,10 @@ export function CharacterDashboard({
   ] = useState(false)
 
   const [deleting, setDeleting] = useState(false)
+  const [deleteMenuOpen, setDeleteMenuOpen] = useState(false)
+  const [accountDeleteOpen, setAccountDeleteOpen] = useState(false)
+  const [extrasOpen, setExtrasOpen] = useState(false)
+  const deleteMenuId = useId()
 
   const [
     deleteError,
@@ -341,6 +349,8 @@ export function CharacterDashboard({
       return
     }
 
+    setDeleteMenuOpen(false)
+
     confirmationToken.current = accessToken
 
     restoreFocusToDeleteButton.current = false
@@ -408,6 +418,7 @@ export function CharacterDashboard({
       })
 
       setDeleteDialogOpen(false)
+      setDeleteMenuOpen(false)
 
       setCreating(false)
       setEditing(false)
@@ -512,6 +523,20 @@ export function CharacterDashboard({
                 ? 'Criar Personagem'
                 : 'Create Character'}
             </button>
+            <button
+              type="button"
+              className="character-dashboard__extras-button"
+              onClick={() => setExtrasOpen(true)}
+            >
+              EXTRAS
+            </button>
+            <button
+              type="button"
+              className="character-dashboard__delete-button character-dashboard__empty-account-delete"
+              onClick={() => setAccountDeleteOpen(true)}
+            >
+              {language === 'pt' ? 'EXCLUIR CONTA' : 'DELETE ACCOUNT'}
+            </button>
           </div>
         )
       )}
@@ -553,9 +578,7 @@ export function CharacterDashboard({
                 onClick={startEditing}
                 disabled={deleteDialogOpen}
               >
-                {language === 'pt'
-                  ? 'Editar personagem'
-                  : 'Edit character'}
+                {language === 'pt' ? 'Editar' : 'Edit'}
               </button>
 
               <CharacterExportPanel
@@ -563,16 +586,60 @@ export function CharacterDashboard({
                 language={language}
               />
 
+              <div className="character-dashboard__delete-menu">
+                <button
+                  ref={deleteTriggerRef}
+                  type="button"
+                  className="character-dashboard__delete-button"
+                  aria-expanded={deleteMenuOpen}
+                  aria-controls={deleteMenuId}
+                  onClick={() => setDeleteMenuOpen((open) => !open)}
+                  disabled={deleteDialogOpen}
+                >
+                  {language === 'pt' ? 'Excluir' : 'Delete'}
+                </button>
+                {deleteMenuOpen && (
+                  <div
+                    id={deleteMenuId}
+                    className="character-dashboard__delete-options"
+                    role="group"
+                    aria-label={language === 'pt' ? 'Opções de exclusão' : 'Deletion options'}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Escape') {
+                        event.preventDefault()
+                        setDeleteMenuOpen(false)
+                        deleteTriggerRef.current?.focus()
+                      }
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={openDeleteConfirmation}
+                    >
+                      {language === 'pt'
+                        ? 'EXCLUIR PERSONAGEM'
+                        : 'DELETE CHARACTER'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDeleteMenuOpen(false)
+                        setAccountDeleteOpen(true)
+                      }}
+                    >
+                      {language === 'pt'
+                        ? 'EXCLUIR CONTA'
+                        : 'DELETE ACCOUNT'}
+                    </button>
+                  </div>
+                )}
+              </div>
               <button
-                ref={deleteTriggerRef}
                 type="button"
-                className="character-dashboard__delete-button"
-                onClick={openDeleteConfirmation}
-                disabled={deleteDialogOpen}
+                className="character-dashboard__extras-button"
+                onClick={() => setExtrasOpen(true)}
               >
-                {language === 'pt'
-                  ? 'Excluir personagem'
-                  : 'Delete character'}
+                EXTRAS
               </button>
             </div>
           </div>
@@ -681,6 +748,22 @@ export function CharacterDashboard({
             </div>
           </div>
         )}
+
+      {extrasOpen && !creatorOpen && (
+        <ExtrasDialog
+          language={language}
+          onClose={() => setExtrasOpen(false)}
+        />
+      )}
+
+      {accountDeleteOpen && !creatorOpen && (
+        <AccountDeleteDialog
+          language={language}
+          accessToken={accessToken}
+          onClose={() => setAccountDeleteOpen(false)}
+          onDeleted={() => onAccountDeleted?.()}
+        />
+      )}
     </section>
   )
 }

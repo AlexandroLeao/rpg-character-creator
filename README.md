@@ -27,6 +27,14 @@ Each authenticated user can maintain at most one fictional character, customize 
 - Accessible navigation and controls.
 - Portuguese and English interface support.
 
+### Creative Direction and Credits
+
+**Alexandro Milhomes Leão** conceived Adventure Files, defined its creative direction, and developed its application. Its original illustrations were iteratively refined with AI assistance; AI tools also supported software development and technical documentation. The visual ideas and design decisions belong to the creator.
+
+The aesthetic draws inspiration from tabletop RPGs and classic adventure video games (including *Dungeons & Dragons*, *Adventure Time*, *The Legend of Zelda*, *Super Mario*, *Fallout* and *Pokémon*), pixel art, and 1980s–1990s computer operating systems. These are inspirations only: Adventure Files is an independent project, is not affiliated with these franchises, and does not intentionally reproduce their characters, logos, or other protected artwork.
+
+A compact bilingual **Extras** panel in the authenticated dashboard contains credits, an about section, and contact links. Support: [adventurefiles.suporte@gmail.com](mailto:adventurefiles.suporte@gmail.com). Creator: [github.com/AlexandroLeao](https://github.com/AlexandroLeao).
+
 ## Current Development Status
 
 Adventure Files is under active development. The six-stage guided character creator, saved-character management, and two PNG export formats are implemented on the feature branch and have been exercised in the browser.
@@ -41,7 +49,7 @@ Adventure Files is under active development. The six-stage guided character crea
 - Portuguese/English interface and saved-character translations.
 - All six creator stages: Identity, Origins, Equipment, Essence, Journey, and Final Review.
 - Required selections, preserved drafts, explicit Save, and the revised catalog with Motivation.
-- Illustrated My Character dashboard with editing and confirmation-based deletion.
+- Illustrated My Character dashboard with editing, confirmed character deletion, an Extras/Credits panel, and self-service account deletion (server credential and hosted QA required).
 - PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350) exports using the saved character.
 - Automated frontend/API/security test suites and GitHub Actions workflows.
 
@@ -82,7 +90,7 @@ The approved experience follows this structure:
 5. Six-stage guided character creation.
 6. Final Review and explicit Save.
 7. Saved My Character dashboard.
-8. Editing, deletion, PNG export, and sign-out.
+8. Editing, two PNG exports, character/account deletion, Extras, and sign-out.
 
 Authentication credentials and character creation are separate processes.
 
@@ -252,6 +260,8 @@ Required variables:
 ```env
 VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
+# Required for secure account deletion, only on the trusted API server:
+SUPABASE_SECRET_KEY=sb_secret_YOUR_SERVER_ONLY_KEY
 ```
 
 Replace the placeholders with your Supabase project configuration.
@@ -340,11 +350,12 @@ Authenticated character endpoints:
 GET /api/characters/me
 PUT /api/characters/me
 DELETE /api/characters/me
+DELETE /api/account/me
 ```
 
-Character endpoints require a valid authenticated session.
+Character endpoints require a valid authenticated session. `DELETE /api/account/me` additionally requires a fresh password check and explicit `DELETE` confirmation; the server deletes only the authenticated user's account, cascading to their character. The secret key never belongs in `VITE_*` variables or frontend bundles. Configure it in Render after reviewing the code; without that key, the route returns a controlled 503.
 
-The API currently validates character selections against its implemented catalog and associates records with the authenticated user. The revised six-stage catalog, new Motivation field, and new identifiers require coordinated API and database updates before the new save flow is enabled.
+The API currently validates character selections against its implemented catalog and associates records with the authenticated user. The six-stage catalog, Motivation field, and associated API/database validation are implemented; preserve their existing tested contracts.
 
 ## Authentication
 

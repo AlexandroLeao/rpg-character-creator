@@ -36,6 +36,24 @@ export function createAuthClient() {
   )
 }
 
+/**
+ * Administrative Auth operations are restricted to the trusted API.
+ * The secret key must exist only in the Render/server environment.
+ * Never reuse this client for ordinary per-user character queries.
+ */
+export function createAdminAuthClient() {
+  const { supabaseUrl } = getSupabaseConfig()
+  const secretKey = process.env.SUPABASE_SECRET_KEY
+
+  if (!secretKey) {
+    throw new Error('Account deletion service is not configured')
+  }
+
+  return createClient(supabaseUrl, secretKey, {
+    auth: authOptions,
+  })
+}
+
 export function createUserDatabaseClient(
   accessToken: string,
 ) {

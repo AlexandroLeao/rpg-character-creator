@@ -30,7 +30,7 @@ type CharacterExportPanelProps = {
 
 const translations = {
   pt: {
-    title: 'Exportar ficha',
+    title: 'Exportar',
     choose: 'ESCOLHA O FORMATO',
     story: 'PNG STORY — 1080 × 1920',
     portrait: 'PNG RETRATO — 1080 × 1350',
@@ -40,7 +40,7 @@ const translations = {
   },
 
   en: {
-    title: 'Export character sheet',
+    title: 'Export',
     choose: 'CHOOSE A FORMAT',
     story: 'PNG STORY — 1080 × 1920',
     portrait: 'PNG PORTRAIT — 1080 × 1350',

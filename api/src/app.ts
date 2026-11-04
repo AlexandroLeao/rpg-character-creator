@@ -1,6 +1,7 @@
 import express, { type ErrorRequestHandler } from 'express'
 import cors from 'cors'
 import { characterRouter } from './routes/characters.js'
+import { accountRouter } from './routes/account.js'
 
 const app = express()
 
@@ -28,6 +29,7 @@ app.get('/api/health', (_req, res) => {
 })
 
 app.use('/api/characters', characterRouter)
+app.use('/api/account', accountRouter)
 
 app.use((_req, res) => {
   res.status(404).json({

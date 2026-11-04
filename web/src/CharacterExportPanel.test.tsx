@@ -90,7 +90,7 @@ describe('Character export panel', () => {
 
     fireEvent.click(
       screen.getByRole('button', {
-        name: 'Exportar ficha',
+        name: 'Exportar',
       }),
     )
 
@@ -102,7 +102,7 @@ describe('Character export panel', () => {
 
     fireEvent.click(
       screen.getByRole('button', {
-        name: 'Exportar ficha',
+        name: 'Exportar',
       }),
     )
 
@@ -123,7 +123,7 @@ describe('Character export panel', () => {
 
     fireEvent.click(
       screen.getByRole('button', {
-        name: 'Exportar ficha',
+        name: 'Exportar',
       }),
     )
 
@@ -154,7 +154,7 @@ describe('Character export panel', () => {
 
     fireEvent.click(
       screen.getByRole('button', {
-        name: 'Export character sheet',
+        name: 'Export',
       }),
     )
 
@@ -189,7 +189,7 @@ describe('Character export panel', () => {
 
     fireEvent.click(
       screen.getByRole('button', {
-        name: 'Exportar ficha',
+        name: 'Exportar',
       }),
     )
 
@@ -228,7 +228,7 @@ describe('Character export panel', () => {
 
     fireEvent.click(
       screen.getByRole('button', {
-        name: 'Exportar ficha',
+        name: 'Exportar',
       }),
     )
 

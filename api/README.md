@@ -74,6 +74,7 @@ The API uses the following environment variables:
 | `CORS_ORIGIN` | Comma-separated list of allowed frontend origins. |
 | `SUPABASE_URL` | Supabase project URL. |
 | `SUPABASE_PUBLISHABLE_KEY` | Supabase publishable API key. |
+| `SUPABASE_SECRET_KEY` | Server-only Supabase secret API key for account deletion. Keep exclusively in the API environment; never use a `VITE_` prefix. |
 
 Example configuration:
 
@@ -82,6 +83,7 @@ PORT=3000
 CORS_ORIGIN=http://localhost:5173
 SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 SUPABASE_PUBLISHABLE_KEY=sb_publishable_YOUR_PUBLIC_KEY
+SUPABASE_SECRET_KEY=sb_secret_YOUR_SERVER_ONLY_KEY
 ```
 
 Replace the placeholders with the correct values for your development environment.
@@ -386,6 +388,25 @@ The endpoint is idempotent:
 The API filters the operation using the verified user ID.
 
 PostgreSQL RLS policies restrict deletion to the authenticated user's own character.
+
+### DELETE /api/account/me — self-service account deletion
+
+This irreversible endpoint is intentionally separate from character CRUD. It requires a verified Bearer access token, a **fresh password verification** against the authenticated account email, and an explicit confirmation string.
+
+```http
+DELETE /api/account/me
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{"password":"<current-password>","confirmation":"DELETE"}
+```
+
+- Success: `204 No Content`. The authenticated Auth user is removed; the `public.characters.user_id` foreign key with `ON DELETE CASCADE` removes their saved character.
+- Invalid request: `400`; invalid/expired session: `401`; failed password/identity proof: `403`; unavailable administrator: `503`. Never echo secrets, passwords, or underlying Supabase error details.
+- No client-supplied `userId` or `email` is accepted as a deletion target. Admin deletion uses only the verified Bearer-token owner ID.
+- The **server-only** `SUPABASE_SECRET_KEY` must be configured in Render and kept out of GitHub, browser bundles, Vercel and chat. Without it, deletion fails closed with `503`.
+- Deletion revokes refresh sessions. Existing issued access JWTs may remain cryptographically valid until expiration; protected requests must validate the current user/session. Use disposable accounts to test success, wrong password, cross-account attempts, stale sessions and cascading data removal.
+- After backend success the frontend signs out locally; never declare success based only on UI state.
 
 ### Unknown Routes
 
