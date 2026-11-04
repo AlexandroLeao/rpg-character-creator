@@ -1,0 +1,738 @@
+
+/* ==========================================
+   ADVENTURE FILES
+   SAVED CHARACTER SHEET
+   ========================================== */
+
+.character-sheet {
+  --sheet-cream: #f5efd2;
+  --sheet-green: #a4ed86;
+  --sheet-muted: #adbea1;
+  --sheet-edge: #456e4b;
+  --sheet-dark: #09140e;
+
+  display: grid;
+  gap: 18px;
+  width: 100%;
+
+  color: var(--sheet-cream);
+
+  font-family: 'Press Start 2P', monospace;
+}
+
+/* ==========================================
+   CHARACTER HERO
+   ========================================== */
+
+.character-sheet__hero {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.1fr) minmax(0, 0.9fr);
+
+  align-items: stretch;
+  gap: 20px;
+
+  padding: 16px;
+
+  border: 2px solid var(--sheet-edge);
+  border-radius: 9px;
+
+  background:
+    linear-gradient(145deg, #1a3220, #0b190f 70%);
+
+  box-shadow: inset 0 0 0 2px #07110b;
+}
+
+/* ==========================================
+   CHARACTER ARTWORK
+   ========================================== */
+
+.character-sheet__artwork {
+  display: flex;
+  min-width: 0;
+}
+
+.character-sheet__artwork .character-preview {
+  min-height: 220px;
+  aspect-ratio: auto;
+
+  border: 2px solid #355f3d;
+  border-radius: 5px;
+
+  background: radial-gradient(
+    ellipse at center,
+    #23482c 0%,
+    #102719 65%,
+    #08160c 100%
+  );
+}
+
+/* ==========================================
+   CHARACTER IDENTITY
+   ========================================== */
+
+.character-sheet__identity {
+  display: flex;
+  flex-direction: column;
+
+  align-items: flex-start;
+  justify-content: center;
+
+  min-width: 0;
+
+  gap: 13px;
+  padding: 14px 8px;
+}
+
+/* ==========================================
+   IDENTITY LABELS
+   ========================================== */
+
+.character-sheet__eyebrow,
+.character-sheet__label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  font-weight: normal;
+  line-height: 1.8;
+}
+
+.character-sheet__eyebrow {
+  color: var(--sheet-green);
+}
+
+.character-sheet__label {
+  color: var(--sheet-muted);
+}
+
+/* ==========================================
+   CHARACTER NAME
+   ========================================== */
+
+.character-sheet__name-details {
+  display: grid;
+  gap: 6px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+.auth-content .character-sheet__name {
+  margin: 0;
+
+  color: var(--sheet-cream);
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(16px, 2.3vw, 23px);
+  font-weight: normal;
+  line-height: 1.65;
+
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================
+   CHARACTER CLASS
+   ========================================== */
+
+.character-sheet__class-details {
+  display: grid;
+  gap: 6px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+.character-sheet__class-name {
+  margin: 0;
+
+  color: var(--sheet-green);
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 13px;
+  font-weight: normal;
+  line-height: 1.75;
+}
+
+/* ==========================================
+   CHARACTER SECTIONS
+   ========================================== */
+
+.character-sheet__sections {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 14px;
+}
+
+.character-sheet__section {
+  min-width: 0;
+  padding: 16px;
+
+  border: 2px solid #3b6342;
+  border-radius: 7px;
+
+  background: #0b1b11;
+
+  box-shadow: inset 0 0 0 1px #152e1b;
+}
+
+/* ==========================================
+   SECTION HEADINGS
+   ========================================== */
+
+.character-sheet__section-heading {
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+
+  border-bottom: 1px solid #35593c;
+}
+
+.character-sheet__section-number {
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 29px;
+
+  width: 29px;
+  height: 29px;
+
+  border: 1px solid #658f5d;
+  border-radius: 4px;
+
+  background: #1c3822;
+  color: var(--sheet-green);
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+}
+
+.auth-content .character-sheet__section h3 {
+  margin: 0;
+
+  color: var(--sheet-green);
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  font-weight: normal;
+  line-height: 1.7;
+}
+
+/* ==========================================
+   CHARACTER FIELDS
+   ========================================== */
+
+.character-sheet__fields {
+  display: grid;
+  gap: 14px;
+
+  margin: 0;
+}
+
+.character-sheet__field {
+  display: grid;
+  gap: 5px;
+
+  min-width: 0;
+}
+
+/* FIELD LABEL */
+
+.character-sheet__field dt {
+  color: var(--sheet-muted);
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  font-weight: normal;
+  line-height: 1.7;
+}
+
+/* FIELD VALUE */
+
+.character-sheet__field dd {
+  margin: 0;
+
+  color: var(--sheet-cream);
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  font-weight: normal;
+  line-height: 1.8;
+
+  overflow-wrap: anywhere;
+}
+
+/* ==========================================
+   TABLET AND MOBILE
+   ========================================== */
+
+@media (max-width: 760px) {
+  .character-sheet__hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .character-sheet__artwork .character-preview {
+    min-height: 180px;
+    aspect-ratio: 16 / 9;
+  }
+
+  .character-sheet__identity {
+    padding: 10px 3px 4px;
+  }
+}
+
+/* ==========================================
+   MOBILE
+   ========================================== */
+
+@media (max-width: 600px) {
+  .character-sheet__sections {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .character-sheet__hero,
+  .character-sheet__section {
+    padding: 13px;
+  }
+
+  .character-sheet__section-heading {
+    margin-bottom: 12px;
+  }
+
+  .character-sheet__field dd {
+    font-size: 9px;
+  }
+
+  .character-sheet__name-details,
+  .character-sheet__class-details {
+    gap: 6px;
+  }
+}
+
+/* ==========================================
+   VERY SMALL MOBILE SCREENS
+   ========================================== */
+
+@media (max-width: 380px) {
+  .character-sheet__eyebrow,
+  .character-sheet__label,
+  .character-sheet__field dt {
+    font-size: 8px;
+  }
+
+  .auth-content .character-sheet__section h3 {
+    font-size: 9px;
+  }
+
+  .character-sheet__field dd {
+    font-size: 8px;
+  }
+}
+
+/* ==========================================
+   SCREEN READER CONTENT
+   ========================================== */
+
+.character-sheet__sr-only {
+  position: absolute;
+
+  width: 1px;
+  height: 1px;
+
+  padding: 0;
+  margin: -1px;
+
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+
+  border: 0;
+}
+
+/* ==========================================
+   BALANCED SAVED SHEET — DESKTOP
+   ========================================== */
+
+@media (min-width: 900px) {
+  .character-sheet {
+    gap: 10px;
+  }
+
+  .character-sheet__hero {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+    gap: 18px;
+    padding: 11px;
+  }
+
+  .character-sheet__artwork .character-preview {
+    min-height: 192px;
+    height: 192px;
+    padding: 6px;
+  }
+
+  .character-sheet__identity {
+    gap: 13px;
+    padding: 8px 12px;
+  }
+
+  .character-sheet__name-details,
+  .character-sheet__class-details {
+    gap: 6px;
+  }
+
+  /* Two cards per row, with two choices side by side in each card. */
+  .character-sheet__sections {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 12px;
+  }
+
+  .character-sheet__section {
+    min-width: 0;
+    padding: 11px 14px;
+  }
+
+  .character-sheet__section-heading {
+    padding-bottom: 7px;
+    margin-bottom: 10px;
+  }
+
+  .character-sheet__fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .character-sheet__field {
+    gap: 5px;
+  }
+
+  .character-sheet__field dt {
+    font-size: 8px;
+  }
+
+  .character-sheet__field dd {
+    font-size: 10px;
+    line-height: 1.6;
+  }
+}
+
+/* ==========================================
+   CHARACTER SHEET — REVIEW-INSPIRED COMPOSITION
+   ========================================== */
+
+.character-sheet__details {
+  display: grid;
+  min-width: 0;
+  gap: 12px;
+}
+
+@media (min-width: 900px) {
+  .character-sheet {
+    gap: 0;
+  }
+
+  .character-sheet__hero {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+  }
+
+  .character-sheet__artwork .character-preview {
+    min-height: 380px;
+    height: 380px;
+    padding: 12px;
+  }
+
+  .character-sheet__details {
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .character-sheet__identity {
+    justify-content: center;
+    gap: 12px;
+    padding: 8px 5px;
+  }
+
+  .character-sheet__sections {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .character-sheet__section {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 10px 12px;
+  }
+
+  .character-sheet__section-heading {
+    padding-bottom: 6px;
+    margin-bottom: 8px;
+  }
+
+  .character-sheet__fields {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .character-sheet__field {
+    gap: 2px;
+  }
+
+  .character-sheet__field dt {
+    font-size: 8px;
+    line-height: 1.5;
+  }
+
+  .character-sheet__field dd {
+    font-size: 9px;
+    line-height: 1.6;
+  }
+}
+
+/* Avoid squeezing two full panels into narrow tablet widths. */
+@media (min-width: 761px) and (max-width: 899px) {
+  .character-sheet__hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ==========================================
+   VARIANT B — ALIGNED CHARACTER INFORMATION
+   The first identity panel aligns with the artwork top;
+   the last pair of cards aligns with its bottom.
+   ========================================== */
+
+@media (min-width: 900px) {
+  .character-sheet__details {
+    height: 380px;
+    min-height: 0;
+    grid-template-rows: 160px minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .character-sheet__identity {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+    justify-content: stretch;
+    width: 100%;
+    gap: 10px;
+    padding: 0;
+  }
+
+  .character-sheet__name-details,
+  .character-sheet__class-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+    gap: 6px;
+    padding: 8px 12px;
+    border: 2px solid #456e4b;
+    border-radius: 7px;
+    background: #0b1b11;
+  }
+
+  .character-sheet__name-details .character-sheet__label,
+  .character-sheet__class-details .character-sheet__label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .character-sheet__name-details .character-sheet__label::before,
+  .character-sheet__name-details .character-sheet__label::after,
+  .character-sheet__class-details .character-sheet__label::before,
+  .character-sheet__class-details .character-sheet__label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #456e4b;
+  }
+
+  .auth-content .character-sheet__name {
+    font-size: 20px;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  .character-sheet__class-name {
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  .character-sheet__sections {
+    min-height: 0;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .character-sheet__section {
+    min-height: 0;
+    /* Give the second row the same visual breathing room as the first. */
+    padding: 9px 11px 3px;
+  }
+
+  .character-sheet__section-heading {
+    padding-bottom: 6px;
+    margin-bottom: 5px;
+  }
+
+  .character-sheet__fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .character-sheet__field {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 6px;
+    min-height: 0;
+    padding: 3px 0;
+  }
+
+  .character-sheet__field + .character-sheet__field {
+    border-top: 1px solid #35593c;
+  }
+
+  .character-sheet__field dt {
+    font-size: 8px;
+    line-height: 1.5;
+  }
+
+  .character-sheet__field dd {
+    font-size: 9px;
+    line-height: 1.5;
+    text-align: right;
+  }
+}
+
+/* ==========================================
+   MOBILE — MATCH THE APPROVED DESKTOP SHEET
+   ========================================== */
+
+@media (max-width: 600px) {
+  .character-sheet__details {
+    width: 100%;
+    gap: 12px;
+  }
+
+  .character-sheet__identity {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 0;
+  }
+
+  .character-sheet__name-details,
+  .character-sheet__class-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    min-height: 72px;
+    gap: 6px;
+    padding: 12px;
+    border: 2px solid #456e4b;
+    border-radius: 7px;
+    background: #0b1b11;
+  }
+
+  .character-sheet__name-details .character-sheet__label,
+  .character-sheet__class-details .character-sheet__label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .character-sheet__name-details .character-sheet__label::before,
+  .character-sheet__name-details .character-sheet__label::after,
+  .character-sheet__class-details .character-sheet__label::before,
+  .character-sheet__class-details .character-sheet__label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #456e4b;
+  }
+
+  .auth-content .character-sheet__name,
+  .character-sheet__class-name {
+    margin: 0;
+    text-align: center;
+  }
+
+  .character-sheet__section {
+    padding: 12px 13px 8px;
+  }
+
+  .character-sheet__section-heading {
+    padding-bottom: 8px;
+    margin-bottom: 6px;
+  }
+
+  .character-sheet__fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .character-sheet__field {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 0;
+  }
+
+  .character-sheet__field + .character-sheet__field {
+    border-top: 1px solid #35593c;
+    /* Lower the second field while keeping the card's total height unchanged. */
+    padding-top: 16px;
+    padding-bottom: 4px;
+  }
+
+  .character-sheet__field dt {
+    min-width: 0;
+    font-size: 8px;
+    line-height: 1.6;
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+
+  .character-sheet__field dd {
+    min-width: 0;
+    font-size: 8px;
+    line-height: 1.6;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+}

@@ -1,47 +1,174 @@
 @startuml
-title RPG Character Creator - Save or Update Character
+title Adventure Files - Save or Update Character
 
 actor "Authenticated User" as User
+
 boundary "React Frontend" as Frontend
+
 control "Express API" as API
+
 participant "Supabase Auth" as Auth
+
 database "PostgreSQL + RLS" as Database
 
-User -> Frontend: Choose class, name, and seven attributes
+== Character Creation ==
+
+User -> Frontend: Complete stages 01 to 05
+
+note right of Frontend
+  01 - Identity
+  02 - Origins
+  03 - Equipment
+  04 - Essence
+  05 - Journey
+
+  Preserve selections
+  in the character draft.
+end note
+
+Frontend -> Frontend: Validate required selections
+
+User -> Frontend: Open stage 06 - Final Review
+
+Frontend --> User: Display complete character summary
+
+note right of Frontend
+  Name
+  Class
+  Ancestry
+  Background
+  Weapon
+  Artifact
+  Personality
+  Aura
+  Companion
+  Motivation
+end note
+
 User -> Frontend: Click Save Character
-Frontend -> API: PUT /api/characters/me\nAuthorization: Bearer access_token\nJSON character fields only
 
-API -> Auth: Validate supplied access token
-Auth --> API: Verified user ID or authentication failure
+== Frontend Validation ==
 
-alt Invalid, expired, or missing token
-    API --> Frontend: 401 Unauthorized
-else Verified user
-    API -> API: Validate name and catalog slugs
-    API -> API: Derive user_id from verified identity
+Frontend -> Frontend: Validate complete draft
 
-    alt Invalid input
-        API --> Frontend: 400 Validation error
-    else Valid input
-        API -> Database: User-scoped upsert by user_id
-        Database -> Database: Enforce RLS for owner\nand UNIQUE(user_id)
+alt Invalid character draft
 
-        alt Permission or persistence failure
-            Database --> API: Error
-            API --> Frontend: Safe error status/body
-        else Created or updated
-            Database --> API: Own character row
-            API --> Frontend: 201 Created or 200 OK
+    Frontend --> User: Show validation errors
+
+    note right of Frontend
+      Preserve entered values.
+
+      Allow corrections without
+      restarting the creator.
+    end note
+
+else Valid character draft
+
+    Frontend -> Frontend: Prevent duplicate submissions
+
+    == Authenticated API Request ==
+
+    Frontend -> API: PUT /api/characters/me\nBearer access token\nComplete character payload
+
+    API -> Auth: Validate access token
+
+    Auth --> API: Verified user ID or authentication failure
+
+    alt Invalid, expired, or missing token
+
+        API --> Frontend: 401 Unauthorized
+
+        Frontend --> User: Show authentication error
+
+    else Verified user
+
+        == Server Validation ==
+
+        API -> API: Validate name and approved catalog slugs
+
+        note right of API
+          Validate all fields.
+
+          Artifact is required.
+          Companion supports none.
+          Motivation is required.
+
+          Reject unknown identifiers.
+        end note
+
+        API -> API: Derive user_id from verified identity
+
+        alt Invalid character data
+
+            API --> Frontend: 400 Validation error
+
+            Frontend --> User: Show safe validation feedback
+
+        else Valid character data
+
+            == Database Persistence ==
+
+            API -> Database: User-scoped update; insert if absent
+
+            Database -> Database: Enforce RLS ownership\nand UNIQUE(user_id)
+
+            note right of API
+              On concurrent insert conflict
+              (PostgreSQL 23505), retry
+              the ownership-scoped update.
+            end note
+
+            alt Permission or persistence failure
+
+                Database --> API: Database error
+
+                API --> Frontend: Safe error response
+
+                Frontend --> User: Show recoverable error
+
+                note right of Frontend
+                  Preserve the draft.
+
+                  Do not report success
+                  or create duplicates.
+                end note
+
+            else Character created or updated
+
+                Database --> API: Own saved character record
+
+                API --> Frontend: 201 Created or 200 OK
+
+                Frontend -> Frontend: Update saved character state
+
+                Frontend --> User: Display My Character
+
+            end
+
         end
+
     end
+
 end
 
-Frontend --> User: Show success or safe error\nretain form draft when needed
+== Security and Compatibility ==
 
 note over API, Database
-  No service-role bypass for character CRUD.
-  No client-provided user_id trusted.
-  Randomize changes draft only until Save.
+  Never trust client-provided user_id.
+
+  Do not bypass RLS with
+  privileged service-role access.
+
+  Preserve the one-character-per-user rule.
+
+  Validate approved catalog identifiers.
+
+  Legacy records require compatibility
+  handling before stricter constraints
+  are introduced.
+
+  Never silently overwrite existing
+  character data during migration.
 end note
 
 @enduml

@@ -2,7 +2,7 @@
 
 **Adventure Files** is a personal full-stack web project inspired by classic RPGs, retro computers, and minimalist pixel-art games.
 
-The project transforms a traditional authentication system into a nostalgic experience where users can create, customize, save, and eventually export their own fictional RPG characters.
+The project combines authentication, a guided creator, persistent character data, and two downloadable PNG character-sheet layouts in a nostalgic full-stack experience.
 
 Adventure Files is not a playable RPG. It is a character creation experience designed to demonstrate full-stack development while exploring creative interface design.
 
@@ -12,7 +12,7 @@ Adventure Files combines modern web development with the visual identity of clas
 
 The experience begins with a retro title screen featuring original pixel-art illustrations, followed by authentication and a guided character creation system.
 
-Each authenticated user can maintain one fictional character, customize its attributes, and eventually download a printable character sheet.
+Each authenticated user can maintain at most one fictional character, customize its attributes, and download character sheets as PNG Story/Status or PNG Portrait images for sharing.
 
 ### Design Principles
 
@@ -25,56 +25,78 @@ Each authenticated user can maintain one fictional character, customize its attr
 - Subtle CRT effects and visual glitches.
 - Responsive desktop and mobile layouts.
 - Accessible navigation and controls.
-- Portuguese and English interface support (planned).
+- Portuguese and English interface support.
+
+### Creative Direction and Credits
+
+**Alexandro Milhomes Leão** conceived Adventure Files, defined its creative direction, and developed its application. Its original illustrations were iteratively refined with AI assistance; AI tools also supported software development and technical documentation. The visual ideas and design decisions belong to the creator.
+
+The aesthetic draws inspiration from tabletop RPGs and classic adventure video games (including *Dungeons & Dragons*, *Adventure Time*, *The Legend of Zelda*, *Super Mario*, *Fallout* and *Pokémon*), pixel art, and 1980s–1990s computer operating systems. These are inspirations only: Adventure Files is an independent project, is not affiliated with these franchises, and does not intentionally reproduce their characters, logos, or other protected artwork.
+
+A compact bilingual **Extras** panel in the authenticated dashboard contains credits, an about section, and contact links. Support: [adventurefiles.suporte@gmail.com](mailto:adventurefiles.suporte@gmail.com). Creator: [github.com/AlexandroLeao](https://github.com/AlexandroLeao).
 
 ## Current Development Status
 
-Adventure Files is under active development.
+Adventure Files is a feature-complete release candidate. The six-stage guided character creator, saved-character management, and two PNG export formats are implemented and have been manually exercised on the feature branch. The final controlled deployment and infrastructure security checks remain pending.
 
 ### Implemented
 
-- React, Vite, and TypeScript frontend.
-- Node.js, Express, and TypeScript backend.
-- Supabase email/password authentication.
-- Account registration and email confirmation.
-- Login, logout, and session restoration.
-- Password recovery and password updates.
-- PostgreSQL database schema.
-- Row Level Security (RLS).
-- One-character-per-account database constraint.
-- Protected character API endpoints.
-- Character retrieval, creation/update, and deletion on the backend.
-- Basic authenticated character dashboard.
-- Responsive Adventure Files START screen.
-- Original desktop and mobile start-screen illustrations.
-- Animated title and blinking PRESS START.
-- Retro screen closing and opening transitions.
-- Automated tests and GitHub Actions workflows.
+- React, Vite, and TypeScript frontend; Node.js, Express, and TypeScript API.
+- Supabase email/password authentication, account confirmation, recovery, sign-out, and session restoration.
+- Bilingual signup with expandable Terms of Use / Privacy Notice and an unchecked, mandatory terms acknowledgement before the signup UI can submit.
+- Optional Cloudflare Turnstile security proof on registration, sign-in and recovery, forwarded to Supabase Auth. The hosted CAPTCHA toggle **must stay off** until every active frontend has the site key and passes the rollout checks.
+- Fifteen-character minimum on signup/reset, matching the last verified Supabase Auth policy; limited browser-hardening response headers without changing the approved pixel-art UI.
+- PostgreSQL schema, user-scoped character storage, Row Level Security (RLS), and protected character CRUD endpoints.
+- One saved character per account.
+- Responsive retro START screen, original desktop/mobile artwork, and iris transition.
+- Portuguese/English interface and saved-character translations.
+- All six creator stages: Identity, Origins, Equipment, Essence, Journey, and Final Review.
+- Required selections, preserved drafts, explicit Save, and the revised catalog with Motivation.
+- Illustrated My Character dashboard with editing, confirmed character deletion, Extras/Credits, and password-reconfirmed self-service account deletion executed only by the server (hosted manual QA reported on November 4).
+- PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350) exports using the saved character.
+- Automated frontend/API/security test suites and GitHub Actions workflows.
 
-### Planned
+### Local Homologation Completed — November 2, 2026
 
-- Final authentication interface redesign.
-- Portuguese and English localization.
-- Four-stage character creation wizard.
-- Class-specific pixel-art illustrations.
-- Character customization interface.
-- Character editing and deletion controls.
-- Draft randomization.
-- Illustrated character sheet.
-- Client-side PDF export.
-- Production deployment and final accessibility review.
+- Manual QA passed for desktop/mobile layout, keyboard accessibility, reduced motion, PT/EN, all six creator stages, CRUD, error states, and both PNG downloads.
+- The developer exercised two separate test accounts and reported no cross-account character mixing in normal application flows.
+- Frontend on November 2: **146 passing tests across 17 files**, ESLint and Vite/TypeScript build passed.
+- November 4 feature-branch implementation `27b0829` adds final auth/security compatibility fixes and **180 frontend tests across 20 files**. **All three workflows passed at `27b0829`**: frontend 180 tests, lint/build; API 107 tests with 2 optional integration checks skipped, lint/build; isolated database security/pgTAP. The previous baseline at `4560955` was 177 frontend / 107 API.
+- API: **97 passing tests across 8 files**, ESLint and TypeScript build passed; 2 opt-in local Supabase integration tests are skipped by default but were exercised previously against an isolated local environment.
+- The latest feature-branch implementation passed the Frontend, API, and Database Security workflows. The user-reported hosted `GET /api/health` returned 200 and an unauthenticated character GET returned 401; recheck the stable public host after merging.
+
+### Staging Validation — November 3–4, 2026
+
+- The developer confirmed that the Vercel-to-Render API proxy returns `GET /api/health` successfully and rejects unauthenticated `GET /api/characters/me` with HTTP 401.
+- Using two test accounts, the developer reported successful deployed ownership-isolation, protected-field rejection, and independent character CRUD checks. These are **developer-reported manual results**, separate from automated/local integration tests.
+- Read-only hosted Supabase checks confirmed migrations `20261028000000` and `20261031000000`, RLS enabled on `public.characters`, four owner-scoped policies, the six-stage schema, and **2 characters / 0 records missing Motivation** at the time of inspection.
+- The Render staging API was redeployed successfully after an origin-specific CORS configuration update. The developer rechecked the health and unauthenticated endpoints.
+- The frontend, API, and database security GitHub Actions checks passed on documentation commit `c115039`.
+
+- On November 4, the developer reported successful **hosted account deletion in Portuguese and English**, inability to sign back into a deleted account, successful re-registration with the same email after confirmation, and preservation of a separate account. These are valuable manual acceptance results; they do **not** independently prove the removed character row or cover every token failure mode. Render startup logs show a Live service; no server-side account data was accessed for this report.
+
+### Remaining Before Public Portfolio Demo
+
+- Configure allowed Cloudflare Turnstile hostnames and the public Vercel site key; verify registration, sign-in and recovery tokens in Preview. **Do not enable Supabase CAPTCHA** until the approved token-enabled build serves the stable Production hostname too. Then enable Supabase-side verification with its private secret and smoke-test all three flows, with an immediate rollback plan.
+- Verify actual hosted browser security headers, HTTPS, Render CORS and secret isolation; accept or mitigate the Supabase Free no-backup risk and confirm the accepted bilingual Terms/Privacy notice reflects real data handling (checkbox is not an auditable legal consent register). Production-only dependency audits had zero findings; the moderate dev-only minimatch risk is documented in the runbook.
+- Verify the stable public Vercel URL in a signed-out browser, its authentication redirect allowlist, HTTPS, critical recovery flow, and the chosen single free-hosting environment.
+- Review draft PR #23 and final three GitHub Actions checks; merge into `main` **only after Alexandro approves**, align Render/Vercel branch and Auth origin settings, and smoke-test the final public URL. Close Issue #15 after integration and Issue #24 after live acceptance.
+- Known free-tier trade-offs include Render cold starts, possible Supabase inactivity pausing, and limited personal Gmail SMTP throughput. These affect availability; do not describe the demo as a commercial service with an uptime guarantee.
+
+See the [zero-budget portfolio release runbook](docs/free-portfolio-release.md) and [release-readiness issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24). The MVP scope remains frozen: no PDF, playable game, OAuth expansion, or new artwork variants for this release.
 
 ## User Experience
 
-The planned experience follows this structure:
+The approved experience follows this structure:
 
 1. Adventure Files START screen.
-2. Login or account registration.
-3. Authenticated character dashboard.
-4. Four-stage character creation.
-5. Character review and explicit save.
-6. Saved character sheet.
-7. Editing, deletion, PDF export, and logout.
+2. Retro iris transition into authentication.
+3. Sign in or create an account.
+4. Authenticated character area.
+5. Six-stage guided character creation.
+6. Final Review and explicit Save.
+7. Saved My Character dashboard.
+8. Editing, two PNG exports, character/account deletion, Extras, and sign-out.
 
 Authentication credentials and character creation are separate processes.
 
@@ -95,22 +117,45 @@ The transition uses a retro circular closing effect followed by an inverse openi
 
 The approved animation sequence is:
 
-- Screen closing: 1.6 seconds.
-- Dark pause: 0.3 seconds.
-- Authentication screen opening: 1.6 seconds.
+- Screen closing: approximately 1.6 seconds.
+- Dark pause: approximately 0.3 seconds.
+- Authentication screen opening: approximately 1.6 seconds.
 
 The interface respects reduced-motion accessibility preferences.
 
 ### Character Creation
 
-The creator will use four stages:
+The approved creator uses six stages:
 
-1. **Class & Name:** Select a class and enter the character's name.
-2. **Origins:** Choose ancestry and background.
-3. **Equipment:** Choose weapon, artifact, and companion.
-4. **Essence & Review:** Choose personality and aura, review the selections, and save.
+| Step | Name | Fields |
+|---|---|---|
+| 01 / 06 | Identity | Class and name |
+| 02 / 06 | Origins | Ancestry and background |
+| 03 / 06 | Equipment | Weapon and artifact |
+| 04 / 06 | Essence | Personality and aura |
+| 05 / 06 | Journey | Companion and motivation |
+| 06 / 06 | Final Review | Review all values and explicitly save |
 
-Selections remain editable until the user explicitly saves the character.
+The first five stages contain two fields each; the sixth introduces no new customization choices.
+
+Each required category must be explicitly selected. Only Companion supports `none`; Artifact does not.
+
+Desktop pairs selection groups side by side with subtle short dividers. Mobile stacks groups vertically without those dividers.
+
+The creator preserves draft selections during Back/Continue navigation and language changes. Saving occurs only after user confirmation.
+
+### Character Sheet Export
+
+Saved characters can be downloaded in two PNG formats:
+
+| Format | Size | Purpose |
+|---|---|---|
+| PNG Story/Status | 1080 × 1920 | Instagram Stories and WhatsApp Status |
+| PNG Portrait | 1080 × 1350 | Portrait posts and general sharing |
+
+Both exports use the saved character data, including Motivation, with the existing class artwork and without private account information. Exports are generated in the browser; they do not change or duplicate the saved record.
+
+**Scope decision (November 1, 2026):** PDF export has been removed from the product roadmap. Direct publishing to social media remains outside the initial scope.
 
 ## Character Classes
 
@@ -163,7 +208,8 @@ The project does not include character gender selection, combat mechanics, or re
 
 - Git
 - GitHub
-- Google Cloud Shell
+- GitHub Codespaces (current browser-based development)
+- Google Cloud Shell (optional)
 - GitHub Actions
 - npm
 
@@ -177,6 +223,7 @@ The project does not include character gender selection, combat mechanics, or re
 
 ## Documentation
 
+- [Free Portfolio Release Runbook](docs/free-portfolio-release.md) — evidence, remaining gates, zero-cost hosting risks, and final delivery sequence.
 - [Project Overview](docs/project-overview.md)
 - [System Requirements](docs/requirements.md)
 - [Customization Catalog](docs/customization-catalog.md)
@@ -195,7 +242,7 @@ The project does not include character gender selection, combat mechanics, or re
 - npm
 - Git
 
-Google Cloud Shell is the primary development environment.
+GitHub Codespaces is the current browser-based development environment. Cloud Shell can also be used when available; neither environment is the production host.
 
 ### Frontend Setup
 
@@ -219,6 +266,8 @@ Required variables:
 ```env
 VITE_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
+# Required for secure account deletion, only on the trusted API server:
+SUPABASE_SECRET_KEY=sb_secret_YOUR_SERVER_ONLY_KEY
 ```
 
 Replace the placeholders with your Supabase project configuration.
@@ -233,13 +282,13 @@ From the `web` directory:
 npm run dev
 ```
 
-For Google Cloud Shell:
+For the current GitHub Codespaces setup:
 
 ```bash
-npm run dev -- --host 0.0.0.0 --port 5173
+npm run dev -- --host 0.0.0.0 --port 5174
 ```
 
-Open Cloud Shell Web Preview on port `5173`.
+Open forwarded port `5174` from the Codespaces **Ports** panel. Keep this terminal open, and run the API separately on port `3000`. Cloud Shell users can instead select a suitable forwarded port.
 
 ### Run Frontend Tests
 
@@ -279,13 +328,19 @@ SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
 ```
 
-Run the backend:
+Run the backend (from `api/`):
 
 ```bash
 npm run dev
 ```
 
-The frontend development server proxies API requests to the backend running on port `3000`.
+In Codespaces, the explicitly loaded environment-file command is also supported:
+
+```bash
+node --env-file=.env --import tsx src/server.ts
+```
+
+The frontend development server proxies `/api` requests to the backend on port `3000`. That Vite proxy is **development-only**: hosted environments need an explicitly configured frontend/API route or proxy.
 
 ### API Endpoints
 
@@ -301,11 +356,12 @@ Authenticated character endpoints:
 GET /api/characters/me
 PUT /api/characters/me
 DELETE /api/characters/me
+DELETE /api/account/me
 ```
 
-Character endpoints require a valid authenticated session.
+Character endpoints require a valid authenticated session. `DELETE /api/account/me` additionally requires a fresh password check and explicit `DELETE` confirmation; the server deletes only the authenticated user's account, cascading to their character. The secret key never belongs in `VITE_*` variables or frontend bundles. Configure it in Render after reviewing the code; without that key, the route returns a controlled 503.
 
-The API validates character selections against the approved catalog and associates records with the authenticated user.
+The API currently validates character selections against its implemented catalog and associates records with the authenticated user. The six-stage catalog, Motivation field, and associated API/database validation are implemented; preserve their existing tested contracts.
 
 ## Authentication
 
@@ -335,11 +391,63 @@ The configured application URL and its password recovery route must be included 
 
 Google Cloud Shell preview URLs may change between environments.
 
-### Production Email Delivery
+### Staging Recovery Email: One-Time Code
 
-Before enabling public registration, configure a production-ready email provider.
+Supabase's built-in SMTP is a development-only sender with a shared limit of
+**two emails per hour**. Configure custom SMTP under **Authentication → SMTP
+Settings** before testing recovery at scale. A dedicated Gmail SMTP account is
+acceptable for small staging tests but is **not a reliable production email
+service**. Do not commit SMTP credentials or reuse a personal Gmail password.
+When using Gmail SMTP, store a Google **app password** only in Supabase:
 
-Review authentication rate limits, account verification, abuse prevention, and security settings before production deployment.
+- Sender email / SMTP user: the same dedicated Gmail account.
+- Sender name: `Adventure Files`.
+- Host: `smtp.gmail.com`.
+- Port: `465` (TLS).
+- Password: Google app password (requires Google 2-Step Verification).
+
+**After custom SMTP is enabled**, in **Authentication → Emails → Reset password**
+set a custom template that sends an OTP instead of an auto-verifying link.
+This prevents email security scanners from consuming a single-use recovery URL
+before the user opens it. Suggested subject:
+
+```text
+Adventure Files — Your recovery code / Código de recuperação
+```
+
+Suggested HTML body (the Go-template variables are processed by Supabase):
+
+```html
+<h2>Adventure Files — Recuperação de senha / Password recovery</h2>
+<p>Seu código temporário / Your one-time recovery code:</p>
+<p><strong>{{ .Token }}</strong></p>
+<p><a href="{{ .RedirectTo }}">Abrir recuperação / Open recovery page</a></p>
+<p>Digite seu e-mail e o código para definir uma nova senha.</p>
+<p>Enter your email address and this code to set a new password.</p>
+<p>Se você não solicitou isso, ignore esta mensagem.</p>
+<p>If you did not request this, ignore this message.</p>
+```
+
+**Do not include** `{{ .ConfirmationURL }}` in this recovery template: clicking
+that link would verify and consume the token automatically. The app verifies
+`email + code` directly with Supabase Auth using `verifyOtp` with
+`type: 'recovery'`, then shows the password form only for the verified
+account. Legacy emailed links continue to work while this configuration
+is being rolled out.
+
+Keep `VITE_AUTH_REDIRECT_ORIGIN` pointed to a **stable** Vercel environment
+alias rather than a per-deployment URL, and allow its `/reset-password`
+route in **Authentication → URL Configuration**. Never place SMTP secrets in
+`VITE_*` variables; Vite exposes them in browser bundles.
+
+Test with two separate accounts, using the newest email/code, verifying that
+wrong, expired and previously used codes fail. Verify that updating the
+password of account A never changes account B or any characters belonging
+to B, and that sign-out affects the intended session scope.
+
+### Public-Demo Email Delivery
+
+The existing dedicated Gmail custom SMTP has passed low-volume email/OTP testing; it is **not** a guaranteed transactional email service. Before opening public registration, verify configured rate limits, email confirmation/recovery and abuse protection, and explicitly accept the free-tier delivery limits. If usage grows or delivery becomes unreliable, evaluate a dedicated transactional provider as a **post-launch operational decision**, not an unapproved paid dependency.
 
 ## Database Security
 
@@ -416,7 +524,7 @@ The main branch should remain stable throughout development.
 
 - Source code uses English identifiers and comments.
 - Commits, Issues, Pull Requests, and technical documentation use English.
-- The user interface is planned to support Portuguese and English.
+- The user interface supports Portuguese and English.
 - Database identifiers and stored customization slugs remain language-independent.
 - Authentication and authorization follow least-privilege principles.
 - Secrets must never be committed to Git.
@@ -439,16 +547,22 @@ The initial release does not include:
 
 ## Current Development Milestone
 
-The responsive Adventure Files START screen has been implemented and merged into `main` through Pull Request #19.
+**Release candidate:** the implemented product is functionally accepted on desktop/mobile, PT/EN. The remaining work is an intentionally bounded engineering handoff, not new RPG features or social-media promotion.
 
-The next development milestones focus on:
+The six-stage character creator, protected CRUD, two PNG exports, session recovery, hosted database migration/RLS verification, two-account isolation and hosted account deletion are complete on the feature branch. The creator manually approved the PT/EN desktop/mobile signup Terms of Use and Privacy Notice flow, including a successful new-account registration. At application commit `39cb50c`, GitHub Actions passed all three workflows: **177 frontend tests (19 files), 107 API tests (2 opt-in integration tests skipped)**, frontend/API lint and builds, and isolated database security/pgTAP.
 
-1. Product documentation alignment.
-2. Authentication interface redesign.
-3. PT/EN localization.
-4. Four-stage character creation.
-5. Character management and PDF export.
-6. Production validation and deployment.
+**Next milestone:** one bounded public-demo release audit: dependencies, security headers/secrets, auth abuse/email limits, stable free domain, privacy notice, PR review and final smoke checks. We are **not** rebuilding validated screens or introducing new product features. The feature branch remains in draft PR #23 pending launch approval; Issue #15 closes after integration and Issue #24 after the public smoke tests. See the [release runbook](docs/free-portfolio-release.md).
+
+The roadmap includes **only two character-sheet downloads**: PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350). PDF is explicitly out of scope.
+
+### Optional Improvements After the First Public Release
+
+The following are **ideas for a future milestone, not pending requirements for the current MVP**. Any implementation should be separately approved, tested, and reviewed without changing the already accepted retro UI:
+
+- **New character classes or appearance choices:** commission/create original matching pixel art, add PT/EN descriptions, update shared selection catalogs and class-slug validation, review API/database allowlists and saved-record compatibility, and extend frontend/API/RLS/export tests. Keep the current one-character-per-account limit unless the product scope is explicitly revisited.
+- **More role-playing options:** propose additional origins, companions, or equipment with accessible bilingual labels and data-driven validation rather than introducing unchecked values or breaking previously saved characters.
+- **AWS as a learning exercise, not a mandatory migration:** evaluate a small isolated proof of concept for S3/CloudFront asset hosting or SES transactional email, with IAM least privilege, cost budgets/alerts, provider quotas, deployment/rollback plans and comparison to the current free Vercel/Render/Supabase stack. No paid or irreversible cloud setup is required for the current release.
+- **Operational maturity:** consider observability and broader integration testing after the public demo is stable, prioritizing fixes to actual incidents or user feedback.
 
 ---
 

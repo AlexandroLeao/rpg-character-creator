@@ -1,0 +1,106 @@
+/* Registration-only terms: compact in the closed state, scrollable when open. */
+.signup-terms {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 3px;
+  color: var(--auth-cream);
+}
+
+.signup-terms__details {
+  border: 1px solid var(--auth-border);
+  border-radius: 6px;
+  background: var(--auth-surface-dark);
+}
+
+.signup-terms__details summary {
+  padding: 10px 12px;
+  color: var(--auth-green);
+  cursor: pointer;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  line-height: 1.75;
+}
+
+.signup-terms__details summary:focus-visible,
+.signup-terms__accept input:focus-visible {
+  outline: 2px solid var(--auth-green);
+  outline-offset: 3px;
+}
+
+.signup-terms__body {
+  max-height: 165px;
+  overflow-y: auto;
+  padding: 10px 12px 12px;
+  border-top: 1px solid var(--auth-border);
+  scrollbar-color: var(--auth-border) var(--auth-surface-dark);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.signup-terms__body h3 {
+  margin: 12px 0 8px;
+  color: var(--auth-green);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  font-weight: normal;
+  line-height: 1.75;
+}
+
+.signup-terms__body h3:first-child {
+  margin-top: 0;
+}
+
+.signup-terms__body p {
+  margin: 0 0 10px;
+}
+
+.signup-terms__body a {
+  color: var(--auth-green);
+}
+
+.signup-terms__updated {
+  color: var(--auth-muted);
+}
+
+.auth-form .signup-terms__accept {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--auth-cream);
+  cursor: pointer;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  line-height: 1.75;
+  letter-spacing: 0;
+}
+
+.auth-form .signup-terms__accept input[type='checkbox'] {
+  display: block;
+  flex: 0 0 18px;
+  width: 18px;
+  min-width: 18px;
+  height: 18px;
+  min-height: 18px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--auth-border);
+  border-radius: 3px;
+  accent-color: var(--auth-green);
+}
+
+.signup-terms__accept span {
+  flex: 1;
+}
+
+@media (max-width: 480px) {
+  .signup-terms__details summary {
+    font-size: 8px;
+  }
+
+  .signup-terms__body {
+    max-height: 150px;
+  }
+}

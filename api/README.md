@@ -1,6 +1,6 @@
-# RPG Character Creator API
+# Adventure Files API
 
-REST API for the RPG Character Creator application.
+REST API for the Adventure Files character-creator application.
 
 Built with Node.js, Express, TypeScript, and Supabase Auth.
 
@@ -37,7 +37,7 @@ The Express API includes:
 
 The character CRUD implementation is covered by automated tests using mocked Supabase responses.
 
-Live integration testing against an isolated Supabase development environment is still required to verify the complete authentication and database authorization flow.
+Two opt-in integration tests have already passed using real local Supabase Auth, PostgreSQL RLS and Express with disposable accounts. Hosted two-account checks were subsequently reported by the developer; additional public-release safety checks remain in Issue #24.
 
 ## Requirements
 
@@ -74,6 +74,7 @@ The API uses the following environment variables:
 | `CORS_ORIGIN` | Comma-separated list of allowed frontend origins. |
 | `SUPABASE_URL` | Supabase project URL. |
 | `SUPABASE_PUBLISHABLE_KEY` | Supabase publishable API key. |
+| `SUPABASE_SECRET_KEY` | Server-only Supabase secret API key for account deletion. Keep exclusively in the API environment; never use a `VITE_` prefix. |
 
 Example configuration:
 
@@ -82,6 +83,7 @@ PORT=3000
 CORS_ORIGIN=http://localhost:5173
 SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
 SUPABASE_PUBLISHABLE_KEY=sb_publishable_YOUR_PUBLIC_KEY
+SUPABASE_SECRET_KEY=sb_secret_YOUR_SERVER_ONLY_KEY
 ```
 
 Replace the placeholders with the correct values for your development environment.
@@ -386,6 +388,27 @@ The endpoint is idempotent:
 The API filters the operation using the verified user ID.
 
 PostgreSQL RLS policies restrict deletion to the authenticated user's own character.
+
+### DELETE /api/account/me — self-service account deletion
+
+This irreversible endpoint is intentionally separate from character CRUD. It requires a verified Bearer access token, a **fresh password verification** against the authenticated account email, and an explicit confirmation string.
+
+```http
+DELETE /api/account/me
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{"password":"<current-password>","confirmation":"DELETE"}
+```
+
+- Success: `204 No Content`. The authenticated Auth user is removed; the `public.characters.user_id` foreign key with `ON DELETE CASCADE` removes their saved character.
+- Invalid request: `400`; invalid/expired session: `401`; failed password/identity proof: `403`; unavailable administrator: `503`. Never echo secrets, passwords, or underlying Supabase error details.
+- No client-supplied `userId` or `email` is accepted as a deletion target. Admin deletion uses only the verified Bearer-token owner ID.
+- The **server-only** `SUPABASE_SECRET_KEY` must be configured in Render and kept out of GitHub, browser bundles, Vercel and chat. Without it, deletion fails closed with `503`.
+- Deletion revokes refresh sessions. Existing issued access JWTs may remain cryptographically valid until expiration; protected requests must validate the current user/session. Use disposable accounts to test success, wrong password, cross-account attempts, stale sessions and cascading data removal.
+- After backend success the frontend signs out locally; never declare success based only on UI state.
+
+**Staging diagnostics for a failed deletion:** In the browser Network tab, inspect only the HTTP status of `DELETE /api/account/me` (never copy its bearer token or request body). In the **Render backend** logs, the `[account-delete]` markers distinguish `admin_client_unavailable` (check the exact server-only `SUPABASE_SECRET_KEY` variable), `admin_delete_rejected` (Supabase Auth Admin returned a status/code), and `password_verification_exception` / `admin_delete_exception` (transient SDK/network exception). These structured entries deliberately omit passwords, tokens, admin keys, user IDs and email addresses. A generic UI error is not proof that the account was deleted; verify a disposable account in Supabase Auth only after confirming the backend result.
 
 ### Unknown Routes
 
@@ -718,20 +741,21 @@ Changes must pass automated checks before being considered ready for merging.
 - Issue #13 — Express authentication middleware and API CI.
 - Issue #15 — Protected character CRUD endpoints.
 
-## Next Milestones
+## November 3–4, 2026 — Hosted Staging Evidence
 
-After the protected character CRUD milestone:
+- The developer reported successful API health and HTTP 401 unauthenticated smoke checks through Vercel's `/api` rewrite to Render.
+- The developer reported negative cross-account CRUD, rejected `userId` payloads, and no alteration of the second account's character. These manual tests are **developer-reported**, not a new automated hosted penetration test.
+- Read-only hosted Supabase SQL confirmed migrations `20261028000000` and `20261031000000`, RLS enabled, owner-only SELECT/INSERT/UPDATE/DELETE policies, and **2 characters with 0 missing Motivation** at inspection time.
+- Local checks include 6 mocked cross-account tests, 39 pgTAP assertions, and 2 opt-in Supabase Local Auth/Express integration tests. The standard API suite passes 97 tests with the 2 local integration cases skipped by default. GitHub Actions API/Database checks passed at `c115039`.
+- Render successfully redeployed following a strict staging origin allowlist update. A browser's same-origin Vercel `/api` proxy is not by itself evidence of a direct browser-to-Render CORS preflight.
 
-- Complete safe integration verification against Supabase.
-- Connect the frontend character creator to the protected API.
-- Implement the planned Portuguese and English language selection.
-- Continue character creation interface development.
-- Add character illustrations and visual customization.
-- Implement PDF export.
-- Refine the application's design, colors, and typography.
+## Final Release Checks
 
-The frontend must default to Brazilian Portuguese, with manual switching between Portuguese and English.
+1. Audit production-intended dependencies, security headers, logging/error handling, HTTPS and any credentials/history exposure.
+2. Confirm the approved stable public frontend URL, Auth redirects, API destination, and account recovery/email-delivery limits. Do not treat personal Gmail SMTP as guaranteed transactional infrastructure.
+3. Review public-signup abuse/rate limits and a documented data/account deletion contact before announcing open registration.
+4. Recheck the final public deployment, finish PR #23 review, and record issue #24 evidence before merging or closing related issues.
 
-The application will use one consistent retro visual theme without a light/dark theme toggle.
+The portfolio demo may reuse a single free-hosting environment by explicit decision; a separate paid production stack is **not** required for this MVP. This is a documented availability trade-off, not production-grade isolation or uptime assurance. See [zero-budget release runbook](../docs/free-portfolio-release.md).
 
-Production deployment will be handled separately.
+The frontend defaults to Brazilian Portuguese with optional English and a consistent dark retro theme. The two PNG downloads (1080×1920 Story/Status, 1080×1350 Portrait) remain the only export formats; PDF is out of scope.

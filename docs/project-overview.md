@@ -1,16 +1,16 @@
 # Adventure Files — Project Overview
 
-- **Status:** In development
+- **Status:** Feature-complete release candidate; final technical release verification and merge pending.
 - **Product name:** Adventure Files
 - **Product type:** Full-stack RPG-inspired character creator
-- **Development environment:** Google Cloud Shell Editor
+- **Development environment:** GitHub Codespaces (browser-based); Cloud Shell optional
 - **Repository:** AlexandroLeao/rpg-character-creator
 
 ## 1. Project Vision
 
 Adventure Files is a personal full-stack development project that combines practical software engineering with the visual identity of classic adventure games and early computer interfaces.
 
-The application allows users to create an account, design a fictional RPG character, save their selections, and export a character sheet as a PDF.
+The application allows users to create an account, design a fictional RPG character, save their selections, and export a character sheet in two PNG formats: Story/Status and Portrait.
 
 Although its presentation resembles a retro video game, Adventure Files is not a playable RPG.
 
@@ -27,7 +27,7 @@ The project demonstrates:
 - Responsive interface design.
 - Pixel-art-inspired visual design.
 - Character customization.
-- PDF generation.
+- PNG Story/Status and Portrait export.
 - Automated testing and GitHub workflows.
 
 The final result should be technically meaningful, visually distinctive, intuitive, and small enough to remain maintainable as a personal portfolio project.
@@ -67,7 +67,7 @@ Adventure Files uses one carefully designed dark theme.
 
 A light/dark theme switch is not part of the product.
 
-The visual palette should remain consistent across the title screen, authentication interface, character creator, dashboard, and PDF design.
+The visual palette should remain consistent across the title screen, authentication interface, character creator, dashboard, and exported character sheets.
 
 ### 2.4. Accessibility and responsiveness
 
@@ -175,19 +175,23 @@ If a character exists, the user sees their saved character dashboard.
 
 The authenticated area must provide a clear way to sign out.
 
-The initial product supports exactly one saved character per account.
+The initial product supports at most one saved character per account.
 
 ### Stage 5 — Character Creation
 
-Character creation uses a guided, four-stage interface.
+Character creation follows the implemented six-stage guided flow.
 
-The goal is to make customization approachable, visual, and easy to review.
+Five stages contain the character's customization fields. The sixth stage is reserved for reviewing and saving the character.
 
-Only a small group of decisions appears at each stage.
+The frontend implements all six stages, including Essence, Journey, and a dedicated Final Review with explicit Save.
 
-#### Step 1 — Class and Name
+The compact creator header displays progress (01 / 06 through 06 / 06) on the left and PT/EN on the right.
 
-The user chooses a class and enters a character name.
+On desktop, paired selection categories use the approved compact layout with subtle dividers between option grids. On mobile, categories stack vertically without those dividers.
+
+#### Step 01 / 06 — Identity
+
+The user chooses one class and enters a character name.
 
 The available classes are:
 
@@ -203,46 +207,70 @@ The available classes are:
 The class-selection illustration follows these interaction rules:
 
 - Before any class is selected, the illustration shows the complete group of eight adventurers.
-- Hovering over or focusing a class temporarily previews its artwork.
-- Each class preview represents two different-looking adventurers rather than forcing a single character appearance.
-- Moving away without selecting a class restores the group illustration.
-- Clicking or otherwise confirming a class keeps that class selected.
-- The chosen class remains visible as the active selection.
-- Selecting another class replaces the previous selection.
+- Each class-specific illustration represents two different-looking adventurers.
+- Hovering over a class does not change the displayed illustration.
+- Keyboard focus alone does not change the selected class.
+- Clicking or activating a class selects it and displays its corresponding illustration.
+- The selected class remains active until another class is explicitly chosen.
+- Selecting another class updates the active option and illustration.
 
-The illustration is a visual representation of the class, not a separate avatar or gender-selection system.
+Character names contain 2–32 characters after trimming.
 
-#### Step 2 — Origins
+The illustration represents the selected class, not an avatar or gender-selection system.
 
-The user chooses:
-
-- Ancestry.
-- Background.
-
-These options establish the character's fictional origin and history.
-
-#### Step 3 — Equipment
+#### Step 02 / 06 — Origins
 
 The user chooses:
 
-- Weapon.
-- Artifact.
-- Companion.
+- One ancestry.
+- One background.
 
-Optional "none" values are available where defined in the customization catalog.
+Both selections are required. These options describe the character's fictional past.
 
-#### Step 4 — Essence and Review
+#### Step 03 / 06 — Equipment
 
 The user chooses:
 
-- Personality.
-- Aura.
+- One weapon.
+- One artifact.
 
-The application then presents a review of the complete character.
+Both selections are required. No artifact `none` option is offered.
 
-The user can navigate backward, change previous decisions, and return to the review without losing the current draft.
+The approved artifact catalog includes Arcane Seal (`arcane-seal`), Shadow Crown (`shadow-crown`), and Chaos Orb (`chaos-orb`).
 
-Saving occurs only after an explicit confirmation.
+Companion is moved out of this stage.
+
+#### Step 04 / 06 — Essence
+
+The user chooses:
+
+- One personality.
+- One aura.
+
+Both selections are required.
+
+#### Step 05 / 06 — Journey
+
+The user chooses:
+
+- One companion.
+- One motivation.
+
+Both selections require an explicit choice.
+
+Companion includes `none`, representing a character without a companion. Dragon (`dragon`) replaces Dragonling (`dragonling`) in the approved catalog.
+
+Motivation describes why the character starts an adventure. Eight short motivations are defined in the customization catalog.
+
+#### Step 06 / 06 — Final Review
+
+This stage does not introduce any new customization fields.
+
+The review displays all ten values: name, class, ancestry, background, weapon, artifact, personality, aura, companion, and motivation.
+
+Users can return to any previous stage to revise their choices without losing the draft.
+
+Saving occurs only after an explicit confirmation. Failed requests preserve the draft and must not silently create duplicates.
 
 ### Stage 6 — Saved Character Dashboard
 
@@ -250,45 +278,37 @@ After saving, the character becomes available in the authenticated dashboard.
 
 The dashboard presents:
 
-- Character name.
-- Character class.
-- Character illustration.
-- All saved customization fields.
+- Character name and class illustration.
+- All saved customization fields, including motivation.
 - Edit character.
 - Delete character.
-- Export PDF.
+- Export character sheet.
 - Sign out.
 
-Editing opens the existing character data for modification.
+Editing reopens the saved values in the creator. Deleting requires explicit confirmation and does not delete the user account. Signing out does not delete the character.
 
-Deleting requires explicit confirmation.
+### Stage 7 — Character Sheet Export
 
-Signing out must not delete the saved character.
+Users can export their saved character in two formats:
 
-### Stage 7 — PDF Export
+| Format | Size | Purpose |
+|---|---|---|
+| PNG Story/Status | 1080 × 1920 | Instagram Stories and WhatsApp Status |
+| PNG Portrait | 1080 × 1350 | Social posts and general sharing |
 
-Users can export their saved character as a printable PDF.
+PDF export was removed from the product roadmap by the November 1, 2026 scope decision.
 
-The document should contain:
+Each format may use a dedicated layout, but all derive from the same saved character data.
 
-1. The character's pixel-art-inspired illustration near the top.
-2. The character's name.
-3. The selected class.
-4. Ancestry.
-5. Background.
-6. Weapon.
-7. Artifact.
-8. Companion.
-9. Personality.
-10. Aura.
+The exported character sheet includes the illustration, name, class, ancestry, background, weapon, artifact, personality, aura, companion, and motivation.
 
-The PDF should share the visual identity of Adventure Files while remaining readable and suitable for printing.
+Exports must not reveal passwords, authentication tokens, internal identifiers, or unrelated account information.
 
-PDF generation must not expose private account credentials or unrelated personal information.
+Direct social-media publishing integrations are not required for the initial release.
 
 ## 4. Character Customization Scope
 
-The backend customization catalog defines the accepted values and stored identifiers.
+The customization catalog defines the supported values and stable stored identifiers. Frontend, API, and database changes for the six-stage flow have been implemented; production compatibility and security verification remain release checks.
 
 The initial release includes:
 
@@ -298,10 +318,11 @@ The initial release includes:
 | Ancestry | 6 |
 | Background | 6 |
 | Weapon | 8 |
-| Artifact | 9 |
+| Artifact | 8 |
 | Personality | 8 |
 | Aura | 8 |
 | Companion | 8 |
+| Motivation | 8 |
 
 The character also has a user-provided name.
 
@@ -363,46 +384,37 @@ The account remains available for creating another character afterward.
 | API tests | Vitest and Supertest |
 | Version control | Git and GitHub |
 | Continuous integration | GitHub Actions |
-| Development environment | Google Cloud Shell Editor |
+| Development environment | GitHub Codespaces (browser-based); Cloud Shell optional |
 
 Production hosting and deployment details must be validated during the deployment phase.
 
 ## 7. Current Implementation Status
 
-The repository already includes several working foundations.
+Adventure Files is in active development on a feature branch. Core character creation, management, and both exports are implemented. Local manual UX/accessibility/security-flow homologation is complete; controlled staging authorization, operational, and production checks remain.
 
-### Implemented foundations
+### Implemented
 
-- React and TypeScript frontend.
-- Express and TypeScript backend.
-- Supabase authentication integration.
-- Authentication session handling.
-- Protected character API routes.
-- PostgreSQL character storage and Row Level Security.
-- Character validation.
-- Basic authenticated character dashboard.
-- Adventure Files start screen.
-- Separate desktop and mobile start-screen artwork.
-- Animated "PRESS START" interaction.
-- Retro transition into authentication.
-- Automated frontend and backend test foundations.
-- GitHub Actions workflows.
+- React/TypeScript frontend, Express/TypeScript API, Supabase Auth, PostgreSQL storage, and RLS.
+- Responsive Adventure Files start screen with original desktop/mobile artwork and retro transitions.
+- Email/password account flows, session handling, and PT/EN localization.
+- All six creator stages with required selections, the revised artifact/companion catalog, Personality, Aura, and Motivation.
+- Dedicated Final Review, explicit Save, draft preservation, and authenticated character persistence.
+- Illustrated My Character dashboard, saved-character editing, and confirmation-based deletion.
+- Browser-generated PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350) downloads using the saved record and class artwork.
+- Automated frontend, API, and database security checks with GitHub Actions.
 
-### Planned or incomplete product features
+On November 2, 2026, local manual QA reported no issues across the start screen, authentication, six-stage flow, saved-character CRUD, PNG exports, responsive layouts, PT/EN, keyboard accessibility, reduced-motion behavior, and recoverable errors. Two test accounts were exercised without observed cross-account mixing. Local checks passed **146 frontend tests (17 files)** and **97 API tests (8 files)**, plus lint and builds. The two opt-in Express/Supabase integration tests are intentionally skipped in the standard API suite and were run previously against isolated local Supabase.
 
-- Final compact authentication-window redesign.
-- Consistent PT/EN localization throughout the interface.
-- Character creation wizard.
-- Class illustration previews.
-- Character draft management.
-- Character editing and deletion controls in the frontend.
-- Final illustrated character dashboard.
-- Illustrated PDF export.
-- End-to-end production deployment validation.
+**November 3 update:** the most recent feature-branch CI passed **167 frontend tests (18 files)**, 97 API tests, lint/builds, and local database RLS tests. Vercel reported the latest staging deployment as ready, and the developer reported successful recovery email/OTP and responsive QA. These are staging/CI observations, not an independently verified deployed API authorization or production-readiness assessment.
 
-The existing backend API provides a foundation for character operations, but the corresponding frontend experience still needs to be completed.
+### Current Hosted Evidence (November 3–4, 2026)
 
-This distinction is important: approved designs and documented requirements do not necessarily mean that their implementations are finished.
+1. The developer confirmed Vercel Preview/Render API health, unauthenticated 401 behavior, guarded `/reset-password`, password/code recovery, separate sessions and negative cross-account character operations.
+2. Hosted Supabase read-only SQL confirmed both project migrations, `public.characters` RLS, four owner-scoped policies and a snapshot of **2 characters / 0 without Motivation**.
+3. Render redeployed successfully after its explicit CORS origin list was updated, and the developer repeated the API smoke tests. Latest GitHub Actions on `c115039` passed frontend, API and database security workflows.
+4. Outstanding public-release gates are dependency/security/secret review, browser/HTTP security headers, anti-abuse/email limitations, a stable accessible public URL, privacy/account deletion notice, PR review/merge, and final smoke checks. See [the free demo runbook](./free-portfolio-release.md) and [Issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
+
+The portfolio owner requires **zero paid hosting and fast, quality-focused delivery**. The approved MVP is frozen; a single free demonstration environment is acceptable if its availability and isolation limitations are documented and explicitly approved. The repository remains private until any source-history secret audit is complete and a separate visibility decision is made.
 
 ## 8. Security and Privacy Requirements
 
@@ -445,7 +457,7 @@ However, layouts may adapt to available screen space.
 - Compact authentication forms.
 - Touch-friendly character options.
 - Character preview adapted to narrow screens.
-- Full access to navigation, editing, and PDF export.
+- Full access to navigation, editing, and both PNG exports.
 
 The mobile experience must remain fully functional rather than acting as a simplified demo.
 
@@ -476,12 +488,12 @@ Adventure Files is ready for its initial completed release when:
 2. The retro transition works smoothly and respects reduced-motion preferences.
 3. Account registration, verification, sign-in, recovery, and sign-out work.
 4. Users can select Portuguese or English in the interface.
-5. The complete four-stage character creator is functional.
-6. Class previews behave correctly before and after selection.
+5. The complete six-stage character creator is functional.
+6. Class artwork and selection states respond correctly to explicit user choices.
 7. Users can review and revise their draft before saving.
 8. Each account can store no more than one saved character.
 9. Users can view, edit, and delete their own character.
-10. The exported PDF includes the character illustration and complete character details.
+10. Both approved PNG exports include the character illustration and complete character details.
 11. Users cannot access another account's character.
 12. Responsive layouts and keyboard accessibility are verified.
 13. Automated tests and CI checks pass.
@@ -515,8 +527,8 @@ The project should advance through small, reviewable stages.
 
 ### Phase 4 — Character Creation
 
-- Four-stage creator.
-- Class previews and illustrations.
+- Six-stage creator with a review-only final step.
+- Class-specific illustrations and persistent selection.
 - Catalog-based option selection.
 - Draft navigation and review.
 - Character save integration.
@@ -528,11 +540,11 @@ The project should advance through small, reviewable stages.
 - Delete character.
 - Persistent user-specific data.
 
-### Phase 6 — PDF Export
+### Phase 6 — Character Sheet Export
 
-- Character sheet layout.
-- Illustration integration.
-- PDF generation and download.
+- Shared character-sheet data and original illustration integration.
+- PNG Story/Status 1080 × 1920 generation and download.
+- PNG Portrait 1080 × 1350 generation and download.
 
 ### Phase 7 — Finalization
 

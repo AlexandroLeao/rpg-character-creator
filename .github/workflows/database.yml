@@ -14,6 +14,11 @@ on:
 permissions:
   contents: read
 
+# Only one local Supabase/PostgreSQL instance per branch at a time.
+concurrency:
+  group: database-security-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   postgres-rls:
     name: Supabase migration and pgTAP

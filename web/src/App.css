@@ -50,8 +50,8 @@
 }
 
 /*
- * The existing character dashboard needs
- * more horizontal space than the login form.
+ * The character dashboard needs more
+ * horizontal space than the login form.
  */
 
 .auth-window:has(.character-dashboard) {
@@ -84,10 +84,6 @@
   letter-spacing: 0;
 }
 
-/* Hide the old decorative diamond.
-   The PT/EN selector will replace it
-   in the next implementation step. */
-
 .auth-titlebar > span:last-child[aria-hidden='true'] {
   display: none;
 }
@@ -102,14 +98,6 @@
 
   padding: 28px 26px 26px;
 }
-
-/*
- * The old decorative introduction is
- * temporarily hidden.
- *
- * It will be removed from the JSX
- * during the next step.
- */
 
 .auth-kicker {
   display: none;
@@ -144,6 +132,24 @@
   flex-direction: column;
 
   gap: 12px;
+}
+
+.auth-recovery-account {
+  margin: 0;
+  color: var(--auth-muted);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 9px;
+  line-height: 1.8;
+}
+
+.auth-recovery-account strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--auth-cream);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  font-weight: bold;
+  overflow-wrap: anywhere;
 }
 
 .auth-form label {
@@ -418,13 +424,6 @@
   background-color: #000000;
 }
 
-/*
- * The login screen opens from the center.
- *
- * Duration: 1600ms
- * Preserve the approved transition.
- */
-
 .auth-shell--reveal {
   animation: auth-iris-open 1600ms steps(32, end) both;
 }
@@ -632,11 +631,542 @@
   padding: 10px 0;
 }
 
-/* Smaller mobile screens */
 @media (max-width: 380px) {
   .auth-nav {
     grid-template-columns: 1fr;
     justify-items: center;
     gap: 12px;
   }
+}
+
+
+/*
+ * Mobile sign-in only: keep both secondary actions aligned beneath the
+ * primary Sign In button. Signup/recovery screens and desktop remain intact.
+ */
+@media (max-width: 640px) {
+  .auth-window:not(.auth-window--signup):not(.auth-window--recovery) .auth-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 24px;
+  }
+
+  .auth-window:not(.auth-window--signup):not(.auth-window--recovery) .auth-nav > button {
+    width: 100%;
+    min-height: 40px;
+    text-align: center;
+  }
+}
+
+/* Recovery instructions should remain readable at mobile widths. */
+.auth-form #recoveryCodeHelp {
+  margin: 0 0 6px;
+  color: var(--auth-muted);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  font-weight: normal;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+/* Let long translated links wrap instead of overflowing the login card. */
+.auth-nav {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.auth-nav button {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.auth-nav button:only-child {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
+@media (max-width: 380px) {
+  .auth-nav {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ==========================================
+   RECOVERY SCREENS - CONSISTENT PIXEL UI
+   Scoped to the email and code forms only;
+   the approved new-password screen is untouched.
+   ========================================== */
+
+.auth-window--recovery .auth-form #recoveryCodeHelp {
+  margin: 0 0 2px;
+  color: var(--auth-muted);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  line-height: 1.8;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+.auth-window--recovery .auth-nav {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0 0;
+}
+
+.auth-window--recovery .auth-nav button {
+  min-height: 36px;
+  padding: 8px 3px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  line-height: 1.65;
+  letter-spacing: 0;
+  overflow-wrap: normal;
+}
+
+.auth-window--recovery .auth-content [role='alert'],
+.auth-window--recovery .auth-content [role='status'] {
+  margin: 18px 0 0;
+  padding: 12px 14px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  font-weight: normal;
+  line-height: 1.85;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 380px) {
+  .auth-window--recovery .auth-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .auth-window--recovery .auth-nav button {
+    padding: 8px 0;
+  }
+}
+
+
+/* Keep account links aligned with the left and right edges of the form. */
+.auth-nav > button:first-child {
+  justify-self: start;
+  text-align: left;
+}
+
+.auth-nav > button:last-child:not(:first-child) {
+  justify-self: end;
+  text-align: right;
+}
+
+.auth-nav > button:only-child {
+  justify-self: start;
+  text-align: left;
+}
+
+/*
+ * Fit the create-account form into a typical browser viewport by reducing
+ * vertical whitespace only. Field sizes, fonts and colors are unchanged.
+ */
+.auth-window--signup .auth-content {
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
+
+.auth-window--signup .auth-form {
+  gap: 8px;
+}
+
+.auth-window--signup .auth-form button[type='submit'] {
+  margin-top: 8px;
+}
+
+.auth-window--signup .auth-nav {
+  margin-top: 12px;
+}
+
+@media (max-height: 680px) {
+  .auth-shell:has(.auth-window--signup) {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+}
+
+/* Keep browser-autofilled addresses legible on the dark UI. */
+.auth-form input:-webkit-autofill,
+.auth-form input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--auth-cream);
+  -webkit-box-shadow: 0 0 0 1000px #060d09 inset;
+  caret-color: var(--auth-cream);
+}
+
+/* ==========================================
+   CHARACTER CREATOR
+   ========================================== */
+
+/*
+ * Give the character creator more room
+ * without changing the login window size.
+ */
+
+.auth-window:has(.character-class-step) {
+  max-width: 1100px;
+}
+
+/* ==========================================
+   CHARACTER CREATOR — VISUAL REFINEMENTS
+   ========================================== */
+
+/* Larger window only while creating */
+
+.auth-window:has(.character-dashboard--creating) {
+  max-width: 1100px;
+}
+
+/* More compact vertical spacing */
+
+.auth-window:has(.character-dashboard--creating)
+.auth-content {
+  padding: 16px 22px 14px;
+}
+
+/*
+ * Sign out remains available when returning
+ * to the character dashboard.
+ *
+ * Hide it during the wizard to keep the
+ * creation screen focused and compact.
+ */
+
+.auth-window:has(.character-dashboard--creating)
+.auth-success > button {
+  display: none;
+}
+
+/* ==========================================
+   CREATE CHARACTER BUTTON
+   ========================================== */
+
+.character-empty__create-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 50px;
+
+  margin-top: 24px;
+  padding: 14px 18px;
+
+  border: 2px solid #a4ed86;
+  border-radius: 7px;
+
+  background: #a4ed86;
+  color: #07120a;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  line-height: 1.6;
+
+  text-align: center;
+
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.character-empty__create-button:hover:not(:disabled) {
+  background: #c9ffb1;
+}
+
+.character-empty__create-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* ==========================================
+   MOBILE CREATOR WINDOW
+   ========================================== */
+
+@media (max-width: 760px) {
+  .auth-window:has(.character-dashboard--creating)
+  .auth-content {
+    padding: 20px 18px;
+  }
+
+  .character-empty__create-button {
+    font-size: 10px;
+  }
+}
+
+/* ==========================================
+   REDUCED MOTION
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .character-empty__create-button {
+    transition: none;
+  }
+}
+
+/* ==========================================
+   ADVENTURE FILES
+   FINAL CHARACTER CREATOR REFINEMENTS
+   ========================================== */
+
+/* ==========================================
+   EMPTY CHARACTER DASHBOARD
+   ========================================== */
+
+/*
+ * Keep only two actions:
+ * Create Character and Sign Out.
+ */
+
+.character-empty {
+  display: block;
+  width: 100%;
+}
+
+/* Consistent button typography */
+
+.character-empty__create-button,
+.auth-window:has(.character-empty)
+.auth-success > button {
+  min-height: 50px;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 11px;
+  font-weight: normal;
+  line-height: 1.7;
+
+  text-align: center;
+}
+
+/* Main create action */
+
+.character-empty__create-button {
+  width: 100%;
+  margin-top: 0;
+
+  border: 2px solid #a4ed86;
+  border-radius: 7px;
+
+  background: #a4ed86;
+  color: #07120a;
+}
+
+.character-empty__create-button:hover:not(:disabled) {
+  background: #c9ffb1;
+}
+
+/* ==========================================
+   SIGN OUT — MUTED DARK GREEN
+   ========================================== */
+
+/*
+ * Secondary action: stays inside the
+ * established Adventure Files palette.
+ */
+
+.auth-window:has(.character-empty)
+.auth-success > button {
+  width: 100%;
+
+  margin-top: 12px;
+
+  border: 2px solid #45684a;
+  border-radius: 7px;
+
+  background: #102719;
+  color: #bfd7a6;
+
+  box-shadow: none;
+}
+
+.auth-window:has(.character-empty)
+.auth-success > button:hover:not(:disabled) {
+  border-color: #78a66f;
+
+  background: #193923;
+  color: #e4f6d6;
+}
+
+.auth-window:has(.character-empty)
+.auth-success > button:focus-visible {
+  outline: 2px solid #a4ed86;
+  outline-offset: 3px;
+}
+
+/* ==========================================
+   CREATOR HEADER
+   ========================================== */
+
+/*
+ * The current step is displayed in the
+ * window title bar by App.tsx.
+ *
+ * Keep the title visible during creation.
+ * PT / EN remains aligned on the right.
+ */
+
+.auth-window:has(.character-dashboard--creating)
+.auth-titlebar__heading {
+  visibility: visible;
+}
+
+/* ==========================================
+   TYPOGRAPHY CONSISTENCY
+   ========================================== */
+
+/*
+ * Class selection and character name
+ * use the same typographic hierarchy.
+ */
+
+.character-class-step__header h2,
+.character-class-step__name label {
+  font-family: 'Press Start 2P', monospace;
+
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 1.85;
+
+  letter-spacing: 0.1px;
+}
+
+/* ==========================================
+   SPACING REFINEMENTS
+   ========================================== */
+
+.character-class-step__controls {
+  gap: 12px;
+}
+
+.character-class-step__header {
+  margin-bottom: 0;
+}
+
+.character-class-step__name {
+  gap: 12px;
+}
+
+.character-class-step__actions {
+  margin-top: 5px;
+}
+
+/* ==========================================
+   TEMPORARY NEXT-STEP BUTTON
+   ========================================== */
+
+.character-creator-next button {
+  min-height: 44px;
+
+  padding: 12px 20px;
+
+  border: 2px solid #a4ed86;
+  border-radius: 6px;
+
+  background: transparent;
+  color: #a4ed86;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.character-creator-next button:hover:not(:disabled) {
+  background: #1c3522;
+}
+
+/* ==========================================
+   MOBILE REFINEMENTS
+   ========================================== */
+
+@media (max-width: 760px) {
+  .character-class-step__controls {
+    gap: 12px;
+  }
+
+  .character-class-step__header h2,
+  .character-class-step__name label {
+    font-size: 11px;
+  }
+
+  .character-class-step__header {
+    margin-bottom: 0;
+  }
+
+  .character-empty__create-button,
+  .auth-window:has(.character-empty)
+  .auth-success > button {
+    font-size: 10px;
+  }
+}
+
+/* ==========================================
+   SAVED CHARACTER SHEET WINDOW
+   ========================================== */
+
+.auth-window:has(.character-sheet) {
+  max-width: 1020px;
+}
+
+@media (max-width: 760px) {
+  .auth-window:has(.character-sheet) .auth-content {
+    padding: 18px 16px;
+  }
+}
+
+/* ==========================================
+   SAVED CHARACTER — ONE-SCREEN DESKTOP LAYOUT
+   ========================================== */
+
+@media (min-width: 900px) {
+  .auth-shell:has(.character-sheet) {
+    padding: 12px 18px;
+  }
+
+  .auth-window:has(.character-sheet) {
+    max-width: 1100px;
+  }
+
+  .auth-window:has(.character-sheet) .auth-titlebar {
+    min-height: 46px;
+    padding: 10px 18px;
+  }
+
+  .auth-window:has(.character-sheet) .auth-content {
+    padding: 12px 16px;
+  }
+
+  .auth-window:has(.character-sheet) .auth-success > button {
+    min-height: 42px;
+    margin-top: 9px;
+    padding: 9px 12px;
+  }
+}
+
+/* Sign out is part of the four-button footer on saved sheets. */
+.auth-window:has(.character-sheet) .auth-success > button {
+  display: none;
+}
+
+@media (min-width: 900px) {
+  .auth-window:has(.character-sheet) .auth-content {
+    padding: 14px 16px 12px;
+  }
+}
+
+/* Keep occasional Turnstile challenges centered without changing auth layout. */
+.auth-turnstile {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
 }

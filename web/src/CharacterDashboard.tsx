@@ -1,23 +1,48 @@
-import { Fragment, useEffect, useState } from 'react'
+
+import {
+  useEffect,
+  useId,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from 'react'
 
 import type { Language } from './lib/authTranslations'
 
 import {
   CharacterApiError,
+  deleteMyCharacter,
   getMyCharacter,
   type Character,
 } from './lib/characterApi'
 
 import {
-  characterFieldKeys,
   characterTranslations,
-  translateCharacterOption,
 } from './lib/characterTranslations'
+
+import { CharacterSheet } from './CharacterSheet'
+import { CharacterExportPanel } from './CharacterExportPanel'
+import { CharacterCreator } from './CharacterCreator'
+import { AccountDeleteDialog } from './AccountDeleteDialog'
+import { ExtrasDialog } from './ExtrasDialog'
+
+import './CharacterDashboard.css'
+
+/*
+ * ADVENTURE FILES
+ * CHARACTER DASHBOARD
+ *
+ * Creation, viewing, editing and
+ * confirmed deletion of characters.
+ */
 
 type DashboardState =
   | { status: 'loading' }
   | { status: 'empty' }
-  | { status: 'ready'; character: Character }
+  | {
+      status: 'ready'
+      character: Character
+    }
   | {
       status: 'error'
       reason: 'session' | 'unavailable'
@@ -26,19 +51,140 @@ type DashboardState =
 type CharacterDashboardProps = {
   accessToken: string
   language: Language
+  onSignOut?: () => void
+  signOutLabel?: string
+  signingOut?: boolean
+  onAccountDeleted?: () => void
+
+  onCreatorStepChange?: (
+    step: number | null,
+  ) => void
 }
+
+/* ==========================================
+   DELETE ERROR MESSAGES
+   ========================================== */
+
+function getDeleteErrorMessage(
+  language: Language,
+  error: unknown,
+): string {
+  if (error instanceof CharacterApiError) {
+    if (
+      error.kind === 'unauthorized' ||
+      error.kind === 'forbidden'
+    ) {
+      return language === 'pt'
+        ? 'Sua sessão não pôde ser validada. Entre novamente.'
+        : 'Your session could not be verified. Please sign in again.'
+    }
+
+    if (error.kind === 'conflict') {
+      return language === 'pt'
+        ? 'O personagem foi alterado. Tente novamente.'
+        : 'The character has changed. Please try again.'
+    }
+  }
+
+  return language === 'pt'
+    ? 'Não foi possível excluir o personagem. Verifique sua conexão e tente novamente.'
+    : 'Unable to delete the character. Check your connection and try again.'
+}
+
+/* ==========================================
+   CHARACTER DASHBOARD
+   ========================================== */
 
 export function CharacterDashboard({
   accessToken,
   language,
+  onSignOut,
+  signOutLabel,
+  signingOut = false,
+  onAccountDeleted,
+  onCreatorStepChange,
 }: CharacterDashboardProps) {
-  const [state, setState] = useState<DashboardState>({
-    status: 'loading',
-  })
+  const [state, setState] =
+    useState<DashboardState>({
+      status: 'loading',
+    })
 
   const [attempt, setAttempt] = useState(0)
 
+  const [creating, setCreating] = useState(false)
+  const [editing, setEditing] = useState(false)
+
+  const creatorOpen = creating || editing
+
+  /* ========================================
+     DELETE STATE
+     ======================================== */
+
+  const [
+    deleteDialogOpen,
+    setDeleteDialogOpen,
+  ] = useState(false)
+
+  const [deleting, setDeleting] = useState(false)
+  const [deleteMenuOpen, setDeleteMenuOpen] = useState(false)
+  const [exportMenuOpen, setExportMenuOpen] = useState(false)
+  const [accountDeleteOpen, setAccountDeleteOpen] = useState(false)
+  const [extrasOpen, setExtrasOpen] = useState(false)
+  const deleteMenuId = useId()
+
+  const [
+    deleteError,
+    setDeleteError,
+  ] = useState<string | null>(null)
+
+  const deleteInProgress = useRef(false)
+
+  const confirmationToken =
+    useRef<string | null>(null)
+
+  /* ========================================
+     FOCUS MANAGEMENT
+     ======================================== */
+
+  const deleteTriggerRef =
+    useRef<HTMLButtonElement>(null)
+
+  const cancelDeleteRef =
+    useRef<HTMLButtonElement>(null)
+
+  const confirmDeleteRef =
+    useRef<HTMLButtonElement>(null)
+
+  const createButtonRef =
+    useRef<HTMLButtonElement>(null)
+
+  const focusCreateAfterDelete = useRef(false)
+
+  const restoreFocusToDeleteButton =
+    useRef(false)
+
+  const deleteTitleId = useId()
+  const deleteDescriptionId = useId()
+
+  /* ========================================
+     TRANSLATIONS
+     ======================================== */
+
   const copy = characterTranslations[language]
+
+  const dashboardTitle = editing
+    ? language === 'pt'
+      ? 'Editar personagem'
+      : 'Edit Character'
+    : creating
+      ? language === 'pt'
+        ? 'Criar personagem'
+        : 'Create Character'
+      : copy.title
+
+  /* ========================================
+     LOAD SAVED CHARACTER
+     ======================================== */
 
   useEffect(() => {
     const controller = new AbortController()
@@ -53,7 +199,10 @@ export function CharacterDashboard({
         }
 
         if (character === null) {
-          setState({ status: 'empty' })
+          setState({
+            status: 'empty',
+          })
+
           return
         }
 
@@ -87,17 +236,264 @@ export function CharacterDashboard({
     }
   }, [accessToken, attempt])
 
+  /* ========================================
+     DIALOG FOCUS
+     ======================================== */
+
+  useEffect(() => {
+    if (deleteDialogOpen) {
+      cancelDeleteRef.current?.focus()
+      return
+    }
+
+    if (restoreFocusToDeleteButton.current) {
+      deleteTriggerRef.current?.focus()
+
+      restoreFocusToDeleteButton.current = false
+    }
+  }, [deleteDialogOpen])
+
+  /* ========================================
+     FOCUS AFTER SUCCESSFUL DELETION
+     ======================================== */
+
+  useEffect(() => {
+    if (
+      state.status === 'empty' &&
+      focusCreateAfterDelete.current
+    ) {
+      createButtonRef.current?.focus()
+
+      focusCreateAfterDelete.current = false
+    }
+  }, [state.status])
+
+  /* ========================================
+     RETRY LOADING
+     ======================================== */
+
   function retry() {
-    setState({ status: 'loading' })
+    setState({
+      status: 'loading',
+    })
+
     setAttempt((current) => current + 1)
   }
 
+  /* ========================================
+     CREATE CHARACTER
+     ======================================== */
+
+  function startCreating() {
+    setCreating(true)
+
+    onCreatorStepChange?.(1)
+  }
+
+  function cancelCreating() {
+    setCreating(false)
+
+    onCreatorStepChange?.(null)
+  }
+
+  /* ========================================
+     EDIT CHARACTER
+     ======================================== */
+
+  function startEditing() {
+    if (
+      state.status !== 'ready' ||
+      deleteDialogOpen
+    ) {
+      return
+    }
+
+    setEditing(true)
+
+    onCreatorStepChange?.(1)
+  }
+
+  function cancelEditing() {
+    setEditing(false)
+
+    onCreatorStepChange?.(null)
+  }
+
+  /* ========================================
+     SAVE CALLBACK
+     ======================================== */
+
+  function handleCharacterSaved(
+    character: Character,
+  ) {
+    setState({
+      status: 'ready',
+      character,
+    })
+
+    setCreating(false)
+    setEditing(false)
+
+    onCreatorStepChange?.(null)
+  }
+
+  /* ========================================
+     OPEN DELETE CONFIRMATION
+     ======================================== */
+
+  function openDeleteConfirmation() {
+    if (
+      state.status !== 'ready' ||
+      creatorOpen ||
+      deleting
+    ) {
+      return
+    }
+
+    setDeleteMenuOpen(false)
+
+    confirmationToken.current = accessToken
+
+    restoreFocusToDeleteButton.current = false
+
+    setDeleteError(null)
+    setDeleteDialogOpen(true)
+  }
+
+  /* ========================================
+     CANCEL DELETE
+     ======================================== */
+
+  function cancelDeleteConfirmation() {
+    if (
+      deleting ||
+      deleteInProgress.current
+    ) {
+      return
+    }
+
+    restoreFocusToDeleteButton.current = true
+
+    confirmationToken.current = null
+
+    setDeleteError(null)
+    setDeleteDialogOpen(false)
+  }
+
+  /* ========================================
+     CONFIRM DELETE
+     ======================================== */
+
+  async function confirmDeletion() {
+    if (
+      state.status !== 'ready' ||
+      !deleteDialogOpen ||
+      deleteInProgress.current
+    ) {
+      return
+    }
+
+    if (
+      confirmationToken.current !== accessToken
+    ) {
+      cancelDeleteConfirmation()
+      return
+    }
+
+    deleteInProgress.current = true
+
+    setDeleting(true)
+    setDeleteError(null)
+
+    try {
+      await deleteMyCharacter(accessToken)
+
+      focusCreateAfterDelete.current = true
+
+      restoreFocusToDeleteButton.current = false
+
+      confirmationToken.current = null
+
+      setState({
+        status: 'empty',
+      })
+
+      setDeleteDialogOpen(false)
+      setDeleteMenuOpen(false)
+
+      setCreating(false)
+      setEditing(false)
+
+      onCreatorStepChange?.(null)
+    } catch (error: unknown) {
+      setDeleteError(
+        getDeleteErrorMessage(language, error),
+      )
+    } finally {
+      deleteInProgress.current = false
+
+      setDeleting(false)
+    }
+  }
+
+  /* ========================================
+     KEYBOARD SUPPORT
+     ======================================== */
+
+  function handleDeleteKeyDown(
+    event: KeyboardEvent<HTMLDivElement>,
+  ) {
+    if (event.key === 'Escape') {
+      event.preventDefault()
+
+      if (!deleting) {
+        cancelDeleteConfirmation()
+      }
+
+      return
+    }
+
+    if (
+      event.key !== 'Tab' ||
+      deleting
+    ) {
+      return
+    }
+
+    const first = cancelDeleteRef.current
+    const last = confirmDeleteRef.current
+
+    if (
+      event.shiftKey &&
+      document.activeElement === first
+    ) {
+      event.preventDefault()
+
+      last?.focus()
+    } else if (
+      !event.shiftKey &&
+      document.activeElement === last
+    ) {
+      event.preventDefault()
+
+      first?.focus()
+    }
+  }
+
+  /* ========================================
+     RENDER
+     ======================================== */
+
   return (
     <section
-      className="character-dashboard"
-      aria-label={copy.title}
+      className={
+        creatorOpen
+          ? 'character-dashboard character-dashboard--creating'
+          : 'character-dashboard'
+      }
+      aria-label={dashboardTitle}
     >
-      <h2>{copy.title}</h2>
+      {/* LOADING */}
 
       {state.status === 'loading' && (
         <p role="status">
@@ -105,34 +501,165 @@ export function CharacterDashboard({
         </p>
       )}
 
+      {/* EMPTY STATE */}
+
       {state.status === 'empty' && (
-        <div className="character-empty">
-          <p>{copy.empty}</p>
-          <p>{copy.upcoming}</p>
-        </div>
+        creating ? (
+          <CharacterCreator
+            language={language}
+            accessToken={accessToken}
+            onCancel={cancelCreating}
+            onStepChange={onCreatorStepChange}
+            onSaved={handleCharacterSaved}
+          />
+        ) : (
+          <div className="character-empty">
+            <button
+              ref={createButtonRef}
+              type="button"
+              className="character-empty__create-button"
+              onClick={startCreating}
+            >
+              {language === 'pt'
+                ? 'Criar Personagem'
+                : 'Create Character'}
+            </button>
+            <button
+              type="button"
+              className="character-dashboard__extras-button"
+              onClick={() => setExtrasOpen(true)}
+            >
+              EXTRAS
+            </button>
+            <button
+              type="button"
+              className="character-dashboard__delete-button character-dashboard__empty-account-delete"
+              onClick={() => setAccountDeleteOpen(true)}
+            >
+              {language === 'pt' ? 'EXCLUIR CONTA' : 'DELETE ACCOUNT'}
+            </button>
+          </div>
+        )
       )}
+
+      {/* SAVED CHARACTER */}
 
       {state.status === 'ready' && (
-        <div className="character-details">
-          <h3>{state.character.name}</h3>
+        editing ? (
+          <CharacterCreator
+            language={language}
+            accessToken={accessToken}
+            initialCharacter={state.character}
+            onCancel={cancelEditing}
+            onStepChange={onCreatorStepChange}
+            onSaved={handleCharacterSaved}
+          />
+        ) : (
+          <div className="character-dashboard__saved">
+            <CharacterSheet
+              character={state.character}
+              language={language}
+              showExport={false}
+            />
 
-          <dl>
-            {characterFieldKeys.map((field) => (
-              <Fragment key={field}>
-                <dt>{copy.fields[field]}</dt>
+            <div className="character-dashboard__actions">
+              {onSignOut && (
+                <button
+                  type="button"
+                  className="character-dashboard__signout-button"
+                  onClick={onSignOut}
+                  disabled={signingOut || deleteDialogOpen}
+                >
+                  {signOutLabel ?? (language === 'pt' ? 'Sair' : 'Sign Out')}
+                </button>
+              )}
+              <button
+                type="button"
+                className="character-empty__create-button"
+                onClick={startEditing}
+                disabled={deleteDialogOpen}
+              >
+                {language === 'pt' ? 'Editar' : 'Edit'}
+              </button>
 
-                <dd>
-                  {translateCharacterOption(
-                    language,
-                    field,
-                    state.character[field],
-                  )}
-                </dd>
-              </Fragment>
-            ))}
-          </dl>
-        </div>
+              <CharacterExportPanel
+                character={state.character}
+                language={language}
+                open={exportMenuOpen}
+                onOpenChange={(nextOpen) => {
+                  setExportMenuOpen(nextOpen)
+                  if (nextOpen) setDeleteMenuOpen(false)
+                }}
+              />
+
+              <div className="character-dashboard__delete-menu">
+                <button
+                  ref={deleteTriggerRef}
+                  type="button"
+                  className="character-dashboard__delete-button"
+                  aria-expanded={deleteMenuOpen}
+                  aria-controls={deleteMenuId}
+                  onClick={() => {
+                    setExportMenuOpen(false)
+                    setDeleteMenuOpen((open) => !open)
+                  }}
+                  disabled={deleteDialogOpen}
+                >
+                  {language === 'pt' ? 'Excluir' : 'Delete'}
+                </button>
+                {deleteMenuOpen && (
+                  <div
+                    id={deleteMenuId}
+                    className="character-dashboard__delete-options"
+                    role="group"
+                    aria-label={language === 'pt' ? 'Opções de exclusão' : 'Deletion options'}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Escape') {
+                        event.preventDefault()
+                        setDeleteMenuOpen(false)
+                        deleteTriggerRef.current?.focus()
+                      }
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={openDeleteConfirmation}
+                    >
+                      {language === 'pt'
+                        ? 'EXCLUIR PERSONAGEM'
+                        : 'DELETE CHARACTER'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDeleteMenuOpen(false)
+                        setAccountDeleteOpen(true)
+                      }}
+                    >
+                      {language === 'pt'
+                        ? 'EXCLUIR CONTA'
+                        : 'DELETE ACCOUNT'}
+                    </button>
+                  </div>
+                )}
+              </div>
+              <button
+                type="button"
+                className="character-dashboard__extras-button"
+                onClick={() => {
+                  setExportMenuOpen(false)
+                  setDeleteMenuOpen(false)
+                  setExtrasOpen(true)
+                }}
+              >
+                EXTRAS
+              </button>
+            </div>
+          </div>
+        )
       )}
+
+      {/* LOADING ERROR */}
 
       {state.status === 'error' && (
         <div className="character-error">
@@ -149,6 +676,106 @@ export function CharacterDashboard({
             {copy.retry}
           </button>
         </div>
+      )}
+
+      {/* DELETE CONFIRMATION */}
+
+      {deleteDialogOpen &&
+        state.status === 'ready' &&
+        !editing && (
+          <div className="character-delete-overlay">
+            <div
+              className="character-delete-dialog"
+              role="alertdialog"
+              aria-modal="true"
+              aria-labelledby={deleteTitleId}
+              aria-describedby={deleteDescriptionId}
+              aria-busy={deleting}
+              onKeyDown={handleDeleteKeyDown}
+            >
+              <h2
+                id={deleteTitleId}
+                className="character-delete-dialog__title"
+              >
+                {language === 'pt'
+                  ? 'EXCLUIR PERSONAGEM?'
+                  : 'DELETE CHARACTER?'}
+              </h2>
+
+              <p
+                id={deleteDescriptionId}
+                className="character-delete-dialog__description"
+              >
+                {language === 'pt'
+                  ? 'Você está prestes a excluir '
+                  : 'You are about to delete '}
+
+                <strong>
+                  {state.character.name}
+                </strong>.
+              </p>
+
+              <p className="character-delete-dialog__warning">
+                {language === 'pt'
+                  ? 'ESTA AÇÃO NÃO PODE SER DESFEITA.'
+                  : 'THIS ACTION CANNOT BE UNDONE.'}
+              </p>
+
+              {deleteError && (
+                <p role="alert">
+                  {deleteError}
+                </p>
+              )}
+
+              <div className="character-delete-dialog__actions">
+                <button
+                  ref={cancelDeleteRef}
+                  type="button"
+                  className="character-delete-dialog__cancel"
+                  onClick={cancelDeleteConfirmation}
+                  disabled={deleting}
+                >
+                  {language === 'pt'
+                    ? 'CANCELAR'
+                    : 'CANCEL'}
+                </button>
+
+                <button
+                  ref={confirmDeleteRef}
+                  type="button"
+                  className="character-delete-dialog__confirm"
+                  onClick={() => {
+                    void confirmDeletion()
+                  }}
+                  disabled={deleting}
+                >
+                  {deleting
+                    ? language === 'pt'
+                      ? 'EXCLUINDO...'
+                      : 'DELETING...'
+                    : language === 'pt'
+                      ? 'EXCLUIR DEFINITIVAMENTE'
+                      : 'DELETE PERMANENTLY'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+      {extrasOpen && !creatorOpen && (
+        <ExtrasDialog
+          language={language}
+          onClose={() => setExtrasOpen(false)}
+        />
+      )}
+
+      {accountDeleteOpen && !creatorOpen && (
+        <AccountDeleteDialog
+          language={language}
+          accessToken={accessToken}
+          onClose={() => setAccountDeleteOpen(false)}
+          onDeleted={() => onAccountDeleted?.()}
+        />
       )}
     </section>
   )

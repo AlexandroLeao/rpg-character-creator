@@ -1,0 +1,393 @@
+/* ==========================================
+   ADVENTURE FILES
+   CHARACTER CREATOR — ORIGINS
+   STEP 02 / 04
+   ========================================== */
+
+.character-origins-step {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  min-width: 0;
+
+  gap: 24px;
+}
+
+/* ==========================================
+   ORIGIN GROUPS
+   ========================================== */
+
+.character-origins-step__groups {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  align-items: start;
+
+  width: 100%;
+  min-width: 0;
+
+  gap: clamp(18px, 2.4vw, 30px);
+}
+
+.character-origins-step__group {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  min-width: 0;
+
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+}
+
+/* ==========================================
+   GROUP TITLES
+   ========================================== */
+
+.character-origins-step__title {
+  display: block;
+
+  width: 100%;
+
+  margin: 0 0 16px;
+  padding: 0;
+
+  color: #f5efd2;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 12px;
+  font-weight: normal;
+
+  line-height: 1.85;
+  letter-spacing: 0.1px;
+}
+
+/* ==========================================
+   OPTIONS GRID
+   ========================================== */
+
+.character-origins-step__choices {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 10px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+/* ==========================================
+   OPTION BUTTONS
+   ========================================== */
+
+.character-origins-step__choice {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 52px;
+
+  padding: 12px 8px;
+
+  border: 2px solid #618b5a;
+  border-radius: 6px;
+
+  background: #0b170f;
+  color: #f5efd2;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  font-weight: normal;
+
+  line-height: 1.6;
+
+  text-align: center;
+
+  cursor: pointer;
+
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+/* Hover does not change the selected option. */
+
+.character-origins-step__choice:hover {
+  border-color: #a4ed86;
+  background: #14291a;
+}
+
+/* Keyboard accessibility */
+
+.character-origins-step__choice:focus-visible {
+  outline: 3px solid #a4ed86;
+  outline-offset: 3px;
+}
+
+/* Confirmed selection */
+
+.character-origins-step__choice.is-selected {
+  border-color: #a4ed86;
+
+  background: #24462c;
+  color: #a4ed86;
+}
+
+.character-origins-step__choice.is-selected:hover {
+  background: #2a5133;
+}
+
+/* ==========================================
+   NAVIGATION
+   ========================================== */
+
+.character-origins-step__actions {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+  min-width: 0;
+
+  gap: 12px;
+}
+
+/* ==========================================
+   NAVIGATION BUTTONS
+   ========================================== */
+
+.character-origins-step__actions button {
+  display: flex;
+
+  flex: 1;
+
+  align-items: center;
+  justify-content: center;
+
+  min-width: 0;
+  min-height: 46px;
+
+  padding: 12px 10px;
+
+  border: 2px solid #a4ed86;
+  border-radius: 6px;
+
+  font-family: 'Press Start 2P', monospace;
+  font-size: 10px;
+  font-weight: normal;
+
+  line-height: 1.5;
+
+  text-align: center;
+
+  cursor: pointer;
+
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+
+/* ==========================================
+   BACK BUTTON
+   ========================================== */
+
+.character-origins-step__back {
+  background: transparent;
+  color: #a4ed86;
+}
+
+.character-origins-step__back:hover:not(:disabled) {
+  background: #1c3522;
+}
+
+/* ==========================================
+   CONTINUE BUTTON
+   ========================================== */
+
+.character-origins-step__continue {
+  background: #a4ed86;
+  color: #07120a;
+}
+
+.character-origins-step__continue:hover:not(:disabled) {
+  background: #c9ffb1;
+}
+
+/* ==========================================
+   DISABLED BUTTON
+   ========================================== */
+
+.character-origins-step__actions button:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+/* ==========================================
+   KEYBOARD FOCUS
+   ========================================== */
+
+.character-origins-step__actions button:focus-visible {
+  outline: 3px solid #a4ed86;
+  outline-offset: 3px;
+}
+
+/* ==========================================
+   SHORT DESKTOP SCREENS
+   ========================================== */
+
+@media (min-width: 761px) and (max-height: 720px) {
+  .character-origins-step {
+    gap: 18px;
+  }
+
+  .character-origins-step__title {
+    margin-bottom: 12px;
+  }
+
+  .character-origins-step__choice {
+    min-height: 44px;
+    padding: 9px 6px;
+  }
+
+  .character-origins-step__actions button {
+    min-height: 42px;
+  }
+}
+
+/* ==========================================
+   MOBILE
+   ========================================== */
+
+@media (max-width: 760px) {
+  .character-origins-step {
+    gap: 24px;
+  }
+
+  .character-origins-step__groups {
+    grid-template-columns: 1fr;
+
+    gap: 26px;
+  }
+
+  .character-origins-step__title {
+    margin-bottom: 14px;
+
+    font-size: 11px;
+  }
+
+  .character-origins-step__choices {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+  }
+
+  .character-origins-step__choice {
+    min-height: 54px;
+
+    font-size: clamp(8px, 2.5vw, 11px);
+  }
+
+  .character-origins-step__actions {
+    gap: 12px;
+  }
+
+  .character-origins-step__actions button {
+    min-height: 48px;
+
+    font-size: clamp(9px, 2.5vw, 11px);
+  }
+}
+
+/* ==========================================
+   VERY SMALL SCREENS
+   ========================================== */
+
+@media (max-width: 360px) {
+  .character-origins-step__choice {
+    padding: 10px 5px;
+
+    font-size: 8px;
+  }
+
+  .character-origins-step__actions {
+    gap: 8px;
+  }
+
+  .character-origins-step__actions button {
+    padding: 10px 6px;
+
+    font-size: 9px;
+  }
+}
+
+/* ==========================================
+   REDUCED MOTION
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .character-origins-step__choice,
+  .character-origins-step__actions button {
+    transition: none;
+  }
+}
+
+/* ==========================================
+   DESKTOP — SUBTLE VERTICAL DIVIDER
+   ========================================== */
+
+@media (min-width: 761px) {
+  /*
+   * Remove the previous full-height divider.
+   */
+
+  .character-origins-step__groups::after {
+    content: none;
+  }
+
+  /*
+   * Position the divider relative to
+   * the ancestry options grid.
+   */
+
+  .character-origins-step__group:first-child
+  .character-origins-step__choices {
+    position: relative;
+  }
+
+  /*
+   * The line starts at the first row
+   * and ends at the last row.
+   */
+
+  .character-origins-step__group:first-child
+  .character-origins-step__choices::after {
+    content: '';
+
+    position: absolute;
+
+    top: 0;
+    bottom: 0;
+
+    left: calc(100% + clamp(9px, 1.2vw, 15px));
+
+    width: 2px;
+
+    background: #3f6744;
+
+    pointer-events: none;
+  }
+}

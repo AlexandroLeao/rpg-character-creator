@@ -1,7 +1,8 @@
 @startuml
-title RPG Character Creator - Use Cases
+title Adventure Files - Use Cases
 
 left to right direction
+
 skinparam shadowing false
 skinparam packageStyle rectangle
 
@@ -9,58 +10,135 @@ actor "Guest" as Guest
 actor "Authenticated User" as User
 actor "Supabase Auth" as Auth
 
-rectangle "RPG Character Creator" {
-    usecase "View Welcome Screen" as Welcome
+rectangle "Adventure Files" {
+
+    usecase "View Start Screen" as Welcome
+    usecase "Select Language" as Language
+
     usecase "Register Account" as Register
     usecase "Confirm Email" as Confirm
     usecase "Sign In" as Login
     usecase "Recover Password" as Recover
     usecase "Sign Out" as Logout
-    usecase "Manage Account Settings" as Settings
 
     usecase "Create Character" as Create
-    usecase "Choose Class & Attributes" as Choose
-    usecase "Randomize Draft" as Randomize
+
+    usecase "01 - Identity" as Identity
+    usecase "02 - Origins" as Origins
+    usecase "03 - Equipment" as Equipment
+    usecase "04 - Essence" as Essence
+    usecase "05 - Journey" as Journey
+    usecase "06 - Final Review" as Review
+
     usecase "Save Character" as Save
+
     usecase "View My Character" as View
     usecase "Edit Character" as Edit
-    usecase "Export Retro PDF" as Export
     usecase "Delete Character" as Delete
-    usecase "Switch Theme" as Theme
+    usecase "Delete Account" as DeleteAccount
+    usecase "Confirm Current Password" as Reauthenticate
+    usecase "View Extras / Credits" as Extras
+
+    usecase "Export Character Sheet" as Export
+    usecase "Export Story/Status PNG" as ExportStory
+    usecase "Export Portrait PNG" as ExportPortrait
 }
 
 Guest --> Welcome
+Guest --> Language
 Guest --> Register
+Guest --> Confirm
 Guest --> Login
 Guest --> Recover
-Guest --> Confirm
-Guest --> Theme
 
+User --> Language
 User --> Logout
-User --> Settings
 User --> Create
 User --> View
 User --> Edit
-User --> Export
 User --> Delete
-User --> Theme
+User --> DeleteAccount
+User --> Extras
+User --> Export
 
-Create .> Choose : <<include>>
+Create .> Identity : <<include>>
+Create .> Origins : <<include>>
+Create .> Equipment : <<include>>
+Create .> Essence : <<include>>
+Create .> Journey : <<include>>
+Create .> Review : <<include>>
 Create .> Save : <<include>>
-Edit .> Choose : <<include>>
+
+Edit .> Review : <<include>>
 Edit .> Save : <<include>>
-Randomize .> Choose : <<extend>>
-User --> Randomize
+
+DeleteAccount .> Reauthenticate : <<include>>
+
+ExportStory .> Export : <<extend>>
+ExportPortrait .> Export : <<extend>>
 
 Auth -- Register
 Auth -- Confirm
 Auth -- Login
 Auth -- Recover
 Auth -- Logout
+Auth -- Reauthenticate
+Auth -- DeleteAccount
+
+note right of Recover
+  Request a one-time email code.
+  Verify code, account and
+  recovery session before
+  allowing a new password.
+  Reject expired or used codes.
+end note
+
+note right of DeleteAccount
+  Available with or without a saved character.
+  Requires a confirmed current password
+  and explicit irreversible confirmation.
+  Backend deletes only the authenticated
+  Auth user; characters cascade through FK.
+  Privileged secret never reaches browser.
+end note
+
+note right of Extras
+  About, creative credits and
+  nostalgic RPG/pixel-art inspirations.
+  Support email and GitHub only.
+end note
 
 note right of Create
-  One character per user;
-  no gender or sex field.
+  Six guided stages.
+
+  01: Class and Name
+  02: Ancestry and Background
+  03: Weapon and Artifact
+  04: Personality and Aura
+  05: Companion and Motivation
+  06: Final Review and Save
+
+  One saved character per account.
+  No gender or sex field.
+end note
+
+note right of Review
+  No additional customization.
+
+  Review all character values.
+
+  Saving requires an
+  explicit user action.
+end note
+
+note bottom of Export
+  Approved download formats:
+
+  PNG Story/Status: 1080x1920
+  PNG Portrait: 1080x1350
+
+  Files are generated from
+  saved character data.
 end note
 
 @enduml

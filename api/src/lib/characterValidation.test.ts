@@ -5,6 +5,7 @@ import {
 } from 'vitest'
 
 import {
+  characterOptions,
   validateCharacterInput,
   type CharacterInput,
 } from './characterValidation.js'
@@ -19,6 +20,7 @@ const validCharacter: CharacterInput = {
   personality: 'curious',
   aura: 'arcane',
   companion: 'owl',
+  motivation: 'knowledge',
 }
 
 function expectInvalid(
@@ -30,15 +32,18 @@ function expectInvalid(
   expect(result.success).toBe(false)
 
   if (result.success) {
-    throw new Error('Expected character validation to fail')
+    throw new Error(
+      'Expected character validation to fail',
+    )
   }
 
   expect(result.errors).toHaveProperty(field)
 }
 
 describe('Character input validation', () => {
-  it('accepts a complete valid character', () => {
-    const result = validateCharacterInput(validCharacter)
+  it('accepts a complete character', () => {
+    const result =
+      validateCharacterInput(validCharacter)
 
     expect(result).toEqual({
       success: true,
@@ -61,18 +66,75 @@ describe('Character input validation', () => {
     }
 
     expect(result.data.name).toBe('Eldrin')
-
     expect(input.name).toBe('  Eldrin  ')
   })
 
-  it('accepts none for artifact and companion', () => {
+  it('accepts none as a companion', () => {
     const result = validateCharacterInput({
       ...validCharacter,
-      artifact: 'none',
       companion: 'none',
     })
 
     expect(result.success).toBe(true)
+  })
+
+  it('requires a selected artifact', () => {
+    expectInvalid(
+      {
+        ...validCharacter,
+        artifact: 'none',
+      },
+      'artifact',
+    )
+  })
+
+  it('accepts all current artifacts', () => {
+    for (const artifact of characterOptions.artifact) {
+      const result = validateCharacterInput({
+        ...validCharacter,
+        artifact,
+      })
+
+      expect(result.success).toBe(true)
+    }
+  })
+
+  it('accepts all motivations', () => {
+    for (const motivation of characterOptions.motivation) {
+      const result = validateCharacterInput({
+        ...validCharacter,
+        motivation,
+      })
+
+      expect(result.success).toBe(true)
+    }
+  })
+
+  it('accepts dragon as a companion', () => {
+    const result = validateCharacterInput({
+      ...validCharacter,
+      companion: 'dragon',
+    })
+
+    expect(result.success).toBe(true)
+  })
+
+  it('rejects legacy identifiers in new saves', () => {
+    expectInvalid(
+      {
+        ...validCharacter,
+        artifact: 'emerald-amulet',
+      },
+      'artifact',
+    )
+
+    expectInvalid(
+      {
+        ...validCharacter,
+        companion: 'dragonling',
+      },
+      'companion',
+    )
   })
 
   it('rejects a null request body', () => {
@@ -91,6 +153,26 @@ describe('Character input validation', () => {
     delete input.companion
 
     expectInvalid(input, 'companion')
+  })
+
+  it('requires motivation', () => {
+    const input: Record<string, unknown> = {
+      ...validCharacter,
+    }
+
+    delete input.motivation
+
+    expectInvalid(input, 'motivation')
+  })
+
+  it('rejects null motivation', () => {
+    expectInvalid(
+      {
+        ...validCharacter,
+        motivation: null,
+      },
+      'motivation',
+    )
   })
 
   it('rejects client-provided ownership fields', () => {
@@ -183,7 +265,9 @@ describe('Character input validation', () => {
     expect(result.success).toBe(false)
 
     if (result.success) {
-      throw new Error('Expected character validation to fail')
+      throw new Error(
+        'Expected character validation to fail',
+      )
     }
 
     expect(result.errors).toHaveProperty('name')
@@ -208,6 +292,7 @@ describe('Character input validation', () => {
     'personality',
     'aura',
     'companion',
+    'motivation',
   ] as const
 
   for (const field of customizationFields) {

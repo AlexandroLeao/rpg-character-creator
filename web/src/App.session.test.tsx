@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import type { Session } from '@supabase/supabase-js'
+import { StrictMode } from 'react'
 
 import {
   afterEach,
@@ -12,10 +13,12 @@ import {
 } from 'vitest'
 
 import {
+  act,
   cleanup,
   fireEvent,
   render,
   screen,
+  waitFor,
 } from '@testing-library/react'
 
 import App from './App'
@@ -26,6 +29,7 @@ const mocks = vi.hoisted(() => ({
   signInWithEmail: vi.fn(),
   sendPasswordReset: vi.fn(),
   updatePassword: vi.fn(),
+  verifyPasswordRecoveryToken: vi.fn(),
   signOut: vi.fn(),
   dashboardRender: vi.fn(),
 }))
@@ -43,6 +47,7 @@ vi.mock('./lib/auth', () => ({
   signInWithEmail: mocks.signInWithEmail,
   sendPasswordReset: mocks.sendPasswordReset,
   updatePassword: mocks.updatePassword,
+  verifyPasswordRecoveryToken: mocks.verifyPasswordRecoveryToken,
   signOut: mocks.signOut,
 }))
 
@@ -68,6 +73,7 @@ const testSession = {
 
   user: {
     id: 'test-user',
+    email: 'recovered@example.com',
     aud: 'authenticated',
     app_metadata: {},
     user_metadata: {},
@@ -242,6 +248,7 @@ describe('Authentication sessions and errors', () => {
     mocks.updatePassword.mockResolvedValue({
       error: null,
     })
+    mocks.signOut.mockResolvedValue({ error: null })
 
     render(<App />)
 
@@ -273,12 +280,180 @@ describe('Authentication sessions and errors', () => {
       mocks.updatePassword,
     ).toHaveBeenCalledWith(
       'NewPassword123!',
+      testSession,
     )
+    await waitFor(() => {
+      expect(mocks.signOut).toHaveBeenCalledWith('global')
+    })
 
     expect(
       await screen.findByText(
         'Your password has been updated successfully.',
       ),
     ).toBeTruthy()
+    expect(screen.queryByText('Meu personagem')).toBeNull()
+    expect(
+      screen.getByRole('button', { name: 'Sign In' }),
+    ).toBeTruthy()
+  })
+
+  it('verifies a direct recovery token even with another account previously signed in', async () => {
+    window.history.replaceState(
+      null,
+      '',
+      '/reset-password?token_hash=valid-hash&type=recovery',
+    )
+    const otherSession = {
+      ...testSession,
+      access_token: 'other-access-token',
+      user: { ...testSession.user, id: 'other-user', email: 'other@example.com' },
+    } as Session
+    mockSessionEvent('INITIAL_SESSION', otherSession)
+    mocks.verifyPasswordRecoveryToken.mockResolvedValue({
+      data: { session: testSession },
+      error: null,
+    })
+
+    render(<App />)
+
+    expect(await screen.findByLabelText('New Password')).toBeTruthy()
+    expect(screen.getByText('recovered@example.com')).toBeTruthy()
+    expect(mocks.verifyPasswordRecoveryToken).toHaveBeenCalledWith('valid-hash')
+    expect(window.location.search).toBe('')
+    expect(screen.queryByText('Meu personagem')).toBeNull()
+  })
+
+  it('uses a recovery token only once even under React StrictMode', async () => {
+    window.history.replaceState(
+      null,
+      '',
+      '/reset-password?token_hash=one-use-hash&type=recovery',
+    )
+    mocks.verifyPasswordRecoveryToken.mockResolvedValue({
+      data: { session: testSession },
+      error: null,
+    })
+
+    render(
+      <StrictMode>
+        <App />
+      </StrictMode>,
+    )
+
+    expect(await screen.findByLabelText('New Password')).toBeTruthy()
+    expect(mocks.verifyPasswordRecoveryToken).toHaveBeenCalledTimes(1)
+  })
+
+  it('rejects an expired or consumed direct recovery token', async () => {
+    window.history.replaceState(
+      null,
+      '',
+      '/reset-password?token_hash=expired-hash&type=recovery',
+    )
+    mockSessionEvent('INITIAL_SESSION', testSession)
+    mocks.verifyPasswordRecoveryToken.mockResolvedValue({
+      data: { session: null },
+      error: new Error('OTP expired'),
+    })
+
+    render(<App />)
+
+    expect(
+      await screen.findByText(
+        'Your recovery link could not be verified. It may be invalid or expired.',
+      ),
+    ).toBeTruthy()
+    expect(screen.queryByLabelText('New Password')).toBeNull()
+    expect(window.location.search).toBe('')
+  })
+
+  it('requires a recovery code even when another login is persisted', () => {
+    window.history.replaceState(null, '', '/reset-password')
+    mockSessionEvent('INITIAL_SESSION', testSession)
+
+    render(<App />)
+
+    expect(screen.getByLabelText('Recovery Code')).toBeTruthy()
+    expect(screen.getByLabelText('Email')).toBeTruthy()
+    expect(screen.queryByLabelText('New Password')).toBeNull()
+    expect(mocks.updatePassword).not.toHaveBeenCalled()
+  })
+
+  it('invalidates recovery when another account signs in', () => {
+    window.history.replaceState(null, '', '/reset-password')
+
+    let emitAuthEvent: AuthCallback = () => {
+      throw new Error('Auth callback not registered')
+    }
+
+    mocks.onAuthStateChange.mockImplementation(
+      (callback: AuthCallback) => {
+        emitAuthEvent = callback
+        callback('PASSWORD_RECOVERY', testSession)
+        return {
+          data: {
+            subscription: {
+              unsubscribe: vi.fn(),
+            },
+          },
+        }
+      },
+    )
+
+    render(<App />)
+
+    expect(
+      screen.getByText('recovered@example.com'),
+    ).toBeTruthy()
+
+    const anotherSession = {
+      ...testSession,
+      access_token: 'another-account-token',
+      user: {
+        ...testSession.user,
+        id: 'another-user',
+        email: 'another@example.com',
+      },
+    } as Session
+
+    act(() => {
+      emitAuthEvent('SIGNED_IN', anotherSession)
+    })
+
+    expect(screen.queryByLabelText('New Password')).toBeNull()
+    expect(mocks.updatePassword).not.toHaveBeenCalled()
+    expect(
+      screen.getByText(
+        'Your recovery link could not be verified. It may be invalid or expired.',
+      ),
+    ).toBeTruthy()
+  })
+
+  it('never opens the dashboard if sign-out fails after reset', async () => {
+    window.history.replaceState(null, '', '/reset-password')
+    mockSessionEvent('PASSWORD_RECOVERY', testSession)
+    mocks.updatePassword.mockResolvedValue({ error: null })
+    mocks.signOut.mockResolvedValue({
+      error: new Error('Sign-out failure'),
+    })
+
+    render(<App />)
+
+    fireEvent.change(screen.getByLabelText('New Password'), {
+      target: { value: 'NewPassword123!' },
+    })
+    fireEvent.change(screen.getByLabelText('Confirm Password'), {
+      target: { value: 'NewPassword123!' },
+    })
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Update Password' }),
+    )
+
+    expect(
+      await screen.findByText(
+        'Password updated, but sign-out failed. Please sign out before continuing.',
+      ),
+    ).toBeTruthy()
+    expect(screen.queryByText('Meu personagem')).toBeNull()
   })
 })

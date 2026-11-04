@@ -2,6 +2,7 @@ export type AuthMode =
   | 'signIn'
   | 'signUp'
   | 'forgotPassword'
+  | 'verifyRecoveryCode'
   | 'resetPassword'
 
 export type Language = 'en' | 'pt'
@@ -12,6 +13,7 @@ export const authTranslations = {
       signIn: 'Sign In',
       signUp: 'Create Account',
       forgotPassword: 'Recover Password',
+      verifyRecoveryCode: 'Verify Recovery Code',
       resetPassword: 'Reset Password',
     },
 
@@ -19,6 +21,7 @@ export const authTranslations = {
       signIn: 'Sign In',
       signUp: 'Create Account',
       forgotPassword: 'Send Recovery Email',
+      verifyRecoveryCode: 'Verify Code',
       resetPassword: 'Update Password',
     },
 
@@ -29,11 +32,15 @@ export const authTranslations = {
     password: 'Password',
     newPassword: 'New Password',
     confirmPassword: 'Confirm Password',
+    recoveryCode: 'Recovery Code',
+    recoveryCodeHelp: 'Enter the code sent by email.',
 
     accountOptions: 'Account options',
     createAccount: 'Create Account',
     forgotPassword: 'Forgot Password?',
     backToSignIn: 'Back to Sign In',
+    backFromRecovery: 'Back',
+    backFromCode: 'Home',
 
     signOut: 'Sign Out',
     signingOut: 'Signing out...',
@@ -41,6 +48,10 @@ export const authTranslations = {
     checkingSession: 'Checking your session...',
 
     requestNewLink: 'Request a New Link',
+    haveRecoveryCode: 'I Have a Recovery Code',
+    checkRecoveryCode: 'Check Code',
+    requestNewCode: 'New Code',
+    recoveryAccountLabel: 'Changing the password for:',
 
     recoveryLinkInvalid:
       'Your recovery link could not be verified. It may be invalid or expired.',
@@ -49,16 +60,20 @@ export const authTranslations = {
       'Display name must contain at least 2 characters.',
 
     passwordTooShort:
-      'Password must contain at least 8 characters.',
+      'Password must contain at least 15 characters.',
 
     passwordsMismatch:
       'Passwords do not match.',
 
     recoveryRequestFailure:
-      'Unable to process your request. Please try again later.',
+      'Unable to send email. Try again later.',
+    recoveryRateLimited:
+      'Too many recovery attempts. Wait and try again.',
+    recoveryCodeInvalid:
+      'Code invalid or expired. Request a new one.',
 
     recoveryRequestSuccess:
-      'If an account exists for this email, a recovery message will be sent shortly.',
+      'If registered, check your email.',
 
     invalidRecoverySession:
       'Your recovery session is invalid or expired. Please request a new link.',
@@ -68,6 +83,12 @@ export const authTranslations = {
 
     updatePasswordSuccess:
       'Your password has been updated successfully.',
+
+    passwordUpdatedSignOutFailure:
+      'Password updated, but sign-out failed. Please sign out before continuing.',
+
+    termsRequired: 'Accept the Terms of Use to create your account.',
+    captchaRequired: 'Complete the security check and try again.',
 
     signUpFailure:
       'Unable to create an account. Please review your details.',
@@ -90,6 +111,7 @@ export const authTranslations = {
       signIn: 'Entrar',
       signUp: 'Criar Conta',
       forgotPassword: 'Recuperar Senha',
+      verifyRecoveryCode: 'Validar Código',
       resetPassword: 'Nova Senha',
     },
 
@@ -97,6 +119,7 @@ export const authTranslations = {
       signIn: 'Entrar',
       signUp: 'Criar Conta',
       forgotPassword: 'Enviar Email',
+      verifyRecoveryCode: 'Validar Código',
       resetPassword: 'Atualizar Senha',
     },
 
@@ -107,11 +130,15 @@ export const authTranslations = {
     password: 'Senha',
     newPassword: 'Nova Senha',
     confirmPassword: 'Confirmar Senha',
+    recoveryCode: 'Código de Recuperação',
+    recoveryCodeHelp: 'Digite o código recebido por e-mail.',
 
     accountOptions: 'Opções da conta',
     createAccount: 'Criar Conta',
     forgotPassword: 'Esqueceu a Senha?',
     backToSignIn: 'Voltar para Entrar',
+    backFromRecovery: 'Voltar',
+    backFromCode: 'Início',
 
     signOut: 'Sair',
     signingOut: 'Saindo...',
@@ -119,6 +146,10 @@ export const authTranslations = {
     checkingSession: 'Verificando sua sessão...',
 
     requestNewLink: 'Solicitar Novo Link',
+    haveRecoveryCode: 'Já Tenho um Código',
+    checkRecoveryCode: 'Conferir Código',
+    requestNewCode: 'Novo Código',
+    recoveryAccountLabel: 'Alterando a senha da conta:',
 
     recoveryLinkInvalid:
       'Não foi possível verificar o link de recuperação. Ele pode ser inválido ou ter expirado.',
@@ -127,16 +158,20 @@ export const authTranslations = {
       'O nome de exibição deve ter pelo menos 2 caracteres.',
 
     passwordTooShort:
-      'A senha deve ter pelo menos 8 caracteres.',
+      'A senha deve ter pelo menos 15 caracteres.',
 
     passwordsMismatch:
       'As senhas não coincidem.',
 
     recoveryRequestFailure:
-      'Não foi possível processar sua solicitação. Tente novamente mais tarde.',
+      'Não foi possível enviar. Tente mais tarde.',
+    recoveryRateLimited:
+      'Muitas tentativas. Aguarde e tente novamente.',
+    recoveryCodeInvalid:
+      'Código inválido ou expirado. Peça outro.',
 
     recoveryRequestSuccess:
-      'Se existir uma conta com este email, enviaremos uma mensagem de recuperação em breve.',
+      'Se houver conta, confira seu e-mail.',
 
     invalidRecoverySession:
       'Sua sessão de recuperação é inválida ou expirou. Solicite um novo link.',
@@ -146,6 +181,12 @@ export const authTranslations = {
 
     updatePasswordSuccess:
       'Sua senha foi atualizada com sucesso.',
+
+    passwordUpdatedSignOutFailure:
+      'Senha alterada, mas não foi possível encerrar a sessão. Saia da conta antes de continuar.',
+
+    termsRequired: 'Aceite os Termos de Uso para criar sua conta.',
+    captchaRequired: 'Conclua a verificação de segurança e tente novamente.',
 
     signUpFailure:
       'Não foi possível criar a conta. Confira as informações.',
