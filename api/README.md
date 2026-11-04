@@ -754,7 +754,7 @@ Changes must pass automated checks before being considered ready for merging.
 1. Audit production-intended dependencies, security headers, logging/error handling, HTTPS and any credentials/history exposure.
 2. Confirm the approved stable public frontend URL, Auth redirects, API destination, and account recovery/email-delivery limits. Do not treat personal Gmail SMTP as guaranteed transactional infrastructure.
 3. Review public-signup abuse/rate limits and a documented data/account deletion contact before announcing open registration.
-4. Recheck the final public deployment, finish PR #23 review, and record issue #24 evidence before merging or closing related issues.
+4. PR #23 was merged into `main` with owner approval on November 4, 2026 (`0b22f48`) and the three merge-commit CI workflows passed (107 API tests, frontend tests and database pgTAP). Recheck the live Render deployment's connected branch and origin allowlist, and record final public smoke evidence in issue #24 before closing the release tracker.
 
 The portfolio demo may reuse a single free-hosting environment by explicit decision; a separate paid production stack is **not** required for this MVP. This is a documented availability trade-off, not production-grade isolation or uptime assurance. See [zero-budget release runbook](../docs/free-portfolio-release.md).
 

@@ -37,7 +37,7 @@ A compact bilingual **Extras** panel in the authenticated dashboard contains cre
 
 ## Current Development Status
 
-Adventure Files is a feature-complete release candidate. The six-stage guided character creator, saved-character management, and two PNG export formats are implemented and have been manually exercised on the feature branch. The final controlled deployment and infrastructure security checks remain pending.
+Adventure Files is a feature-complete release candidate. The six-stage creator, saved-character management and both PNG exports have been accepted and were merged into `main` through [PR #23](https://github.com/AlexandroLeao/rpg-character-creator/pull/23) on November 4, 2026. Final hosted security/operations checks remain pending; merge and green CI do not establish production CAPTCHA enforcement.
 
 ### Implemented
 
@@ -63,7 +63,7 @@ Adventure Files is a feature-complete release candidate. The six-stage guided ch
 - Frontend on November 2: **146 passing tests across 17 files**, ESLint and Vite/TypeScript build passed.
 - November 4 feature-branch implementation `27b0829` adds final auth/security compatibility fixes and **180 frontend tests across 20 files**. **All three workflows passed at `27b0829`**: frontend 180 tests, lint/build; API 107 tests with 2 optional integration checks skipped, lint/build; isolated database security/pgTAP. The previous baseline at `4560955` was 177 frontend / 107 API.
 - API: **97 passing tests across 8 files**, ESLint and TypeScript build passed; 2 opt-in local Supabase integration tests are skipped by default but were exercised previously against an isolated local environment.
-- The latest feature-branch implementation passed the Frontend, API, and Database Security workflows. The user-reported hosted `GET /api/health` returned 200 and an unauthenticated character GET returned 401; recheck the stable public host after merging.
+- The merged `main` commit `0b22f48` passed Frontend, API and Database Security GitHub Actions. The creator reported the stable Vercel Production URL displaying the application after merge; verify the exact Production deployment SHA, runtime response headers and API access in the final hosted environment.
 
 ### Staging Validation — November 3–4, 2026
 
@@ -77,10 +77,10 @@ Adventure Files is a feature-complete release candidate. The six-stage guided ch
 
 ### Remaining Before Public Portfolio Demo
 
-- Configure allowed Cloudflare Turnstile hostnames and the public Vercel site key; verify registration, sign-in and recovery tokens in Preview. **Do not enable Supabase CAPTCHA** until the approved token-enabled build serves the stable Production hostname too. Then enable Supabase-side verification with its private secret and smoke-test all three flows, with an immediate rollback plan.
+- The creator reported successful post-configuration Preview testing of registration, login and recovery. Verify the **actual** Production deployment is the merged `main` build and that the public Turnstile site key is present in its Production Vercel environment. Keep Supabase CAPTCHA **OFF** until that verification, then configure its private Cloudflare secret, enable it and smoke-test all three Auth operations with a rollback plan.
 - Verify actual hosted browser security headers, HTTPS, Render CORS and secret isolation; accept or mitigate the Supabase Free no-backup risk and confirm the accepted bilingual Terms/Privacy notice reflects real data handling (checkbox is not an auditable legal consent register). Production-only dependency audits had zero findings; the moderate dev-only minimatch risk is documented in the runbook.
 - Verify the stable public Vercel URL in a signed-out browser, its authentication redirect allowlist, HTTPS, critical recovery flow, and the chosen single free-hosting environment.
-- Review draft PR #23 and final three GitHub Actions checks; merge into `main` **only after Alexandro approves**, align Render/Vercel branch and Auth origin settings, and smoke-test the final public URL. Close Issue #15 after integration and Issue #24 after live acceptance.
+- [PR #23](https://github.com/AlexandroLeao/rpg-character-creator/pull/23) was owner-approved, merged and closed on November 4 (`main` merge `0b22f48`); all three `main` checks passed. Align the Render service's connected branch and CORS with the approved `main`, verify Auth redirects and perform the final disposable-account smoke. Issue #15 is closed for the integrated protected CRUD work; keep Issue #24 open until the remaining live acceptance gates pass.
 - Known free-tier trade-offs include Render cold starts, possible Supabase inactivity pausing, and limited personal Gmail SMTP throughput. These affect availability; do not describe the demo as a commercial service with an uptime guarantee.
 
 See the [zero-budget portfolio release runbook](docs/free-portfolio-release.md) and [release-readiness issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24). The MVP scope remains frozen: no PDF, playable game, OAuth expansion, or new artwork variants for this release.
@@ -549,9 +549,9 @@ The initial release does not include:
 
 **Release candidate:** the implemented product is functionally accepted on desktop/mobile, PT/EN. The remaining work is an intentionally bounded engineering handoff, not new RPG features or social-media promotion.
 
-The six-stage character creator, protected CRUD, two PNG exports, session recovery, hosted database migration/RLS verification, two-account isolation and hosted account deletion are complete on the feature branch. The creator manually approved the PT/EN desktop/mobile signup Terms of Use and Privacy Notice flow, including a successful new-account registration. At application commit `39cb50c`, GitHub Actions passed all three workflows: **177 frontend tests (19 files), 107 API tests (2 opt-in integration tests skipped)**, frontend/API lint and builds, and isolated database security/pgTAP.
+The six-stage character creator, protected CRUD, two PNG exports, session recovery, hosted database migration/RLS verification, two-account isolation and hosted account deletion are integrated into `main`. The creator manually approved the PT/EN desktop/mobile signup Terms of Use and Privacy Notice flow, including a successful new-account registration. At application commit `39cb50c`, GitHub Actions passed all three workflows: **177 frontend tests (19 files), 107 API tests (2 opt-in integration tests skipped)**, frontend/API lint and builds, and isolated database security/pgTAP.
 
-**Next milestone:** one bounded public-demo release audit: dependencies, security headers/secrets, auth abuse/email limits, stable free domain, privacy notice, PR review and final smoke checks. We are **not** rebuilding validated screens or introducing new product features. The feature branch remains in draft PR #23 pending launch approval; Issue #15 closes after integration and Issue #24 after the public smoke tests. See the [release runbook](docs/free-portfolio-release.md).
+**Next milestone:** finish the deployed Production security/operations sign-off: verify Vercel Production SHA and runtime headers, align Render's branch/origin settings, enable Supabase CAPTCHA only after confirming the token-enabled build, check privacy and free-plan recoverability, and perform a disposable-account smoke. No additional product functionality is required. PR #23 has been merged and closed; Issue #15 is complete and Issue #24 tracks the remaining public-release checks. See the [release runbook](docs/free-portfolio-release.md).
 
 The roadmap includes **only two character-sheet downloads**: PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350). PDF is explicitly out of scope.
 

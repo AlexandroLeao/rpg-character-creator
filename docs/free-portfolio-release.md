@@ -1,6 +1,6 @@
 # Adventure Files — Zero-Budget Portfolio Release
 
-> Status: feature-complete release candidate (November 4, 2026). The creator accepted the PT/EN desktop/mobile product and signup terms, and all GitHub Actions checks passed at documentation commit `11e717b`. **Final technical release approval, merge and public smoke are still pending; LinkedIn/social promotion is explicitly outside this project's definition of done.** Track the final decisions in [PR #23](https://github.com/AlexandroLeao/rpg-character-creator/pull/23), [Issue #15](https://github.com/AlexandroLeao/rpg-character-creator/issues/15) and [Issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
+> Status: **feature-complete and merged into `main` on November 4, 2026**, through owner-approved PR #23 (merge `0b22f48`; three GitHub Actions workflows green). The creator accepted PT/EN desktop/mobile functionality and reported successful Preview Auth/Turnstile checks. **Final Production security/operations verification, Supabase CAPTCHA enforcement and live smoke remain pending.** LinkedIn/social promotion is outside this project's definition of done. Track the final decisions in [PR #23](https://github.com/AlexandroLeao/rpg-character-creator/pull/23), [Issue #15](https://github.com/AlexandroLeao/rpg-character-creator/issues/15) and [Issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
 
 ## 1. Release objective and scope freeze
 
@@ -93,7 +93,7 @@ Do not require a LinkedIn post, a Search Console ranking, public source visibili
 
 ## 6. Definition of done — technical delivery only
 
-- [ ] Reviewed feature integrated into `main` with all final applicable CI checks green.
+- [x] Reviewed feature integrated into `main` through PR #23; merged commit `0b22f48` passed frontend, API and DB CI.
 - [ ] Stable Vercel Production URL serves the approved code over HTTPS and routes to the correct Render API.
 - [ ] Authentication, abuse controls, email confirmation/recovery and owner-only CRUD/account deletion work with disposable accounts in the final environment.
 - [ ] Minimal privacy/support details and free-tier backup/retention limitations are documented; no secrets or private user data exposed.
@@ -118,3 +118,15 @@ Promotion (LinkedIn), optional Search Console ownership, GitHub visibility and f
 - [ ] Keep **Issue #15** open until PR #23 is reviewed/merged; keep **Issue #24** open until the stable public demo passes final smoke. Neither is ready to close as of this checkpoint.
 
 **Ideas after public launch only (not current release work):** introduce additional class/art choices or richer configurable catalogs through a reviewed design proposal (original illustration, PT/EN copy, stable slugs, API/database constraints, migrations only if needed, regression testing). For cloud-learning/portfolio value, evaluate an **optional** AWS proof of concept such as S3/CloudFront for static asset distribution or SES for transactional emails, after comparing free-tier eligibility, cost controls, IAM security, deployment complexity and rollback. Neither AWS nor extra characters is needed for the present working Vercel/Render/Supabase demo; avoid creating billable resources by default.
+
+## November 4 — Post-merge integration checkpoint (current status)
+
+- [x] Owner clicked Confirm merge on PR #23; GitHub reports merged/closed at 21:42 UTC with merge commit `0b22f48` in `main`.
+- [x] All three workflow runs on the **merged `main` commit** concluded successfully (frontend 180 tests, API 107, database pgTAP; applicable lint/build checks).
+- [x] Creator supplied a screenshot showing the application opening on the **stable Production hostname** `https://adventure-files-staging.vercel.app/` after merging, and reported Preview registration, login and recovery checks passed. Screenshots **do not yet independently tie Vercel Production to the merge SHA**, nor prove Supabase CAPTCHA enforcement.
+- [x] PR #23 is closed as merged. Issue #15 (protected CRUD) is complete after the reviewed integration and prior owner-isolation evidence; issue #24 remains the release checklist.
+- [ ] In Vercel → Deployments, confirm the **Production** deployment is Ready and sourced from `main` commit `0b22f48`, and that `VITE_TURNSTILE_SITE_KEY` is set for **Production**.
+- [ ] Confirm Render API service is live on the approved `main` branch with appropriate Auth redirect and CORS origins; preserve existing server-only secrets. Verify `/api/health` → 200 and unauthenticated `/api/characters/me` → 401 through the final domain.
+- [ ] Check browser response headers (`nosniff`, `DENY`, referrer/permissions policy; `noindex` on `/reset-password`), canonical/OG source and HTTPS. Do not expose any private session/token in evidence.
+- [ ] **Only after Production verification**, configure the Cloudflare **secret** in Supabase Attack Protection and enable CAPTCHA. Re-test disposable-account sign-up, sign-in and recovery in PT/EN on mobile and desktop; if authentication breaks, turn CAPTCHA OFF again and investigate.
+- [ ] Record the chosen Supabase Free no-automatic-backup risk/mitigation, short Terms/Privacy/support and credential-isolation review, and final production smoke. Close #24 after acceptance, not merely after merge. LinkedIn, Search Console and optional AWS remain deferred.
