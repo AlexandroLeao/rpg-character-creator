@@ -11,7 +11,7 @@ The web app is part of the [Adventure Files full-stack repository](../README.md)
 - Guided creator with six stages: Identity, Origins, Equipment, Essence, Journey, and Final Review.
 - Eight character classes with original class artwork and ten character selections (class, name, ancestry, background, weapon, artifact, personality, aura, companion, motivation).
 - One saved character per account, with view, edit, and confirmation-based delete.
-- Compact authenticated dashboard: empty-state Create / Extras / Delete Account / Sign Out; saved-character Sign Out / Edit / Export / Delete / Extras, in PT/EN. Extras credits creator Alexandro Milhomes Leão, includes an AI-assistance note, GitHub, and support email.
+- Compact authenticated dashboard: empty-state Create / Extras / Delete Account / Sign Out; saved-character Sign Out / Edit / Export / Delete / Extras, in PT/EN. Extras credits creator Alexandro Milhomes Leão and includes a short about section, inspirations, GitHub, and support email. AI-assisted workflow details are documented in the root README, not displayed in Extras.
 - Delete menu separates character deletion from irreversible password-reconfirmed account deletion; the backend route requires a server-only Supabase admin credential.
 - Browser-generated PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350) downloads from the **saved** character. The project favicon is reused in both export layouts.
 

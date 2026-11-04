@@ -115,6 +115,28 @@ describe('dashboard release actions', () => {
     expect(mocks.deleteMyCharacter).not.toHaveBeenCalled()
   })
 
+  it('keeps Export and Delete option menus mutually exclusive', async () => {
+    mocks.getMyCharacter.mockResolvedValue(character)
+    render(
+      <CharacterDashboard
+        accessToken="token"
+        language="pt"
+        onSignOut={vi.fn()}
+      />,
+    )
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Exportar' }))
+    expect(screen.getByText('ESCOLHA O FORMATO')).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir' }))
+    expect(screen.queryByText('ESCOLHA O FORMATO')).toBeNull()
+    expect(screen.getByRole('button', { name: 'EXCLUIR PERSONAGEM' })).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Exportar' }))
+    expect(screen.getByText('ESCOLHA O FORMATO')).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'EXCLUIR PERSONAGEM' })).toBeNull()
+  })
+
   it('shows the translated English labels', async () => {
     mocks.getMyCharacter.mockResolvedValue(character)
     render(
@@ -138,7 +160,9 @@ describe('dashboard release actions', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'EXTRAS' }))
     const dialog = screen.getByRole('dialog')
     expect(dialog.textContent).toContain('Alexandro Milhomes Leão')
-    expect(dialog.textContent).toContain('refinamento das ilustrações')
+    expect(dialog.textContent).toContain('direção criativa')
+    expect(dialog.textContent).not.toContain('INTELIGÊNCIA ARTIFICIAL')
+    expect(dialog.querySelectorAll('.extras-dialog__section')).toHaveLength(4)
     expect(dialog.textContent).toContain('adventurefiles.suporte@gmail.com')
     expect(dialog.querySelectorAll('a')).toHaveLength(2)
     fireEvent.keyDown(dialog, { key: 'Escape' })

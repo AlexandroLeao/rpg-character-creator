@@ -14,8 +14,6 @@ const translations = {
     credits: 'Idealização, direção criativa e desenvolvimento:',
     inspirationsTitle: 'INSPIRAÇÕES',
     inspirations: 'RPGs de mesa, aventuras e jogos clássicos, pixel art e interfaces de computadores dos anos 80 e 90.',
-    aiTitle: 'INTELIGÊNCIA ARTIFICIAL',
-    ai: 'Ferramentas de IA auxiliaram no refinamento das ilustrações e em tarefas de desenvolvimento e documentação. O conceito e a direção criativa são de Alexandro.',
     contactTitle: 'SUPORTE E CONTATO',
     close: 'FECHAR',
   },
@@ -26,8 +24,6 @@ const translations = {
     credits: 'Concept, creative direction and development:',
     inspirationsTitle: 'INSPIRATIONS',
     inspirations: 'Tabletop RPGs, classic adventure games, pixel art, and computer interfaces from the 1980s and 1990s.',
-    aiTitle: 'ARTIFICIAL INTELLIGENCE',
-    ai: 'AI tools supported illustration refinement and development and documentation tasks. The original concept and creative direction belong to Alexandro.',
     contactTitle: 'SUPPORT & CONTACT',
     close: 'CLOSE',
   },
@@ -108,10 +104,6 @@ export function ExtrasDialog({ language, onClose }: ExtrasDialogProps) {
         <section className="extras-dialog__section">
           <h3>{copy.inspirationsTitle}</h3>
           <p>{copy.inspirations}</p>
-        </section>
-        <section className="extras-dialog__section">
-          <h3>{copy.aiTitle}</h3>
-          <p>{copy.ai}</p>
         </section>
         <section className="extras-dialog__section">
           <h3>{copy.contactTitle}</h3>

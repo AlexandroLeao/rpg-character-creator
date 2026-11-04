@@ -127,6 +127,7 @@ export function CharacterDashboard({
 
   const [deleting, setDeleting] = useState(false)
   const [deleteMenuOpen, setDeleteMenuOpen] = useState(false)
+  const [exportMenuOpen, setExportMenuOpen] = useState(false)
   const [accountDeleteOpen, setAccountDeleteOpen] = useState(false)
   const [extrasOpen, setExtrasOpen] = useState(false)
   const deleteMenuId = useId()
@@ -584,6 +585,11 @@ export function CharacterDashboard({
               <CharacterExportPanel
                 character={state.character}
                 language={language}
+                open={exportMenuOpen}
+                onOpenChange={(nextOpen) => {
+                  setExportMenuOpen(nextOpen)
+                  if (nextOpen) setDeleteMenuOpen(false)
+                }}
               />
 
               <div className="character-dashboard__delete-menu">
@@ -593,7 +599,10 @@ export function CharacterDashboard({
                   className="character-dashboard__delete-button"
                   aria-expanded={deleteMenuOpen}
                   aria-controls={deleteMenuId}
-                  onClick={() => setDeleteMenuOpen((open) => !open)}
+                  onClick={() => {
+                    setExportMenuOpen(false)
+                    setDeleteMenuOpen((open) => !open)
+                  }}
                   disabled={deleteDialogOpen}
                 >
                   {language === 'pt' ? 'Excluir' : 'Delete'}
@@ -637,7 +646,11 @@ export function CharacterDashboard({
               <button
                 type="button"
                 className="character-dashboard__extras-button"
-                onClick={() => setExtrasOpen(true)}
+                onClick={() => {
+                  setExportMenuOpen(false)
+                  setDeleteMenuOpen(false)
+                  setExtrasOpen(true)
+                }}
               >
                 EXTRAS
               </button>

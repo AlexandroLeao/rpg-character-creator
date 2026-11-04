@@ -432,6 +432,8 @@
 
 .extras-dialog {
   max-width: 580px;
+  /* Allow the four short sections to fit in the desktop dialog. */
+  padding: 20px 24px;
 }
 
 .extras-dialog__header {
@@ -462,7 +464,7 @@
 }
 
 .extras-dialog__section {
-  padding: 13px 0;
+  padding: 10px 0;
   border-top: 1px solid #456e4b;
 }
 
@@ -553,6 +555,10 @@
   .character-empty .character-dashboard__extras-button,
   .character-empty .character-dashboard__empty-account-delete {
     font-size: 10px;
+  }
+
+  .extras-dialog {
+    padding: 20px 16px;
   }
 
   .extras-dialog__section h3,

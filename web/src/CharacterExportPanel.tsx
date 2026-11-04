@@ -26,6 +26,9 @@ import './CharacterExportPanel.css'
 type CharacterExportPanelProps = {
   character: Character
   language: Language
+  /** Optional parent control so neighboring action menus never overlap. */
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 const translations = {
@@ -53,8 +56,11 @@ const translations = {
 export function CharacterExportPanel({
   character,
   language,
+  open,
+  onOpenChange,
 }: CharacterExportPanelProps) {
-  const [isOpen, setIsOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
+  const isOpen = open ?? internalOpen
 
   const [generating, setGenerating] =
     useState<CharacterPngFormat | null>(null)
@@ -77,7 +83,10 @@ export function CharacterExportPanel({
     }
 
     setError(null)
-    setIsOpen((current) => !current)
+    if (open === undefined) {
+      setInternalOpen((current) => !current)
+    }
+    onOpenChange?.(!isOpen)
   }
 
   /* ========================================

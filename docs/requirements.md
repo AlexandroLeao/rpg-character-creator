@@ -126,7 +126,7 @@ Each user can access only their own data.
 | FR-36 | A saved-character dashboard displays Sign Out, Edit, Export, Delete, and Extras in that order, with five aligned desktop actions and an accessible mobile layout. |
 | FR-37 | Export preserves the two existing PNG formats; Delete offers distinct Delete Character and Delete Account options, each with independent confirmation. |
 | FR-38 | Delete Account is available with or without a saved character. It requires fresh password verification and an explicit irreversible confirmation; only a trusted backend may delete the verified Auth user. The saved character is removed by the database cascade. |
-| FR-39 | The bilingual Extras panel gives concept, creative-direction and development credit to Alexandro Milhomes Leão; transparently notes AI assistance with illustration refinement, software development and documentation; and provides the project support email and GitHub profile. |
+| FR-39 | The bilingual Extras panel gives concept, creative-direction and development credit to Alexandro Milhomes Leão, briefly describes the project and artistic inspirations, and provides the support email and GitHub profile. AI-assistance details belong in the project documentation, not the in-app Extras panel. |
 
 ## 4. Approved User Navigation
 
@@ -537,7 +537,7 @@ The application supports two downloadable PNG formats.
 
 - Empty state: Create / Extras / Delete Account / Sign Out, PT/EN, in the intended visual order.
 - Saved state: Sign Out / Edit / Export / Delete / Extras, with equal-width desktop actions and readable keyboard/touch navigation on mobile.
-- Extras opens and closes by button and Escape, restores focus, and shows the author's credits, original creative direction, brief inspirations, AI's support role, support email and GitHub (no LinkedIn).
+- Extras opens and closes by button and Escape, restores focus, and shows four compact sections: about, creator credits, inspirations, and support email/GitHub (no LinkedIn and no in-app AI section). On desktop, fit these without vertical scrolling while retaining accessible scrolling on short/mobile viewports.
 - Export still produces only Story and Portrait PNGs; character deletion still requires its existing confirmation and does not remove the account.
 - Account deletion requires the current password and confirmation phrase, rejects invalid/expired tokens and wrong identities, uses only the authenticated user ID on the server, and exposes no privileged key or secret.
 - With isolated test accounts, verify successful removal of both Auth user and saved character, unsuccessful attempts leave both unchanged, and failure paths never misreport success.
