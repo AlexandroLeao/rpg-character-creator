@@ -408,6 +408,8 @@ Content-Type: application/json
 - Deletion revokes refresh sessions. Existing issued access JWTs may remain cryptographically valid until expiration; protected requests must validate the current user/session. Use disposable accounts to test success, wrong password, cross-account attempts, stale sessions and cascading data removal.
 - After backend success the frontend signs out locally; never declare success based only on UI state.
 
+**Staging diagnostics for a failed deletion:** In the browser Network tab, inspect only the HTTP status of `DELETE /api/account/me` (never copy its bearer token or request body). In the **Render backend** logs, the `[account-delete]` markers distinguish `admin_client_unavailable` (check the exact server-only `SUPABASE_SECRET_KEY` variable), `admin_delete_rejected` (Supabase Auth Admin returned a status/code), and `password_verification_exception` / `admin_delete_exception` (transient SDK/network exception). These structured entries deliberately omit passwords, tokens, admin keys, user IDs and email addresses. A generic UI error is not proof that the account was deleted; verify a disposable account in Supabase Auth only after confirming the backend result.
+
 ### Unknown Routes
 
 Requests to unknown endpoints return:

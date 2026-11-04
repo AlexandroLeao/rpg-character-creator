@@ -61,12 +61,16 @@ accountRouter.delete('/me', requireAuth, async (req, res) => {
   try {
     admin = createAdminAuthClient()
   } catch {
+    // Server-side only: never log the key, password or user identity.
+    console.error('[account-delete] admin_client_unavailable')
     res.status(503).json({
       error: 'Account deletion unavailable',
     })
     return
   }
 
+  let phase: 'password_verification' | 'admin_delete' =
+    'password_verification'
   try {
     const authClient = createAuthClient()
     const { data, error } = await authClient.auth.signInWithPassword({
@@ -83,10 +87,19 @@ accountRouter.delete('/me', requireAuth, async (req, res) => {
 
     // No account ID from the request is used here. The identity comes
     // exclusively from the independently authenticated Bearer token.
+    phase = 'admin_delete'
     const { error: deleteError } =
       await admin.auth.admin.deleteUser(userId)
 
     if (deleteError) {
+      console.error('[account-delete] admin_delete_rejected', {
+        status: typeof deleteError.status === 'number'
+          ? deleteError.status
+          : null,
+        code: 'code' in deleteError && typeof deleteError.code === 'string'
+          ? deleteError.code
+          : 'unknown',
+      })
       res.status(503).json({
         error: 'Account deletion unavailable',
       })
@@ -96,6 +109,7 @@ accountRouter.delete('/me', requireAuth, async (req, res) => {
     // Existing public.characters FK uses ON DELETE CASCADE.
     res.status(204).send()
   } catch {
+    console.error(`[account-delete] ${phase}_exception`)
     res.status(503).json({
       error: 'Account deletion unavailable',
     })

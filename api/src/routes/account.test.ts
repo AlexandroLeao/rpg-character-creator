@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
   getUser: vi.fn(),
@@ -55,6 +55,10 @@ describe('DELETE /api/account/me', () => {
     mocks.createAdminAuthClient.mockReturnValue({
       auth: { admin: { deleteUser: mocks.deleteUser } },
     })
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   it('requires a valid authenticated session', async () => {
@@ -155,6 +159,7 @@ describe('DELETE /api/account/me', () => {
   })
 
   it('does not delete if the privileged server key is unavailable', async () => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {})
     mocks.createAdminAuthClient.mockImplementation(() => {
       throw new Error('Configuration missing')
     })
@@ -162,20 +167,31 @@ describe('DELETE /api/account/me', () => {
     expect(response.status).toBe(503)
     expect(response.text).not.toContain('Configuration missing')
     expect(mocks.deleteUser).not.toHaveBeenCalled()
+    expect(log).toHaveBeenCalledWith('[account-delete] admin_client_unavailable')
   })
 
   it('handles failed admin deletion without reporting success', async () => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {})
     mocks.deleteUser.mockResolvedValue({
       data: { user: null },
-      error: new Error('Database unavailable'),
+      error: Object.assign(new Error('Private database details'), {
+        status: 500,
+        code: 'database_error',
+      }),
     })
 
     const response = await deletionRequest()
     expect(response.status).toBe(503)
-    expect(response.text).not.toContain('Database unavailable')
+    expect(response.text).not.toContain('Private database details')
+    expect(log).toHaveBeenCalledWith('[account-delete] admin_delete_rejected', {
+      status: 500,
+      code: 'database_error',
+    })
+    expect(JSON.stringify(log.mock.calls)).not.toContain('Private database details')
   })
 
   it('handles auth service exceptions without exposing internals', async () => {
+    const log = vi.spyOn(console, 'error').mockImplementation(() => {})
     mocks.signInWithPassword.mockRejectedValue(
       new Error('private authentication information'),
     )
@@ -183,5 +199,6 @@ describe('DELETE /api/account/me', () => {
     expect(response.status).toBe(503)
     expect(response.text).not.toContain('private authentication information')
     expect(mocks.deleteUser).not.toHaveBeenCalled()
+    expect(log).toHaveBeenCalledWith('[account-delete] password_verification_exception')
   })
 })
