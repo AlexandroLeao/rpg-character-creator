@@ -12,7 +12,11 @@ describe('Cloudflare Turnstile challenge', () => {
 
   it('uses a token once and resets the verification after an auth attempt', async () => {
     const client = {
-      render: vi.fn((_container: HTMLElement, _options: unknown) => 'widget-1'),
+      render: vi.fn((container: HTMLElement, options: unknown) => {
+        void container
+        void options
+        return 'widget-1'
+      }),
       reset: vi.fn(),
       remove: vi.fn(),
     }
