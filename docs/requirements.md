@@ -591,16 +591,15 @@ The intended delivery sequence is:
 - PNG Portrait 1080 × 1350 generation and download.
 - Export readability and privacy tests.
 
-### Phase 8 — Final Verification
+### Phase 8 — Final Verification and Zero-Budget Public Demo
 
-- Responsive review.
-- Accessibility checks.
-- Security testing.
-- Integration testing.
-- Production deployment.
-- Final documentation and portfolio presentation.
+**Verified:** Developer-reported staged desktop/mobile QA, keyboard/reduced-motion checks, email/code recovery, six-stage creator, character CRUD, PT/EN and both PNG exports; local automated tests and hosted migration/RLS inspection also passed. The November 3–4 hosted snapshot showed both migrations, four owner-only RLS policies and 2 characters with 0 missing Motivation.
 
-Previously completed foundations should be reused and refined rather than unnecessarily rebuilt.
+**Still required before making registration public:** dependency/secret-history checks, suitable security headers, public URL/HTTPS/Auth origin review, abuse protection/rate-limit decision, minimal account-data correction/deletion information, PR review, and final deployed smoke tests. These gates are tracked in [Issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24) and the [free portfolio release runbook](./free-portfolio-release.md).
+
+The delivery objective is a personal, free-to-access **portfolio demonstration**, not a paid product or an uptime-guaranteed service. Vercel Hobby, Render Free, and Supabase Free may be reused in one deliberately documented demo environment; a second paid production environment is not an MVP requirement. Existing limits and provider terms remain applicable.
+
+**Scope freeze:** Do not reintroduce PDF, Google OAuth, playable RPG features, additional character slots, new artworks, or monetization into this release. Previously completed product/security tests should be referenced rather than needlessly repeated.
 
 ## 10. Deferred or Excluded Features
 

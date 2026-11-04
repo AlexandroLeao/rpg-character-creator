@@ -76,6 +76,14 @@ Auth -- Login
 Auth -- Recover
 Auth -- Logout
 
+note right of Recover
+  Request a one-time email code.
+  Verify code, account and
+  recovery session before
+  allowing a new password.
+  Reject expired or used codes.
+end note
+
 note right of Create
   Six guided stages.
 

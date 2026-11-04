@@ -37,7 +37,7 @@ The Express API includes:
 
 The character CRUD implementation is covered by automated tests using mocked Supabase responses.
 
-Live integration testing against an isolated Supabase development environment is still required to verify the complete authentication and database authorization flow.
+Two opt-in integration tests have already passed using real local Supabase Auth, PostgreSQL RLS and Express with disposable accounts. Hosted two-account checks were subsequently reported by the developer; additional public-release safety checks remain in Issue #24.
 
 ## Requirements
 
@@ -718,28 +718,21 @@ Changes must pass automated checks before being considered ready for merging.
 - Issue #13 — Express authentication middleware and API CI.
 - Issue #15 — Protected character CRUD endpoints.
 
-## Next Milestones
+## November 3–4, 2026 — Hosted Staging Evidence
 
-The protected character CRUD API is integrated with the feature-branch frontend. The six-stage PT/EN character creator, class artwork, saving, editing, deletion, and two PNG character-sheet exports are implemented.
+- The developer reported successful API health and HTTP 401 unauthenticated smoke checks through Vercel's `/api` rewrite to Render.
+- The developer reported negative cross-account CRUD, rejected `userId` payloads, and no alteration of the second account's character. These manual tests are **developer-reported**, not a new automated hosted penetration test.
+- Read-only hosted Supabase SQL confirmed migrations `20261028000000` and `20261031000000`, RLS enabled, owner-only SELECT/INSERT/UPDATE/DELETE policies, and **2 characters with 0 missing Motivation** at inspection time.
+- Local checks include 6 mocked cross-account tests, 39 pgTAP assertions, and 2 opt-in Supabase Local Auth/Express integration tests. The standard API suite passes 97 tests with the 2 local integration cases skipped by default. GitHub Actions API/Database checks passed at `c115039`.
+- Render successfully redeployed following a strict staging origin allowlist update. A browser's same-origin Vercel `/api` proxy is not by itself evidence of a direct browser-to-Render CORS preflight.
 
-Local authorization verification has been completed:
+## Final Release Checks
 
-- 6 mocked cross-account API tests are included in the standard suite.
-- 39 local pgTAP assertions passed against Supabase PostgreSQL.
-- 2 opt-in integration tests passed using real disposable Supabase Local Auth accounts and the Express API.
-- The standard API suite passes **97 tests**, while the 2 local integration tests are skipped by default.
+1. Audit production-intended dependencies, security headers, logging/error handling, HTTPS and any credentials/history exposure.
+2. Confirm the approved stable public frontend URL, Auth redirects, API destination, and account recovery/email-delivery limits. Do not treat personal Gmail SMTP as guaranteed transactional infrastructure.
+3. Review public-signup abuse/rate limits and a documented data/account deletion contact before announcing open registration.
+4. Recheck the final public deployment, finish PR #23 review, and record issue #24 evidence before merging or closing related issues.
 
-The remaining steps toward release are:
+The portfolio demo may reuse a single free-hosting environment by explicit decision; a separate paid production stack is **not** required for this MVP. This is a documented availability trade-off, not production-grade isolation or uptime assurance. See [zero-budget release runbook](../docs/free-portfolio-release.md).
 
-1. Verify deployed API and database ownership isolation in a controlled staging environment, using disposable users and never modifying existing character records.
-2. Confirm the revised catalog, Motivation field, migration state, and legacy records in the intended deployment environment.
-3. Complete production authentication/email configuration, API deployment, observability, and end-to-end checks.
-4. Preserve the completed local desktop/mobile, keyboard-accessibility, reduced-motion, and error-state QA evidence while rechecking these flows on the hosted preview; keep deployment documentation current.
-
-For the guarded local integration command and cleanup behavior, see [Supabase database documentation](../supabase/README.md).
-
-The frontend defaults to Brazilian Portuguese with optional English, and uses a single consistent retro dark theme.
-
-The only character-sheet downloads in scope are PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350). PDF export was removed from the roadmap on November 1, 2026.
-
-Production deployment will be validated separately before release.
+The frontend defaults to Brazilian Portuguese with optional English and a consistent dark retro theme. The two PNG downloads (1080×1920 Story/Status, 1080×1350 Portrait) remain the only export formats; PDF is out of scope.

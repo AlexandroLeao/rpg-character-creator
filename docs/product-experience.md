@@ -959,16 +959,14 @@ The six-stage flow, character management, and both PNG export layouts are implem
 
 Manual QA was completed on November 2, 2026 across the complete creator/CRUD/export flow, desktop/mobile, PT/EN, keyboard accessibility, error handling, and reduced-motion behavior. Two separate test accounts showed no cross-account character mixing during normal UI flows; no issues were reported. Local API authorization and RLS integration checks were also exercised previously. On November 3 the developer additionally reported successful staged recovery-code/email flows and final authentication-screen visual QA; a formal deployed API/RLS test remains separate.
 
-### Remaining Review and Release Work
+### Hosted UX Evidence and Final Release Work
 
-1. Repeat negative API read/update/delete authorization, RLS, migration, and legacy-data checks in a controlled hosted staging environment.
-2. Confirm frontend/API proxy routing, SPA password-reset URLs, HTTPS/CORS, monitoring, and production-ready authentication emails.
-3. Re-run key UX and export flows on the hosted preview and review dependency security.
-4. Update documentation, rerun CI, and merge draft PR #23 only after final review. Track remaining work in [issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
+- The developer reported successful staging PT/EN, desktop/mobile, six-stage creation, personal character dashboard, editing/deletion, two PNG layouts, recovery OTP, invalid/expired code, and browser-tab isolation checks on November 3–4.
+- The visual system, class illustrations, spacing, pixel typography, and existing verified screens are **frozen for this MVP**. New visual redesigns and new artwork are deferred; any fix must address a reproducible defect.
+- Vercel/Render live API smoke tests, hosted Supabase migration/RLS inspection, and developer-reported negative cross-account checks were completed; the GitHub Actions checks remain green at `c115039`.
+- Outstanding tasks are limited to release safety/operations: security/dependency/secret-history audit, public URL and Auth redirect, email/bot-abuse limits, privacy notice, final review/merge, and public smoke tests. The release checklist is [here](./free-portfolio-release.md).
 
-The updated catalog includes Arcane Seal (`arcane-seal`), Shadow Crown (`shadow-crown`), Chaos Orb (`chaos-orb`), and Dragon (`dragon`). Only Companion offers `none` as an explicit selection. Previously saved records and compatibility paths require continued validation.
-
-The project's original eight-class illustrations remain shared by the creator, dashboard, and PNG exports; per-option artwork is deferred. PDF export is not in scope.
+The updated catalog includes Arcane Seal (`arcane-seal`), Shadow Crown (`shadow-crown`), Chaos Orb (`chaos-orb`), and Dragon (`dragon`). Companion alone allows `none`. Original eight-class artwork stays shared across creator/dashboard/exports. PDF and per-option art remain out of scope.
 
 ## 18. Non-Goals
 

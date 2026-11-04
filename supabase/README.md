@@ -63,13 +63,22 @@ The two integration tests are skipped during ordinary `npm test` runs unless `RU
 
 The database test suite verifies these rules at the SQL layer. The API additionally has isolated mock-based authorization tests and an opt-in integration suite using real local Auth tokens with disposable accounts. These local results do not substitute for controlled validation of production authentication, API deployment, and RLS configuration.
 
-## Verify migration history safely before another deployment
+## Hosted migration/RLS inspection — November 3–4, 2026
 
-The feature-branch PR reports that the development Supabase project already has the six-stage Motivation schema, and manual SQL metadata inspection previously confirmed RLS and owner-scoped policies. **That does not prove the target's Supabase CLI migration history matches Git**, nor certify compatibility with existing records.
+The developer ran **read-only SQL** in the currently connected Supabase project's SQL Editor and supplied results:
 
-Before changing any hosted database, use a controlled, read-only schema/migration inspection (`supabase link`, then inspect `supabase migration list` and applicable table/constraint metadata). Compare existing characters and legacy catalog values, check backup/recovery options, and obtain explicit approval for any proposed `supabase db push`. Never blindly reapply `create table` migrations or modify existing character records to test RLS.
+- `supabase_migrations.schema_migrations` contains `20261028000000` and `20261031000000`, matching Git.
+- `public.characters` reports `rowsecurity = true`.
+- `pg_policies` lists four policies scoped to `authenticated`: `characters_select_own`, `characters_insert_own`, `characters_update_own`, `characters_delete_own`, each comparing `auth.uid()` with `user_id` in the applicable conditions.
+- The table exposes the expected 14 columns, including `user_id`, `character_class` and nullable `motivation` (nullable for backward compatibility; required by the API on new saves).
+- An aggregate query reported **2 saved characters and 0 rows with `motivation IS NULL`** at inspection time.
+- The developer also reported two-account hosted API authorization/immutable-field checks passing.
 
-The currently used Supabase project is treated as a **development/staging environment**, even if its dashboard branch is labeled `PRODUCTION`. Its configured custom Gmail SMTP has been manually tested for recovery, but production-scale email delivery, rate limits, and public registration still need separate approval and validation. Use secure interactive authentication; do not put database passwords or SMTP/service-role keys in Git, screenshots, or chat.
+These observations resolve the **previously pending hosted migration-history and missing-Motivation checks** for that environment. They do not substitute for a database backup, a new environment's checks, a full credential/history audit, or a controlled production-release smoke test.
+
+**Do not run `supabase db push`, `supabase db reset`, or `supabase test db --linked` to reconfirm these results.** No migration is currently proposed by this evidence update. If any schema change becomes necessary, inspect first, preserve existing data, review backups/recovery, and obtain explicit approval before a write.
+
+The currently used Supabase project is treated as the staging/portfolio-demo environment, even though its dashboard branch is labeled `PRODUCTION`. Using this same free environment publicly requires an explicit launch decision and documented limitations; production-scale email and abuse protection have not been certified. Keep secrets, OTPs, passwords, keys and personal account data out of documentation and screenshots.
 
 Official references:
 

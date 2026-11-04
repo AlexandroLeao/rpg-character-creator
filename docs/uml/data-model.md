@@ -2,13 +2,13 @@
 
 - **Project:** Adventure Files
 - **Document type:** Entity relationship and data persistence specification
-- **Status:** Implemented on the feature branch; target Supabase deployment and legacy-data verification pending
+- **Status:** Implemented on the feature branch; hosted schema/migration/RLS checks verified November 3–4, 2026; public release review pending
 
 ## 1. Entity Relationship Diagram
 
 The following diagram represents the approved target data model.
 
-The feature branch includes the `motivation` field, updated validation and a version-controlled migration (`supabase/migrations/20261031000000_extend_characters_for_six_steps.sql`). Local tests have passed; this does not confirm that a hosted Supabase project has received the migration.
+The feature branch includes the `motivation` field, updated validation and a version-controlled migration (`supabase/migrations/20261031000000_extend_characters_for_six_steps.sql`). Local tests passed; subsequent read-only inspection of the connected hosted Supabase project confirmed both expected migration versions and the updated table structure. This does not certify any future or different database instance.
 
 ```mermaid
 erDiagram
@@ -114,7 +114,7 @@ The following constraints describe the intended final database model.
 | `personality` | One of 8 approved personality slugs |
 | `aura` | One of 8 approved aura slugs |
 | `companion` | One of 8 approved companion slugs, including `none` |
-| `motivation` | One of 8 approved motivation slugs; required in the completed model |
+| `motivation` | One of 8 approved motivation slugs for new API saves; nullable in the hosted schema to preserve legacy compatibility |
 | `created_at` | Database-managed timestamp |
 | `updated_at` | Updated on successful write |
 
@@ -198,7 +198,7 @@ The completed data model requires this value for newly saved characters.
 
 ## 5. Safe Database Migration Strategy
 
-A version-controlled migration is present in the feature branch and has been exercised locally. The target hosted database must still be inspected and validated before applying it; its schema must not be assumed to match this model.
+A version-controlled migration is present and has been exercised locally. Read-only inspection of the currently used hosted Supabase project subsequently confirmed its expected migration history, schema and owner policies. Inspect any **different** target database before applying changes; do not assume compatibility without fresh evidence.
 
 Before introducing new constraints, the implementation must inspect:
 
@@ -430,20 +430,19 @@ Character option identifiers remain language-independent.
 
 Portuguese and English labels are presentation concerns, not database values.
 
-## 11. Implementation Status
+## 11. Implementation and Hosted Verification
 
-The approved six-stage character model is implemented on the feature branch, including:
+The approved six-stage model is implemented on the feature branch, including Motivation, catalog validation, protected character CRUD, one-character ownership rules, frontend/API tests, local Supabase RLS and real Auth integration tests, and the two PNG exports.
 
-- The Motivation field and catalog validation in the frontend and API.
-- Authenticated character creation, retrieval, editing, and deletion with one character per user.
-- A version-controlled SQL migration for the revised columns and constraints.
-- Legacy-record compatibility handling for reading and editing older character data.
-- Automated frontend/API and database security checks, including local integration testing.
-- PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350) exports from saved character data.
+On November 3–4, the developer supplied read-only hosted SQL results showing:
 
-Before deployment, inspect the intended Supabase project's actual schema and records, review and apply outstanding migrations safely, and rerun RLS, negative cross-account authorization, legacy compatibility and end-to-end staging tests.
+- Both expected migrations (`20261028000000`, `20261031000000`) registered.
+- `rowsecurity = true` for `public.characters`, with owner-scoped SELECT/INSERT/UPDATE/DELETE policies.
+- The expected 14 columns and a nullable Motivation field for historical compatibility.
+- **2 characters total; 0 rows with missing Motivation** at that specific inspection.
+- Developer-reported negative cross-account and immutable-field API checks passed. These are reported manual results, not a third-party security assessment.
 
-Implementation in code and local tests do **not** prove that a hosted environment has been migrated or is ready for production.
+No migration or database data change is indicated by these checks. Future environments still require their own safe verification. Public release additionally depends on an approved stable URL, email/abuse limits, privacy notice, dependency/security audit, PR review and final smoke tests. See the [free portfolio release runbook](../free-portfolio-release.md).
 
 ## 12. Related Documents
 

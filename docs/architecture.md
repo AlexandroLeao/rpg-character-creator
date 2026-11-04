@@ -41,7 +41,7 @@ PostgreSQL owns persistent character records, database constraints, and Row Leve
 | API testing | Vitest + Supertest + integration/ownership checks |
 | Version control | Git + GitHub |
 | CI/CD | GitHub Actions |
-| Deployment | Vercel staging frontend; `/api` rewritten to Render staging API; production environment separation and hosted checks pending |
+| Deployment | Vercel Hobby frontend with `/api` proxy to Render Free API; current hosted smoke/migration checks passed; zero-budget single-environment public demo proposed, safety review pending |
 | Development | GitHub Codespaces (browser-based); Cloud Shell optional |
 
 PNG exports are generated client-side from the authorized saved character using browser canvas/image APIs. PNG output dimensions and fields have automated tests; browser and device compatibility remain part of release verification.
@@ -518,20 +518,14 @@ The completed workflow must be validated through integration tests.
 
 ## 11. Deployment and Development
 
-- Development currently runs in GitHub Codespaces; Google Cloud Shell remains an optional alternative.
-- Frontend and backend scripts remain in `web/` and `api/`.
-- The feature-branch frontend is deployed to Vercel staging with environment-specific public configuration. The checked-in `web/vercel.json` forwards `/api` requests to `https://adventure-files-api-staging.onrender.com` and provides an SPA fallback for `/reset-password`.
-- The Express API targets a compatible long-running Node service on Render staging; independent live API health, CORS, HTTPS, and negative authorization checks are still required.
-- Before a production release, review the hard-coded staging API destination and separate frontend, API, database, and auth redirect settings by environment. Do not route public production traffic to the staging backend by accident.
-- Serverless deployment requires an appropriate handler rather than assuming an ordinary long-running process will work unchanged.
-- Supabase hosts authentication and PostgreSQL.
-- Use appropriately separated development, test, and production credentials.
-- Configure production authentication email delivery.
-- GitHub Actions validates pull requests before merging.
-- Store deployment credentials in approved secret-management systems.
-- Verify authentication callbacks, CORS, API URLs, email delivery, and RLS on deployed domains.
-- Validate export generation in the browsers and devices targeted by the application.
-- Apply reviewed database migrations before enabling incompatible frontend save behavior.
+- **Current stack:** React/Vite frontend on Vercel Hobby Preview; `web/vercel.json` rewrites `/api/:path*` to `https://adventure-files-api-staging.onrender.com` (Render Free Express API). Authentication and PostgreSQL RLS run in Supabase Free. GitHub Actions checks builds, lint, tests and isolated database security.
+- **November 3–4 evidence:** The developer confirmed Vercel/Render `/api/health` and unauthenticated `/api/characters/me`, hosted account-isolation checks, SPA `/reset-password`, SMTP OTP recovery and a successful Render redeploy with strict `CORS_ORIGIN`. Read-only hosted SQL confirmed both migrations, RLS, owner policies and no missing Motivation in two saved records.
+- **Portfolio release decision pending explicit approval:** Instead of creating a second paid infrastructure stack, the owner can promote the existing **single zero-budget demo environment** to the stable public URL. This is a deliberate cost/time trade-off, **not** separate production/staging isolation. The API resource may retain its `staging` hostname while serving the public demo; document that fact honestly.
+- Before making that single environment public, confirm Vercel's stable domain, Supabase site/redirect allowlists, `VITE_AUTH_REDIRECT_ORIGIN`, Render CORS, HTTPS, appropriate security headers, email/rate limits, anti-abuse controls, data deletion guidance and log/error monitoring. Do not change database migrations or secrets without approval.
+- **Free-tier risks:** Render may cold-start after inactivity; Supabase may pause low-activity projects; personal Gmail SMTP is not a high-volume transactional provider. No contractual uptime or guaranteed email delivery is claimed for the portfolio demo.
+- Development remains in GitHub Codespaces with Cloud Shell as an alternative. Never commit credentials; use environment-specific public keys and server-side secret storage. Private repository visibility must not change until the full Git history is reviewed for secrets.
+- If production isolation becomes necessary **after the portfolio release**, introduce it as a separately scoped improvement rather than delaying this frozen MVP.
+- See [the release runbook](./free-portfolio-release.md) for launch gates, rollback expectations, SEO, privacy and issue/PR sequencing.
 
 ## 12. Architectural Decisions
 

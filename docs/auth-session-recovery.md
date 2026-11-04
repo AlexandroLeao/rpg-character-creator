@@ -34,12 +34,14 @@
 
 The code still accepts previously issued `token_hash` recovery links and Supabase-verified recovery events where applicable. This is a compatibility path, **not** the template currently recommended for new emails. Do not switch the working OTP template back to a hash-link template without a separately reviewed decision.
 
-### November 3, 2026 staging evidence
+### November 3–4, 2026 staging evidence
 
-- The developer reported that the dedicated Gmail SMTP sender saved successfully and delivered recovery messages.
-- The developer manually tested the email/code/password flow, previously used and invalid codes, independent browser tabs, and desktop/mobile behavior successfully.
-- The Vercel Preview commit status is green, and the GitHub Actions checks passed (167 frontend tests across 18 files, 97 API tests plus two skipped opt-in integration tests, and local database security tests).
-- These reports do **not** certify live deployed API ownership isolation, target migration history, external email deliverability at scale, or production readiness.
+- The developer reported successful dedicated Gmail SMTP recovery emails, email/code/password reset, used/invalid code rejection, independent browser tabs, and desktop/mobile checks.
+- The developer subsequently reported successful hosted negative cross-account character tests and a guarded `/reset-password` route. The Render/Vercel `/api/health` and unauthorized `/api/characters/me` checks also passed.
+- Read-only hosted database checks confirmed the two expected migration versions, four owner-scoped RLS policies, and a snapshot of 2 characters with 0 missing Motivation.
+- Latest CI at `c115039` passed frontend (167 tests), API (97 tests, 2 opt-in local integrations skipped by default), lint/builds and isolated database security.
+- These are developer-reported browser tests and SQL screenshots. They do **not** establish unlimited external email deliverability, absence of automated signup abuse, or a finished public-release security audit.
+- Before public open registration, confirm Supabase Auth rate limits, suitable bot protection, stable Vercel/Auth redirect origin, and a data/account deletion notice. The single free Gmail SMTP account can be throttled or blocked if abused. See [the free portfolio runbook](./free-portfolio-release.md).
 
 ## Regression checklist (Preview only)
 

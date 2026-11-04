@@ -108,9 +108,15 @@ else Valid character draft
 
             == Database Persistence ==
 
-            API -> Database: User-scoped upsert by user_id
+            API -> Database: User-scoped update; insert if absent
 
             Database -> Database: Enforce RLS ownership\nand UNIQUE(user_id)
+
+            note right of API
+              On concurrent insert conflict
+              (PostgreSQL 23505), retry
+              the ownership-scoped update.
+            end note
 
             alt Permission or persistence failure
 

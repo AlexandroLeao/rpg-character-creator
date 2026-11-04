@@ -407,16 +407,14 @@ On November 2, 2026, local manual QA reported no issues across the start screen,
 
 **November 3 update:** the most recent feature-branch CI passed **167 frontend tests (18 files)**, 97 API tests, lint/builds, and local database RLS tests. Vercel reported the latest staging deployment as ready, and the developer reported successful recovery email/OTP and responsive QA. These are staging/CI observations, not an independently verified deployed API authorization or production-readiness assessment.
 
-### Remaining Release Validation
+### Current Hosted Evidence (November 3–4, 2026)
 
-1. Recheck negative cross-account API/RLS behavior and migration/legacy-data compatibility in the intended staging environment, using disposable users.
-2. Verify the configured Vercel `/api` rewrite to the Render staging backend, HTTPS, restricted CORS, monitoring, and separate production routing; configure production-ready Auth/email settings before public release.
-3. Repeat complete sign-up/confirmation/recovery, save/edit/delete, and both PNG export flows on the hosted preview.
-4. Review dependency security and deployment documentation, rerun CI, and merge draft PR #23 only after the release gates pass (tracked in [issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24)).
+1. The developer confirmed Vercel Preview/Render API health, unauthenticated 401 behavior, guarded `/reset-password`, password/code recovery, separate sessions and negative cross-account character operations.
+2. Hosted Supabase read-only SQL confirmed both project migrations, `public.characters` RLS, four owner-scoped policies and a snapshot of **2 characters / 0 without Motivation**.
+3. Render redeployed successfully after its explicit CORS origin list was updated, and the developer repeated the API smoke tests. Latest GitHub Actions on `c115039` passed frontend, API and database security workflows.
+4. Outstanding public-release gates are dependency/security/secret review, browser/HTTP security headers, anti-abuse/email limitations, a stable accessible public URL, privacy/account deletion notice, PR review/merge, and final smoke checks. See [the free demo runbook](./free-portfolio-release.md) and [Issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
 
-The approved scope no longer includes a PDF download. Additional illustration variants for individual customization choices remain deferred.
-
-Implemented screens and passing tests do not replace production authorization or deployment verification.
+The portfolio owner requires **zero paid hosting and fast, quality-focused delivery**. The approved MVP is frozen; a single free demonstration environment is acceptable if its availability and isolation limitations are documented and explicitly approved. The repository remains private until any source-history secret audit is complete and a separate visibility decision is made.
 
 ## 8. Security and Privacy Requirements
 
