@@ -35,6 +35,9 @@ rectangle "Adventure Files" {
     usecase "View My Character" as View
     usecase "Edit Character" as Edit
     usecase "Delete Character" as Delete
+    usecase "Delete Account" as DeleteAccount
+    usecase "Confirm Current Password" as Reauthenticate
+    usecase "View Extras / Credits" as Extras
 
     usecase "Export Character Sheet" as Export
     usecase "Export Story/Status PNG" as ExportStory
@@ -54,6 +57,8 @@ User --> Create
 User --> View
 User --> Edit
 User --> Delete
+User --> DeleteAccount
+User --> Extras
 User --> Export
 
 Create .> Identity : <<include>>
@@ -67,6 +72,8 @@ Create .> Save : <<include>>
 Edit .> Review : <<include>>
 Edit .> Save : <<include>>
 
+DeleteAccount .> Reauthenticate : <<include>>
+
 ExportStory .> Export : <<extend>>
 ExportPortrait .> Export : <<extend>>
 
@@ -75,6 +82,8 @@ Auth -- Confirm
 Auth -- Login
 Auth -- Recover
 Auth -- Logout
+Auth -- Reauthenticate
+Auth -- DeleteAccount
 
 note right of Recover
   Request a one-time email code.
@@ -82,6 +91,22 @@ note right of Recover
   recovery session before
   allowing a new password.
   Reject expired or used codes.
+end note
+
+note right of DeleteAccount
+  Available with or without a saved character.
+  Requires a confirmed current password
+  and explicit irreversible confirmation.
+  Backend deletes only the authenticated
+  Auth user; characters cascade through FK.
+  Privileged secret never reaches browser.
+end note
+
+note right of Extras
+  Credits: Alexandro Milhomes Leao.
+  AI supports illustration refinement,
+  development and documentation.
+  Support email and GitHub only.
 end note
 
 note right of Create

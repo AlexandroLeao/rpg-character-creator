@@ -118,6 +118,16 @@ Each user can access only their own data.
 | FR-33 | Character creation requires an explicit valid selection for every customization category. Companion supports the explicit value `none`, while artifact does not. |
 | FR-34 | Invalid or failed save operations preserve the user's draft and provide recoverable feedback. A failed request must not silently create duplicate records. |
 
+### 3.5. Dashboard Extras and Account Lifecycle
+
+| ID | Requirement |
+|---|---|
+| FR-35 | The empty authenticated dashboard displays Create Character, Extras, Delete Account, and Sign Out in that exact order, with the established visual styling. |
+| FR-36 | A saved-character dashboard displays Sign Out, Edit, Export, Delete, and Extras in that order, with five aligned desktop actions and an accessible mobile layout. |
+| FR-37 | Export preserves the two existing PNG formats; Delete offers distinct Delete Character and Delete Account options, each with independent confirmation. |
+| FR-38 | Delete Account is available with or without a saved character. It requires fresh password verification and an explicit irreversible confirmation; only a trusted backend may delete the verified Auth user. The saved character is removed by the database cascade. |
+| FR-39 | The bilingual Extras panel gives concept, creative-direction and development credit to Alexandro Milhomes Leão; transparently notes AI assistance with illustration refinement, software development and documentation; and provides the project support email and GitHub profile. |
+
 ## 4. Approved User Navigation
 
 The primary experience follows this order:
@@ -522,6 +532,16 @@ The application supports two downloadable PNG formats.
 - Saved-character creation, editing, and deletion are validated.
 - Both PNG export formats are generated successfully.
 - Documentation accurately reflects the released functionality.
+
+### 8.10. Dashboard Extras and Account-Deletion Acceptance
+
+- Empty state: Create / Extras / Delete Account / Sign Out, PT/EN, in the intended visual order.
+- Saved state: Sign Out / Edit / Export / Delete / Extras, with equal-width desktop actions and readable keyboard/touch navigation on mobile.
+- Extras opens and closes by button and Escape, restores focus, and shows the author's credits, original creative direction, brief inspirations, AI's support role, support email and GitHub (no LinkedIn).
+- Export still produces only Story and Portrait PNGs; character deletion still requires its existing confirmation and does not remove the account.
+- Account deletion requires the current password and confirmation phrase, rejects invalid/expired tokens and wrong identities, uses only the authenticated user ID on the server, and exposes no privileged key or secret.
+- With isolated test accounts, verify successful removal of both Auth user and saved character, unsuccessful attempts leave both unchanged, and failure paths never misreport success.
+- Public release must remain blocked while the Render-only secret or hosted account-deletion verification is missing.
 
 ## 9. Implementation and Delivery Priorities
 

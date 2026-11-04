@@ -175,7 +175,7 @@ The creator header displays progress on the left and PT/EN on the right.
 
 Base path: `/api`.
 
-The Express API already implements the health endpoint and authenticated character GET, PUT, and DELETE routes.
+The Express API implements the health endpoint, authenticated character GET/PUT/DELETE routes, and a separate self-service account-deletion route. The latter requires the trusted API's Supabase administrator credential and fresh password verification.
 
 The six-stage character payload and revised catalog are implemented on the feature branch. Compatibility with older records and cross-account authorization still require release verification.
 
@@ -185,6 +185,7 @@ The six-stage character payload and revised catalog are implemented on the featu
 | GET | `/api/characters/me` | Required | `200` own character or `404` if none |
 | PUT | `/api/characters/me` | Required | `201` on creation, `200` on update |
 | DELETE | `/api/characters/me` | Required | `204` after own character removed |
+| DELETE | `/api/account/me` | Required + fresh password | `204` after Auth account and cascaded character deletion |
 
 Protected requests use:
 
@@ -467,6 +468,15 @@ References:
 
 - [Supabase RLS](https://supabase.com/docs/guides/database/postgres/row-level-security)
 - [Supabase Production Checklist](https://supabase.com/docs/guides/deployment/going-into-prod)
+
+### 8.6. Irreversible Account Deletion
+
+- The frontend displays a bilingual, pixel-styled deletion confirmation from the empty dashboard or the saved-character Delete menu, alongside a compact Extras/Credits panel. Existing character creation, editing and PNG exports are unchanged.
+- The user must supply their current password and type an explicit confirmation. The API accepts only the verified Bearer-token identity; user IDs and email addresses in the request body cannot select another deletion target.
+- The API reauthenticates the current verified email/password pair via Supabase Auth and compares the returned identity with the originally authenticated user ID.
+- `SUPABASE_SECRET_KEY` is a privileged server-only variable in Render. Only the account-deletion route may use the admin client; ordinary character reads/writes keep their RLS-enforced user JWT client.
+- Deleting the Auth user cascades to the saved character via the existing foreign key. A deleted Auth user cannot refresh sessions, but JWTs may remain valid until expiration; sensitive routes must not rely on a stale client-only session.
+- Account deletion returns `204` only after the provider acknowledges success. All other paths fail closed, including wrong password, invalid session, missing server key or upstream error. Confirm with isolated test accounts before public registration.
 
 ## 9. State Management and UX
 
