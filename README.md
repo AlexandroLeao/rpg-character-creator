@@ -85,6 +85,17 @@ Adventure Files is a **completed, owner-tested MVP** on `main` at application co
 
 See the [historical release runbook](docs/free-portfolio-release.md), [closed release issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24), and [security review #31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31). The MVP scope remains frozen: no PDF, playable game, OAuth expansion, or new artwork variants.
 
+### Lossless Static PNG Optimization — November 5, 2026
+
+Two reviewed, merged asset-only changes reduced the eleven selected static PNGs by **1,271,167 bytes (10.85%)** without resizing or changing their decoded pixels:
+
+- [PR #35](https://github.com/AlexandroLeao/rpg-character-creator/pull/35): five class illustrations (Bard, Mage, Paladin, Rogue, Warrior), saving **405,356 bytes (9.23%)**.
+- [PR #36](https://github.com/AlexandroLeao/rpg-character-creator/pull/36): the two START illustrations, Classes Together, Cleric, Druid and Ranger, saving **865,811 bytes (11.82%)**.
+
+Each replacement was checked against the original Git blob and validated for exact decoded pixel equality, dimensions, color mode and transparency; the remaining six also had PNG metadata compared. The original file paths and application code, layout, CSS, animations, exports and behavior were unchanged. The creator visually approved the results before merging. The existing favicon and hero PNGs were left unmodified because recompression offered no meaningful benefit.
+
+This was a lossless storage optimization, not an artwork revision or a new design feature.
+
 ## User Experience
 
 The approved experience follows this structure:
