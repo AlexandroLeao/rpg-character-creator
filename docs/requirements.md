@@ -2,7 +2,7 @@
 
 - **Project:** Adventure Files
 - **Document type:** Functional and non-functional requirements
-- **Status:** Approved functional specification implemented and merged into `main` (latest `0a0457d`); only final hosted operations/security acceptance remains in Issue #24.
+- **Status:** Approved functional specification implemented in the owner-accepted MVP (`32bb63d`, November 5, 2026). Release [#24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24) and bounded security review [#31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31) are closed; optional maintenance work remains deferred.
 
 ## 1. Purpose and Scope
 
@@ -615,7 +615,7 @@ The intended delivery sequence is:
 
 **Verified:** Developer-reported staged desktop/mobile QA, keyboard/reduced-motion checks, email/code recovery, six-stage creator, character CRUD, PT/EN and both PNG exports; local automated tests and hosted migration/RLS inspection also passed. The November 3–4 hosted snapshot showed both migrations, four owner-only RLS policies and 2 characters with 0 missing Motivation.
 
-**Still required before making registration public:** dependency/secret-history checks, suitable security headers, public URL/HTTPS/Auth origin review, abuse protection/rate-limit decision, minimal account-data correction/deletion information, PR review, and final deployed smoke tests. These gates are tracked in [Issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24) and the [free portfolio release runbook](./free-portfolio-release.md).
+**Final owner acceptance (November 5):** the hosted demo passed the owner's stated signup/login/recovery/mobile/PT/EN/character/deletion checks, with HTTPS/security headers (SecurityHeaders.com **A**), negative API CORS, public-bundle secret search and limited manual ZAP Safe-mode passive review documented in closed [#24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24) and [#31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31). This is **not** a full penetration-test certification. Missing CSP, optional direct Render private-response `no-store`, app-level rate limiting and Supabase Free data-recovery limits are documented as accepted/deferred improvements, not uncompleted MVP gates. The [historical release runbook](./free-portfolio-release.md) retains earlier checklist snapshots.
 
 The delivery objective is a personal, free-to-access **portfolio demonstration**, not a paid product or an uptime-guaranteed service. Vercel Hobby, Render Free, and Supabase Free may be reused in one deliberately documented demo environment; a second paid production environment is not an MVP requirement. Existing limits and provider terms remain applicable.
 
