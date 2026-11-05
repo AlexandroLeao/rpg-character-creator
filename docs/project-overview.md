@@ -1,6 +1,6 @@
 # Adventure Files — Project Overview
 
-- **Status:** Feature-complete release candidate merged into `main` (`0a0457d`); owner-reported functional QA passed. Only the hosted operations/security handoff remains in Issue #24.
+- **Status:** Completed, owner-accepted MVP at application commit `32bb63d` (November 5, 2026). Release issue [#24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24) and bounded security review [#31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31) are closed; future work is optional.
 - **Product name:** Adventure Files
 - **Product type:** Full-stack RPG-inspired character creator
 - **Development environment:** GitHub Codespaces (browser-based); Cloud Shell optional
@@ -157,9 +157,11 @@ Account creation and character creation are separate processes.
 
 Registration collects the minimum required account information:
 
-- Display name.
 - Email address.
 - Password and password confirmation.
+- Mandatory acceptance of the displayed Terms of Use and Privacy Notice before submitting.
+
+No account display name is requested. The character's name is chosen later in the creator.
 
 Authentication is managed by Supabase Auth.
 
@@ -386,11 +388,11 @@ The account remains available for creating another character afterward.
 | Continuous integration | GitHub Actions |
 | Development environment | GitHub Codespaces (browser-based); Cloud Shell optional |
 
-The current demo uses Vercel Hobby (stable frontend), Render Free (Express API) and Supabase Free (Auth/PostgreSQL); the final hosted security, backup and runtime-header checks are tracked in Issue #24.
+The current demo uses Vercel Hobby (stable frontend), Render Free (Express API) and Supabase Free (Auth/PostgreSQL). Owner acceptance, hosted security evidence, and the explicitly accepted no-automatic-backup limitation are documented in closed [#24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24) and [#31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31).
 
 ## 7. Current Implementation Status
 
-Adventure Files is functionally complete on `main`. The owner has approved the desktop/mobile PT/EN experience and reported successful hosted login, signup, password recovery, account deletion and recreation, cross-account isolation and both PNG exports. The remaining work is hosted operational sign-off, not feature implementation.
+Adventure Files is an **owner-accepted MVP** on `main` (application commit `32bb63d`). The owner approved the desktop/mobile PT/EN experience and reported successful hosted login, email-only signup, recovery, account deletion/re-registration, cross-account isolation and both PNG exports. The bounded additional security review is documented in closed [#31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31); it included a manual passive ZAP session, **not** a full pentest or automated Baseline. Future hardening and product ideas are optional, not unresolved MVP delivery gates.
 
 ### Implemented
 
