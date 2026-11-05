@@ -111,7 +111,6 @@ function App() {
    * AUTHENTICATION FORM
    */
 
-  const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -312,22 +311,6 @@ function App() {
     event.preventDefault()
     setFeedback(null)
 
-    /*
-     * DISPLAY NAME VALIDATION
-     */
-
-    if (
-      mode === 'signUp' &&
-      displayName.trim().length < 2
-    ) {
-      setFeedback({
-        kind: 'error',
-        text: copy.displayNameTooShort,
-      })
-
-      return
-    }
-
     /* A terms acknowledgement is required before sign-up. */
     if (mode === 'signUp' && !termsAccepted) {
       setFeedback({ kind: 'error', text: copy.termsRequired })
@@ -513,7 +496,6 @@ function App() {
 
       if (mode === 'signUp') {
         const { error } = await signUpWithEmail(
-          displayName,
           email,
           password,
           captchaToken ?? undefined,
@@ -803,28 +785,6 @@ function App() {
                     {copy.recoveryAccountLabel}
                     <strong>{recoverySession?.user.email}</strong>
                   </p>
-                )}
-
-                {/* DISPLAY NAME */}
-
-                {mode === 'signUp' && (
-                  <>
-                    <label htmlFor="displayName">
-                      {copy.displayName}
-                    </label>
-
-                    <input
-                      id="displayName"
-                      type="text"
-                      autoComplete="nickname"
-                      required
-                      minLength={2}
-                      value={displayName}
-                      onChange={(event) =>
-                        setDisplayName(event.target.value)
-                      }
-                    />
-                  </>
                 )}
 
                 {/* EMAIL */}

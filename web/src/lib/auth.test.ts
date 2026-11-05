@@ -36,9 +36,8 @@ describe('Supabase authentication helpers', () => {
     vi.clearAllMocks()
   })
 
-  it('trims account details during registration', () => {
+  it('trims the email and registers without optional profile metadata', () => {
     signUpWithEmail(
-      '  Test Adventurer  ',
       '  adventurer@example.com  ',
       'TestPassword123!',
     )
@@ -48,9 +47,6 @@ describe('Supabase authentication helpers', () => {
       password: 'TestPassword123!',
       options: {
         emailRedirectTo: `${window.location.origin}/`,
-        data: {
-          display_name: 'Test Adventurer',
-        },
       },
     })
   })
@@ -80,7 +76,6 @@ describe('Supabase authentication helpers', () => {
 
   it('forwards the security proof to Supabase registration, sign-in and recovery', () => {
     signUpWithEmail(
-      'Test Adventurer',
       'adventurer@example.com',
       'LongPassword123!',
       'signup-proof',

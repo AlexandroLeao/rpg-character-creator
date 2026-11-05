@@ -27,7 +27,6 @@ export const authTranslations = {
 
     languageSelector: 'Language',
     myCharacter: 'My Character',
-    displayName: 'Display Name',
     email: 'Email',
     password: 'Password',
     newPassword: 'New Password',
@@ -55,9 +54,6 @@ export const authTranslations = {
 
     recoveryLinkInvalid:
       'Your recovery link could not be verified. It may be invalid or expired.',
-
-    displayNameTooShort:
-      'Display name must contain at least 2 characters.',
 
     passwordTooShort:
       'Password must contain at least 15 characters.',
@@ -125,7 +121,6 @@ export const authTranslations = {
 
     languageSelector: 'Idioma',
     myCharacter: 'Meu Personagem',
-    displayName: 'Nome de Exibição',
     email: 'Email',
     password: 'Senha',
     newPassword: 'Nova Senha',
@@ -153,9 +148,6 @@ export const authTranslations = {
 
     recoveryLinkInvalid:
       'Não foi possível verificar o link de recuperação. Ele pode ser inválido ou ter expirado.',
-
-    displayNameTooShort:
-      'O nome de exibição deve ter pelo menos 2 caracteres.',
 
     passwordTooShort:
       'A senha deve ter pelo menos 15 caracteres.',

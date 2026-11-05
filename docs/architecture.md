@@ -49,7 +49,7 @@ PNG exports are generated client-side from the authorized saved character using 
 ## 3. User and Navigation Flows
 
 1. **Public entry:** The Adventure Files start screen displays the title, original responsive pixel-art illustration, and blinking "PRESS START" prompt. A retro iris transition reveals authentication.
-2. **Registration:** The user provides a display name, email, password, and password confirmation. Supabase Auth manages account creation and email verification.
+2. **Registration:** The user provides an email, password, and password confirmation. Supabase Auth manages account creation and email verification.
 3. **Session:** The application resolves authentication state. An account without a saved character can enter the creator; an account with a saved character enters My Character.
 4. **Character creation:** Identity → Origins → Equipment → Essence → Journey → Final Review.
 5. **Explicit save:** The sixth stage displays the complete draft and saves only after user confirmation.
@@ -286,7 +286,7 @@ The application must not maintain a custom password table or password-reset toke
 
 Authentication requirements:
 
-- Use a user-friendly `display_name` stored in authenticated-user metadata or a protected profile table if justified later.
+- Collect only the email and password credentials needed for signup; no account display name is required.
 - Require verified email before new users can manage characters when confirmation is configured.
 - Avoid revealing whether an account exists through authentication or recovery messages.
 - Configure redirect allowlists and provider email templates.
@@ -314,7 +314,7 @@ The application references the authenticated user's UUID.
 
 Passwords are never stored in application-owned tables.
 
-The account display name is not part of the fictional character record.
+No account display name is required. A character's fictional name is stored in its own protected character record.
 
 ### 7.2. Application Table: characters
 

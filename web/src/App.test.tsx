@@ -147,6 +147,23 @@ describe('Authentication interface', () => {
    * REGISTRATION VALIDATION
    */
 
+  it('asks only for email and password credentials in both languages', () => {
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Create Account' }))
+
+    expect(screen.queryByLabelText('Display Name')).toBeNull()
+    expect(screen.getByLabelText('Email')).toBeTruthy()
+    expect(screen.getByLabelText('Password')).toBeTruthy()
+    expect(screen.getByLabelText('Confirm Password')).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Português' }))
+    expect(screen.queryByLabelText('Nome de Exibição')).toBeNull()
+    expect(screen.getByLabelText('Email')).toBeTruthy()
+    expect(screen.getByLabelText('Senha')).toBeTruthy()
+    expect(screen.getByLabelText('Confirmar Senha')).toBeTruthy()
+  })
+
   it('prevents registration when passwords do not match', async () => {
     render(<App />)
 
@@ -160,15 +177,6 @@ describe('Authentication interface', () => {
       screen.getByRole('button', {
         name: 'Create Account',
       }),
-    )
-
-    fireEvent.change(
-      screen.getByLabelText('Display Name'),
-      {
-        target: {
-          value: 'Test Adventurer',
-        },
-      },
     )
 
     fireEvent.change(
@@ -227,9 +235,6 @@ describe('Authentication interface', () => {
     render(<App />)
     fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
     fireEvent.click(screen.getByRole('button', { name: 'Create Account' }))
-    fireEvent.change(screen.getByLabelText('Display Name'), {
-      target: { value: 'Test Adventurer' },
-    })
     fireEvent.change(screen.getByLabelText('Email'), {
       target: { value: 'adventurer@example.com' },
     })
@@ -285,9 +290,6 @@ describe('Authentication interface', () => {
     fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
     fireEvent.click(screen.getByRole('button', { name: 'Create Account' }))
 
-    fireEvent.change(screen.getByLabelText('Display Name'), {
-      target: { value: 'Test Adventurer' },
-    })
     fireEvent.change(screen.getByLabelText('Email'), {
       target: { value: 'adventurer@example.com' },
     })
@@ -342,9 +344,6 @@ describe('Authentication interface', () => {
     fireEvent.click(screen.getByRole('button', { name: 'PRESS START' }))
     fireEvent.click(screen.getByRole('button', { name: 'Create Account' }))
 
-    fireEvent.change(screen.getByLabelText('Display Name'), {
-      target: { value: 'Test Adventurer' },
-    })
     fireEvent.change(screen.getByLabelText('Email'), {
       target: { value: 'adventurer@example.com' },
     })
@@ -363,7 +362,6 @@ describe('Authentication interface', () => {
       /If registration is available for this email/i,
     )).toBeTruthy()
     expect(mocks.signUpWithEmail).toHaveBeenCalledWith(
-      'Test Adventurer',
       'adventurer@example.com',
       'LongPassword123!',
       undefined,

@@ -53,7 +53,7 @@ Supabase Auth manages:
 - Password recovery.
 - Authentication sessions.
 
-A minimal `display_name` may be stored in authenticated-user metadata.
+Signup does not collect an account display name. Existing optional auth metadata, if any, is not used by character records.
 
 Authentication credentials are not duplicated in application-owned character tables.
 
