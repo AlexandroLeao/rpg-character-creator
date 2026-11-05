@@ -7,6 +7,7 @@ import {
   type KeyboardEvent,
 } from 'react'
 import type { Language } from './lib/authTranslations'
+import { TurnstileChallenge } from './TurnstileChallenge'
 import {
   AccountDeleteError,
   deleteMyAccount,
@@ -59,6 +60,7 @@ export function AccountDeleteDialog({
   onDeleted,
 }: AccountDeleteDialogProps) {
   const copy = translations[language]
+  const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY?.trim()
   const titleId = useId()
   const descriptionId = useId()
   const passwordId = useId()
@@ -71,6 +73,8 @@ export function AccountDeleteDialog({
   const [confirmation, setConfirmation] = useState('')
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const [captchaResetSignal, setCaptchaResetSignal] = useState(0)
 
   useEffect(() => {
     const previouslyFocused = document.activeElement
@@ -115,6 +119,7 @@ export function AccountDeleteDialog({
       inProgress.current ||
       !password ||
       !confirmed ||
+      (TURNSTILE_SITE_KEY && !captchaToken) ||
       accessToken !== originalToken.current
     ) return
 
@@ -123,7 +128,11 @@ export function AccountDeleteDialog({
     setError(null)
 
     try {
-      await deleteMyAccount(originalToken.current, password)
+      await deleteMyAccount(
+        originalToken.current,
+        password,
+        captchaToken ?? undefined,
+      )
       setPassword('')
       onDeleted()
     } catch (cause) {
@@ -145,6 +154,10 @@ export function AccountDeleteDialog({
     } finally {
       inProgress.current = false
       setDeleting(false)
+      if (TURNSTILE_SITE_KEY) {
+        setCaptchaToken(null)
+        setCaptchaResetSignal((signal) => signal + 1)
+      }
     }
   }
 
@@ -200,6 +213,17 @@ export function AccountDeleteDialog({
             required
           />
 
+          {TURNSTILE_SITE_KEY && (
+            <TurnstileChallenge
+              siteKey={TURNSTILE_SITE_KEY}
+              language={language}
+              action="deleteAccount"
+              resetSignal={captchaResetSignal}
+              onTokenChange={setCaptchaToken}
+              verified={Boolean(captchaToken)}
+            />
+          )}
+
           {error && <p role="alert" className="account-delete-dialog__error">{error}</p>}
 
           <div className="character-delete-dialog__actions">
@@ -214,7 +238,12 @@ export function AccountDeleteDialog({
             <button
               type="submit"
               className="character-delete-dialog__confirm"
-              disabled={deleting || !password || !confirmed}
+              disabled={
+                deleting ||
+                !password ||
+                !confirmed ||
+                (Boolean(TURNSTILE_SITE_KEY) && !captchaToken)
+              }
             >
               {deleting ? copy.deleting : copy.confirm}
             </button>
