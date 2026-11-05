@@ -1,6 +1,6 @@
 # Adventure Files — Zero-Budget Portfolio Release
 
-> **Current status (post PR #27):** Adventure Files is functionally complete on `main` at `0a0457d`. PRs #23, #25, #26 and #27 are merged; no PRs remain open. The owner reports successful PT/EN/mobile authentication, recovery, character management and account deletion/re-registration with other accounts unaffected. Frontend CI passed on `0a0457d`, frontend/API CI passed on account-deletion merge `843514a`, and database security tests last passed at the foundational merge (no subsequent DB migrations). **Issue #24 remains open only for final hosted security/operations evidence and the Supabase Free backup decision.** Public promotion, AWS and new character content are out of scope.
+> **Final owner acceptance (November 5, 2026):** Adventure Files is a completed portfolio MVP at app commit `32bb63d`; [release issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24) was closed following owner-reported PT/EN/mobile, authentication, recovery, cross-account and deletion/re-registration tests. The owner accepted Supabase Free no-automatic-backup risk and deferred manual exports. [Security follow-up #31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31) records live HTTPS/headers, negative CORS, a SecurityHeaders.com **A**, public-bundle inspection and a **manual passive ZAP Safe-mode review** (0 High alerts across all observed hosts). No automated Baseline/full penetration test or complete assurance is claimed. A missing frontend CSP, absent `no-store` on the direct Render anonymous character `401`, and optional app-level rate limiting remain deferred defense-in-depth topics; the Vercel proxy and account deletion endpoint already apply `no-store`. **The stages and unchecked checkboxes below are preserved as historical release snapshots, not current release blockers.**
 
 ## 1. Release objective and scope freeze
 
@@ -58,9 +58,9 @@ The 23 combined findings are **not 23 distinct vulnerabilities**: the reported t
 
 Earlier scoped text/history checks examined 109 files and 145 accessible commit patches with no high-confidence credential matches. This is **not an exhaustive secret or licensing review**; binary assets, personal media and source-history publication still need final human sign-off.
 
-## 4. Final software-release gates — only items that affect delivery
+## 4. Historical software-release gates — retained for audit context
 
-The product UX, character catalog, account deletion and PNG exports are **frozen and accepted**. No additional artwork, PDF, AWS infrastructure, OAuth, social sharing or SEO promotion campaign is necessary to complete the application. Before enabling public registration, finish only these engineering gates:
+The product UX, character catalog, account deletion and PNG exports were **frozen and accepted**. The following list reflects the original pre-sign-off plan; its verification requests are superseded by the final owner acceptance above:
 
 1. **Abuse protection and email (final verification):** Turnstile is integrated into signup, sign-in, recovery and own-account deletion; the owner reported successful hosted tests. Confirm Supabase CAPTCHA remains **enabled and enforcing** server-side proofs, allowed stable hostname and configured SMTP/rate limits. Personal Gmail SMTP remains best-effort, not a delivery SLA.
 2. **Runtime security (required):** Verify HTTPS, strict Render CORS origins, no-store for authenticated API responses, appropriate browser security headers, safe errors/logs, and the separation of Vercel publishable keys from the server-only Render/Supabase secret. Production-only npm audits previously reported zero vulnerabilities; the known moderate `minimatch` development-toolchain advisory has a recorded risk triage, not an approved forced upgrade. If a check exposes a real defect, fix narrowly and rerun affected CI.
@@ -72,7 +72,7 @@ The product UX, character catalog, account deletion and PNG exports are **frozen
 
 **Stop condition:** Do not merge if a new critical security issue or a blocking auth regression appears. Otherwise do not extend the MVP with unrelated improvements.
 
-## 5. Final release execution — bounded sequence
+## 5. Historical release execution — bounded sequence (completed or risk-accepted)
 
 1. **Confirm deployment:** check Vercel Production and Render are Ready/Live on the latest approved `main` code (`0a0457d` or a later reviewed documentation-only commit). Verify the stable URL and the `/api/health` 200 / unauthenticated `/api/characters/me` 401 behavior without credentials.
 2. **Confirm anti-abuse enforcement:** in Supabase Authentication → Attack Protection, verify the Cloudflare secret is configured and CAPTCHA **enabled**. The owner already reported successful signup/login/recovery/account deletion under the widget; investigate only if actual enforcement or rate-limit evidence contradicts this.
@@ -130,4 +130,4 @@ Promotion (LinkedIn), optional Search Console ownership, GitHub visibility and f
 - [x] Owner reports successful account deletion, re-registration with verified email, preserved unrelated accounts, login/recovery and mobile/desktop validation on the stable Vercel URL. This is manual evidence, not a new independent penetration test.
 - [ ] Hosted runtime headers/CORS, Supabase CAPTCHA enforcement setting, provider limits and Supabase Free backup/recovery decision must be signed off in [Issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
 
-The previous rollout and draft-PR checkpoints above are retained as historical evidence; **the current sign-off sequence is Section 5**.
+The previous rollout and draft-PR checkpoints above are retained as historical evidence; **current status is the final owner acceptance note at the top of this file**.
