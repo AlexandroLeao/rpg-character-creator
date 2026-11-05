@@ -1,6 +1,6 @@
 # Adventure Files — Customization Catalog
 
-- **Status:** Implemented on the feature branch; hosted staging and legacy-data verification pending.
+- **Status:** Implemented on `main` in the owner-accepted MVP. Hosted migration/RLS and legacy-data compatibility evidence was recorded November 3–4, 2026; release Issue #24 is closed.
 - **Language:** Code, technical documentation, and stored identifiers use English. User-facing labels and messages support Portuguese and English.
 
 ## Rules
@@ -287,13 +287,13 @@ Is replaced in the approved catalog by:
 
 The character model includes a `motivation` field. New characters must select exactly one of the eight approved motivation identifiers. Older records without this field remain readable through the compatibility path.
 
-### Implementation Alignment and Remaining Verification
+### Implementation Alignment and Future Verification
 
-The six-stage character creator, frontend types, backend request/response contract, catalog allowlist validation, and saved-character display/editing are implemented on `feat/adventure-files-character-creator`.
+The six-stage character creator, frontend types, backend request/response contract, catalog allowlist validation, and saved-character display/editing were merged from `feat/adventure-files-character-creator` into `main`.
 
-The version-controlled SQL migration `supabase/migrations/20261031000000_extend_characters_for_six_steps.sql`, API tests, and database security tests support the revised catalog. The migration and compatibility checks have been exercised locally.
+The version-controlled SQL migration `supabase/migrations/20261031000000_extend_characters_for_six_steps.sql`, API tests and database security tests support the revised catalog. Local verification and read-only hosted schema/migration/RLS checks were reported as passed for the initial environment.
 
-Before any hosted release, verify the actual target Supabase schema, inspect legacy character records and identifiers, apply reviewed migrations without discarding existing data, and rerun authorization/RLS and end-to-end tests in staging.
+For any new or materially changed hosted environment, verify the target Supabase schema, inspect legacy character records and identifiers, apply reviewed migrations without discarding existing data, and rerun authorization/RLS and end-to-end tests in staging. The original environment's acceptance is documented in closed Issue #24.
 
 Existing stored character values must not be silently deleted, rewritten, or invalidated. Legacy values may require compatibility handling or explicit user reselection. Server and database validation remain authoritative.
 

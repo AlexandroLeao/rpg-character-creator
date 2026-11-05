@@ -2,7 +2,7 @@
 
 - **Project:** Adventure Files
 - **Document type:** Product experience and visual design specification
-- **Status:** Implemented and visually accepted in PT/EN on desktop/mobile; release validation pending. New visual features are deferred.
+- **Status:** Completed and owner-accepted in PT/EN on desktop/mobile (November 5, 2026). Subtle post-START glass-inspired finish and autofill-hover fix were merged in PRs #38/#39. The design is frozen; no further effects or animations are planned.
 
 ## 1. Experience Overview
 
@@ -944,9 +944,9 @@ The following rules apply across the entire application:
 
 ## 17. Implementation Status
 
-The six-stage flow, character management, and both PNG export layouts are implemented on the feature branch. The complete product is still undergoing release validation.
+The six-stage flow, character management, and both PNG export layouts are implemented on `main`. The owner accepted the portfolio MVP on November 5, 2026; release Issue #24 and bounded security follow-up #31 were closed.
 
-### Implemented on the Development Branch
+### Implemented in the Accepted MVP
 
 - Adventure Files start screen, separate desktop/mobile pixel-art compositions, PRESS START, and retro transition.
 - Supabase authentication, session restoration, and PT/EN interface.
@@ -955,16 +955,16 @@ The six-stage flow, character management, and both PNG export layouts are implem
 - Saved-character dashboard using class artwork and showing all customization choices.
 - Character editing and confirmation-based deletion.
 - Browser downloads of PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350).
-- Frontend/API/database automated checks: the November 2 local run passed lint/builds, 146 frontend tests in 17 files, and 97 API tests in 8 files (with 2 opt-in local-integration tests skipped by default). The latest November 3 feature-branch CI passed **167 frontend tests in 18 files**, 97 API tests, lint/builds, and local database RLS checks.
+- Frontend/API/database automated checks: the November 2 local run passed lint/builds, 146 frontend tests in 17 files, and 97 API tests in 8 files (with 2 opt-in local-integration tests skipped by default). The November 3 feature-branch CI passed **167 frontend tests in 18 files**, 97 API tests, lint/builds, and local database RLS checks; later merged-main checks superseded this historical baseline.
 
 Manual QA was completed on November 2, 2026 across the complete creator/CRUD/export flow, desktop/mobile, PT/EN, keyboard accessibility, error handling, and reduced-motion behavior. Two separate test accounts showed no cross-account character mixing during normal UI flows; no issues were reported. Local API authorization and RLS integration checks were also exercised previously. On November 3 the developer additionally reported successful staged recovery-code/email flows and final authentication-screen visual QA; a formal deployed API/RLS test remains separate.
 
-### Hosted UX Evidence and Final Release Work
+### Hosted UX Evidence and Final Acceptance
 
 - The developer reported successful staging PT/EN, desktop/mobile, six-stage creation, personal character dashboard, editing/deletion, two PNG layouts, recovery OTP, invalid/expired code, and browser-tab isolation checks on November 3–4.
 - The visual system, class illustrations, spacing, pixel typography, and existing verified screens are **frozen for this MVP**. New visual redesigns and new artwork are deferred; any fix must address a reproducible defect.
 - Vercel/Render live API smoke tests, hosted Supabase migration/RLS inspection, and developer-reported negative cross-account checks were completed; the GitHub Actions checks remain green at `c115039`.
-- Outstanding tasks are limited to release safety/operations: security/dependency/secret-history audit, public URL and Auth redirect, email/bot-abuse limits, privacy notice, final review/merge, and public smoke tests. The release checklist is [here](./free-portfolio-release.md).
+- The owner accepted the hosted MVP, with release evidence, known limitations and deferred defense-in-depth items documented in closed [#24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24) and [#31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31). The [historical release checklist](./free-portfolio-release.md) is retained as a record, not an open delivery gate.
 
 The updated catalog includes Arcane Seal (`arcane-seal`), Shadow Crown (`shadow-crown`), Chaos Orb (`chaos-orb`), and Dragon (`dragon`). Companion alone allows `none`. Original eight-class artwork stays shared across creator/dashboard/exports. PDF and per-option art remain out of scope.
 

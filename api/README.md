@@ -38,7 +38,7 @@ The Express API includes:
 
 The character CRUD implementation is covered by automated tests using mocked Supabase responses.
 
-Two opt-in integration tests have already passed using real local Supabase Auth, PostgreSQL RLS and Express with disposable accounts. Hosted two-account checks were subsequently reported by the developer; additional public-release safety checks remain in Issue #24.
+Two opt-in integration tests passed using real local Supabase Auth, PostgreSQL RLS and Express with disposable accounts. Hosted two-account checks were subsequently reported by the developer. Public-release acceptance and documented limitations are recorded in closed [Issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24) and security follow-up [#31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31); these manual checks are not a formal penetration test.
 
 ## Requirements
 
@@ -750,12 +750,14 @@ Changes must pass automated checks before being considered ready for merging.
 - Local checks include 6 mocked cross-account tests, 39 pgTAP assertions, and 2 opt-in Supabase Local Auth/Express integration tests. The standard API suite passes 97 tests with the 2 local integration cases skipped by default. GitHub Actions API/Database checks passed at `c115039`.
 - Render successfully redeployed following a strict staging origin allowlist update. A browser's same-origin Vercel `/api` proxy is not by itself evidence of a direct browser-to-Render CORS preflight.
 
-## Final Release Checks
+## Release Checks and Future Reverification
+
+The initial portfolio-MVP acceptance was recorded on November 5, 2026 in closed Issues #24 and #31. Retain the following checks for a future deployment, environment change or public expansion; they are not unfinished MVP gates.
 
 1. Audit production-intended dependencies, security headers, logging/error handling, HTTPS and any credentials/history exposure.
 2. Confirm the approved stable public frontend URL, Auth redirects, API destination, and account recovery/email-delivery limits. Do not treat personal Gmail SMTP as guaranteed transactional infrastructure.
 3. Review public-signup abuse/rate limits and a documented data/account deletion contact before announcing open registration.
-4. PR #23 and the security follow-ups #25–#27 have been merged into `main` (latest `0a0457d`). The account-deletion API fix in PR #26 passed API CI on merge `843514a`. Verify Render serves the current approved branch, Supabase CAPTCHA is enforcing fresh tokens and hosted CORS/headers are correct; record owner acceptance in issue #24 before closing it.
+4. PRs #23 and #25–#27 were merged into `main` and the account-deletion API fix passed CI. Initial hosted checks and owner acceptance were recorded in closed Issue #24. For a future deployment, recheck that Render serves the approved build, Supabase CAPTCHA enforces fresh tokens and hosted CORS/headers remain correct.
 
 The portfolio demo may reuse a single free-hosting environment by explicit decision; a separate paid production stack is **not** required for this MVP. This is a documented availability trade-off, not production-grade isolation or uptime assurance. See [zero-budget release runbook](../docs/free-portfolio-release.md).
 

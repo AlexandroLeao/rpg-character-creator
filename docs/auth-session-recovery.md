@@ -57,4 +57,4 @@ The code still accepts previously issued `token_hash` recovery links and Supabas
 - [ ] Confirm account A's password still works, while B's old password no longer does after the update.
 - [ ] Review Supabase Auth audit logs for the recovered account and sign-out scope.
 
-Do not merge PR #23 to `main` until the remaining hosted security, migration, release and review gates in issue #24 are satisfied. Use disposable accounts; never run destructive checks against existing production characters.
+**Historical release note:** PR #23 was merged and release Issue #24 was subsequently closed following owner acceptance. The checklist above remains useful when changing authentication/recovery behavior; use disposable accounts and never run destructive checks against existing production characters.
