@@ -31,6 +31,20 @@ vi.mock('./lib/accountApi', async (importOriginal) => ({
   ...(await importOriginal<typeof import('./lib/accountApi')>()),
   deleteMyAccount: mocks.deleteMyAccount,
 }))
+vi.mock('./TurnstileChallenge', () => ({
+  TurnstileChallenge: ({
+    onTokenChange,
+  }: {
+    onTokenChange: (token: string) => void
+  }) => (
+    <button
+      type="button"
+      onClick={() => onTokenChange('fresh-captcha-token')}
+    >
+      Verify CAPTCHA
+    </button>
+  ),
+}))
 
 const character = {
   id: 'character-1',
@@ -53,7 +67,10 @@ beforeEach(() => {
   mocks.deleteMyCharacter.mockResolvedValue(undefined)
   mocks.deleteMyAccount.mockResolvedValue(undefined)
 })
-afterEach(() => cleanup())
+afterEach(() => {
+  cleanup()
+  vi.unstubAllEnvs()
+})
 
 describe('dashboard release actions', () => {
   it('shows Create, Extras and Delete Account in the empty state', async () => {
@@ -199,9 +216,50 @@ describe('dashboard release actions', () => {
       expect(mocks.deleteMyAccount).toHaveBeenCalledWith(
         'current-token',
         'correct-password',
+        undefined,
       )
       expect(onAccountDeleted).toHaveBeenCalledOnce()
     })
     expect(dialog).toBeTruthy()
+  })
+
+  it('requires a fresh Turnstile proof before deleting the current account', async () => {
+    vi.stubEnv('VITE_TURNSTILE_SITE_KEY', 'public-test-site-key')
+    mocks.getMyCharacter.mockResolvedValue(null)
+
+    render(
+      <CharacterDashboard
+        accessToken="current-token"
+        language="pt"
+        onAccountDeleted={vi.fn()}
+      />,
+    )
+
+    fireEvent.click(await screen.findByRole('button', { name: 'EXCLUIR CONTA' }))
+    const dialog = screen.getByRole('alertdialog')
+    const confirmButton = dialog.querySelector<HTMLButtonElement>(
+      '.character-delete-dialog__confirm',
+    )!
+
+    fireEvent.change(screen.getByLabelText('CONFIRME SUA SENHA'), {
+      target: { value: 'correct-password' },
+    })
+    fireEvent.change(screen.getByLabelText('DIGITE EXCLUIR PARA CONFIRMAR'), {
+      target: { value: 'EXCLUIR' },
+    })
+    expect(confirmButton.disabled).toBe(true)
+    expect(mocks.deleteMyAccount).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Verify CAPTCHA' }))
+    expect(confirmButton.disabled).toBe(false)
+    fireEvent.click(confirmButton)
+
+    await waitFor(() => {
+      expect(mocks.deleteMyAccount).toHaveBeenCalledWith(
+        'current-token',
+        'correct-password',
+        'fresh-captcha-token',
+      )
+    })
   })
 })

@@ -23,6 +23,7 @@ export class AccountDeleteError extends Error {
 export async function deleteMyAccount(
   accessToken: string,
   password: string,
+  captchaToken?: string,
 ): Promise<void> {
   if (!accessToken || !password) {
     throw new AccountDeleteError('invalid')
@@ -47,6 +48,7 @@ export async function deleteMyAccount(
       body: JSON.stringify({
         password,
         confirmation: 'DELETE',
+        ...(captchaToken ? { captchaToken } : {}),
       }),
     })
   } catch {

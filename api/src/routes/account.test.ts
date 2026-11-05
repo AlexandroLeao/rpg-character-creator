@@ -34,6 +34,7 @@ function deletionRequest() {
     .send({
       password: 'correct-owner-password',
       confirmation: 'DELETE',
+      captchaToken: 'fresh-captcha-token',
     })
 }
 
@@ -101,6 +102,9 @@ describe('DELETE /api/account/me', () => {
       { password: 4, confirmation: 'DELETE' },
       { password: 'x'.repeat(1025), confirmation: 'DELETE' },
       { password: 'value', confirmation: 'YES' },
+      { password: 'value', confirmation: 'DELETE', captchaToken: 123 },
+      { password: 'value', confirmation: 'DELETE', captchaToken: '' },
+      { password: 'value', confirmation: 'DELETE', captchaToken: 'x'.repeat(4097) },
     ]) {
       const response = await request(app)
         .delete(endpoint)
@@ -126,6 +130,24 @@ describe('DELETE /api/account/me', () => {
     expect(mocks.deleteUser).not.toHaveBeenCalled()
   })
 
+  it('does not delete if Supabase rejects the CAPTCHA proof', async () => {
+    mocks.signInWithPassword.mockResolvedValue({
+      data: { user: null },
+      error: Object.assign(new Error('CAPTCHA rejected'), {
+        code: 'captcha_failed',
+      }),
+    })
+
+    const response = await deletionRequest()
+    expect(response.status).toBe(403)
+    expect(mocks.signInWithPassword).toHaveBeenCalledWith({
+      email: 'owner@example.test',
+      password: 'correct-owner-password',
+      options: { captchaToken: 'fresh-captcha-token' },
+    })
+    expect(mocks.deleteUser).not.toHaveBeenCalled()
+  })
+
   it('rejects a mismatched reauthenticated identity', async () => {
     mocks.signInWithPassword.mockResolvedValue({
       data: { user: { id: 'different-owner-id' } },
@@ -143,6 +165,7 @@ describe('DELETE /api/account/me', () => {
       .send({
         password: 'correct-owner-password',
         confirmation: 'DELETE',
+        captchaToken: 'fresh-captcha-token',
         userId: 'victim-user-id',
         email: 'victim@example.test',
       })
@@ -153,6 +176,7 @@ describe('DELETE /api/account/me', () => {
     expect(mocks.signInWithPassword).toHaveBeenCalledWith({
       email: 'owner@example.test',
       password: 'correct-owner-password',
+      options: { captchaToken: 'fresh-captcha-token' },
     })
     expect(mocks.deleteUser).toHaveBeenCalledOnce()
     expect(mocks.deleteUser).toHaveBeenCalledWith('authenticated-owner-1')

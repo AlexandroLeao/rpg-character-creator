@@ -61,7 +61,7 @@ function loadTurnstile(): Promise<TurnstileClient> {
 type TurnstileChallengeProps = {
   siteKey: string
   language: Language
-  action: 'signIn' | 'signUp' | 'forgotPassword'
+  action: 'signIn' | 'signUp' | 'forgotPassword' | 'deleteAccount'
   resetSignal: number
   onTokenChange: (token: string | null) => void
   verified: boolean

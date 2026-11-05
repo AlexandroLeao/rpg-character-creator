@@ -28,13 +28,17 @@ accountRouter.delete('/me', requireAuth, async (req, res) => {
     return
   }
 
-  const { password, confirmation } = body as Record<string, unknown>
+  const { password, confirmation, captchaToken } = body as Record<string, unknown>
 
   if (
     typeof password !== 'string' ||
     password.length === 0 ||
     password.length > 1024 ||
-    confirmation !== 'DELETE'
+    confirmation !== 'DELETE' ||
+    (captchaToken !== undefined &&
+      (typeof captchaToken !== 'string' ||
+        captchaToken.length === 0 ||
+        captchaToken.length > 4096))
   ) {
     res.status(400).json({ error: 'Invalid request' })
     return
@@ -73,9 +77,14 @@ accountRouter.delete('/me', requireAuth, async (req, res) => {
     'password_verification'
   try {
     const authClient = createAuthClient()
+    const verifiedCaptchaToken =
+      typeof captchaToken === 'string' ? captchaToken : undefined
     const { data, error } = await authClient.auth.signInWithPassword({
       email,
       password,
+      ...(verifiedCaptchaToken
+        ? { options: { captchaToken: verifiedCaptchaToken } }
+        : {}),
     })
 
     if (error || !data.user || data.user.id !== userId) {
