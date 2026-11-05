@@ -9,7 +9,6 @@ function authRedirectOrigin(): string {
 }
 
 export function signUpWithEmail(
-  displayName: string,
   email: string,
   password: string,
   captchaToken?: string,
@@ -20,9 +19,6 @@ export function signUpWithEmail(
     options: {
       emailRedirectTo: `${authRedirectOrigin()}/`,
       ...(captchaToken ? { captchaToken } : {}),
-      data: {
-        display_name: displayName.trim(),
-      },
     },
   })
 }
