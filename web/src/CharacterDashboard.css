@@ -544,6 +544,11 @@
   opacity: 0.65;
 }
 
+/* Give the security challenge breathing room below the confirmation field. */
+.account-delete-dialog .auth-turnstile-group {
+  margin-top: 14px;
+}
+
 .account-delete-dialog__error {
   margin-top: 18px;
   color: #ffd3c8;
