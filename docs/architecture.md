@@ -1,6 +1,6 @@
 # Adventure Files — System Architecture
 
-- **Status:** Feature-complete release candidate merged into `main` (latest `0a0457d`). The owner reports successful hosted authentication, CAPTCHA, account deletion/re-registration, cross-account isolation and desktop/mobile QA. Final hosted security/header and Supabase Free recoverability sign-off remains in Issue #24.
+- **Status:** Completed, owner-accepted portfolio MVP on `main` (application baseline `32bb63d`, November 5, 2026). Hosted authentication/CAPTCHA, deletion/re-registration, cross-account isolation and desktop/mobile QA were owner-reported as passed. Release acceptance and the free-tier recovery trade-off are documented in closed [Issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24); bounded security follow-up [#31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31) is also closed.
 - **Product name:** Adventure Files
 - **Linked specs:** [Requirements](./requirements.md), [Catalog](./customization-catalog.md), [Product Experience](./product-experience.md).
 
@@ -41,7 +41,7 @@ PostgreSQL owns persistent character records, database constraints, and Row Leve
 | API testing | Vitest + Supertest + integration/ownership checks |
 | Version control | Git + GitHub |
 | CI/CD | GitHub Actions |
-| Deployment | Vercel Hobby frontend with `/api` proxy to Render Free API; current hosted smoke/migration checks passed; zero-budget single-environment public demo proposed, safety review pending |
+| Deployment | Vercel Hobby frontend with `/api` proxy to Render Free API and Supabase Free; hosted smoke/migration checks and owner acceptance recorded, single free demonstration environment accepted with documented limitations |
 | Development | GitHub Codespaces (browser-based); Cloud Shell optional |
 
 PNG exports are generated client-side from the authorized saved character using browser canvas/image APIs. PNG output dimensions and fields have automated tests; browser and device compatibility remain part of release verification.
@@ -177,7 +177,7 @@ Base path: `/api`.
 
 The Express API implements the health endpoint, authenticated character GET/PUT/DELETE routes, and a separate self-service account-deletion route. The latter requires the trusted API's Supabase administrator credential and fresh password verification.
 
-The six-stage character payload and revised catalog are implemented on `main`. Hosted migration/RLS checks and owner-reported cross-account isolation have passed; final production configuration and backup sign-off remain tracked in Issue #24.
+The six-stage character payload and revised catalog are implemented on `main`. Hosted migration/RLS checks and owner-reported cross-account isolation passed. The initial deployment and its no-automatic-backup trade-off were accepted in closed [Issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24); new environments require their own safe configuration and migration checks.
 
 | Method | Path | Auth | Response |
 |---|---|---|---|

@@ -2,13 +2,13 @@
 
 - **Project:** Adventure Files
 - **Document type:** Entity relationship and data persistence specification
-- **Status:** Implemented on the feature branch; hosted schema/migration/RLS checks verified November 3–4, 2026; public release review pending
+- **Status:** Implemented on `main` in the owner-accepted MVP; hosted schema/migration/RLS checks verified November 3–4, 2026. Initial release acceptance is recorded in closed Issue #24.
 
 ## 1. Entity Relationship Diagram
 
 The following diagram represents the approved target data model.
 
-The feature branch includes the `motivation` field, updated validation and a version-controlled migration (`supabase/migrations/20261031000000_extend_characters_for_six_steps.sql`). Local tests passed; subsequent read-only inspection of the connected hosted Supabase project confirmed both expected migration versions and the updated table structure. This does not certify any future or different database instance.
+The merged implementation includes the `motivation` field, updated validation and a version-controlled migration (`supabase/migrations/20261031000000_extend_characters_for_six_steps.sql`). Local tests passed; subsequent read-only inspection of the connected hosted Supabase project confirmed both expected migration versions and the updated table structure. This does not certify any future or different database instance.
 
 ```mermaid
 erDiagram
@@ -432,7 +432,7 @@ Portuguese and English labels are presentation concerns, not database values.
 
 ## 11. Implementation and Hosted Verification
 
-The approved six-stage model is implemented on the feature branch, including Motivation, catalog validation, protected character CRUD, one-character ownership rules, frontend/API tests, local Supabase RLS and real Auth integration tests, and the two PNG exports.
+The approved six-stage model is implemented on `main`, including Motivation, catalog validation, protected character CRUD, one-character ownership rules, frontend/API tests, local Supabase RLS and real Auth integration tests, and the two PNG exports.
 
 On November 3–4, the developer supplied read-only hosted SQL results showing:
 
@@ -442,7 +442,7 @@ On November 3–4, the developer supplied read-only hosted SQL results showing:
 - **2 characters total; 0 rows with missing Motivation** at that specific inspection.
 - Developer-reported negative cross-account and immutable-field API checks passed. These are reported manual results, not a third-party security assessment.
 
-No migration or database data change is indicated by these checks. Future environments still require their own safe verification. Public release additionally depends on an approved stable URL, email/abuse limits, privacy notice, dependency/security audit, PR review and final smoke tests. See the [free portfolio release runbook](../free-portfolio-release.md).
+No migration or database data change is indicated by these checks. Future environments still require their own safe verification. The initial demo's owner acceptance, security evidence and deferred operational risks are documented in closed Issues #24 and #31. See the [historical free portfolio release runbook](../free-portfolio-release.md).
 
 ## 12. Related Documents
 

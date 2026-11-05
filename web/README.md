@@ -72,7 +72,7 @@ The initial CAPTCHA rollout has been implemented and merged into `main` through 
 3. Confirm that the stable Production frontend and Render API both serve the approved `main` build, and verify that Supabase CAPTCHA is **enabled**. Turning it off is an emergency troubleshooting measure, not the finished security configuration.
 4. The widget obtains a fresh single-use token for sign-in, signup, recovery, **and deletion confirmation**. The trusted API forwards the deletion proof during the fresh-password reauthentication; tokens are cleared/reset after requests. Never rely on the client widget alone without Supabase server-side enforcement.
 
-See Issue #24 for the remaining hosted security/header and free-plan recoverability sign-off.
+The hosted security/header checks, free-plan recoverability limitations and owner acceptance are documented in closed [Issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24) and follow-up [#31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31).
 
 ## Commands
 
@@ -105,12 +105,12 @@ Developer-reported desktop/mobile, PT/EN, keyboard/reduced-motion, six-stage cre
 
 On November 3–4, hosted staging testing confirmed the Vercel `/api` rewrite to Render and the `/reset-password` SPA fallback. The developer reported successful Gmail SMTP recovery, expired/used-code rejection, per-tab session isolation, and two-account ownership checks. Read-only hosted database migration/RLS checks also passed. These manual results are not equivalent to a formal penetration test or production-scale email certification.
 
-The initial zero-budget public portfolio demo may reuse the currently working Vercel Hobby + Render Free + Supabase Free setup after a specific launch approval. The API rewrite in `web/vercel.json` currently points to the staging Render service; do not assume the deployment already has a separate production backend. Verify the stable public URL and authentication redirect before publicity.
+The approved zero-budget portfolio MVP uses the existing Vercel Hobby + Render Free + Supabase Free setup; the owner accepted its limitations in closed Issue #24. The API rewrite in `web/vercel.json` currently points to the staging Render service; do not assume the deployment already has a separate production backend. Verify the stable public URL and authentication redirect before publicity.
 
-The static `index.html` now has a descriptive title, meta description, Open Graph/Twitter sharing tags and an image URL referring to the existing original desktop title art. The canonical/og:url point to the stable hostname `https://adventure-files-staging.vercel.app/`; verify that Vercel Production serves the latest approved `main` commit (`0a0457d`). Validate the final link preview and image crop after promotion. The `/reset-password` response is configured with `X-Robots-Tag: noindex, nofollow` on Vercel; verify the live header after deployment. Do not index authenticated/private character data.
+The static `index.html` now has a descriptive title, meta description, Open Graph/Twitter sharing tags and an image URL referring to the existing original desktop title art. The canonical/og:url point to the stable hostname `https://adventure-files-staging.vercel.app/`; verify that Vercel Production serves the intended `main` commit after each future deployment. Revalidate the link preview and image crop if the public hostname or social metadata changes. The `/reset-password` response is configured with `X-Robots-Tag: noindex, nofollow` on Vercel; verify the live header after deployment. Do not index authenticated/private character data.
 
 See [the zero-budget release runbook](../docs/free-portfolio-release.md).
 
-PRs #23, #25, #26 and #27 have been merged into `main`. The owner reports successful real-account authentication and account-deletion QA after enabling the client Turnstile integration. Verify the hosted Supabase CAPTCHA enforcement setting, security headers, Render branch/origin alignment and free-plan recoverability before closing [issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
+PRs #23, #25, #26 and #27 were merged into `main`. The owner reported successful real-account authentication and account-deletion QA after enabling Turnstile. Hosted CAPTCHA/header/CORS evidence and accepted free-plan recovery limits were captured in closed [Issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24); recheck operational settings after relevant environment changes.
 
 See the [product experience](../docs/product-experience.md), [requirements](../docs/requirements.md), and [architecture](../docs/architecture.md) for the approved scope.
