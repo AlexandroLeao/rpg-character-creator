@@ -1208,3 +1208,175 @@
 .auth-turnstile-retry:hover {
   background: #192b1e;
 }
+
+/* ==========================================
+   RETRO-FUTURISTIC FINISH — POST-START ONLY
+
+   Decorative, low-cost lighting only. Keep the
+   established palette, geometry, CRT layer,
+   layout, artwork, and interaction semantics.
+   The START screen does not use .auth-shell.
+   ========================================== */
+
+.auth-shell .auth-window {
+  background-image: linear-gradient(
+    145deg,
+    rgba(164, 237, 134, 0.035),
+    transparent 42%,
+    rgba(164, 237, 134, 0.012)
+  );
+
+  box-shadow:
+    0 0 0 3px #000000,
+    6px 6px 0 #263f2a,
+    0 0 17px rgba(164, 237, 134, 0.09),
+    inset 0 1px 0 rgba(245, 239, 210, 0.045);
+
+  transition: box-shadow 180ms ease;
+}
+
+/* Preserve existing selected colors and button
+   feedback: the new effect only adds soft light. */
+.auth-shell :is(
+  .character-class-step__choice,
+  .character-origins-step__choice,
+  .character-equipment-step__choice,
+  .character-essence-step__choice,
+  .character-journey-step__choice
+) {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+
+.auth-shell :is(
+  .auth-form button[type='submit'],
+  .character-empty__create-button,
+  .character-dashboard__extras-button,
+  .character-dashboard__signout-button,
+  .character-class-step__actions button,
+  .character-origins-step__actions button,
+  .character-equipment-step__actions button,
+  .character-essence-step__actions button,
+  .character-journey-step__actions button,
+  .character-review-step__actions button
+) {
+  transition-property: background-color, border-color, color, transform, box-shadow;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
+
+/* The saved on-screen sheet receives light only in the dashboard.
+   The export-rendered sheet is deliberately not styled here. */
+.auth-shell .character-dashboard__saved > .character-sheet .character-sheet__hero {
+  box-shadow:
+    inset 0 0 0 2px #07110b,
+    0 0 13px rgba(164, 237, 134, 0.065);
+  transition: box-shadow 180ms ease;
+}
+
+.auth-shell .character-dashboard__saved > .character-sheet .character-sheet__section {
+  box-shadow:
+    inset 0 0 0 1px #152e1b,
+    0 0 9px rgba(164, 237, 134, 0.035);
+  transition: box-shadow 180ms ease;
+}
+
+/* Confirmation and Extras dialogs keep their original opaque surface.
+   No backdrop-filter, blur layer, or continuous animation is introduced. */
+.character-delete-dialog {
+  background-image: linear-gradient(
+    145deg,
+    rgba(164, 237, 134, 0.035),
+    transparent 48%
+  );
+  box-shadow:
+    0 0 0 3px #000000,
+    6px 6px 0 #263f2a,
+    0 0 15px rgba(164, 237, 134, 0.08),
+    inset 0 1px 0 rgba(245, 239, 210, 0.04);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .auth-shell .auth-window:hover {
+    box-shadow:
+      0 0 0 3px #000000,
+      6px 6px 0 #263f2a,
+      0 0 22px rgba(164, 237, 134, 0.15),
+      inset 0 1px 0 rgba(245, 239, 210, 0.07);
+  }
+
+  .auth-shell .auth-form input:hover:not(:disabled),
+  .auth-shell .character-class-step__name input:hover:not(:disabled) {
+    box-shadow: inset 0 0 9px rgba(164, 237, 134, 0.065);
+  }
+
+  .auth-shell :is(
+    .character-class-step__choice,
+    .character-origins-step__choice,
+    .character-equipment-step__choice,
+    .character-essence-step__choice,
+    .character-journey-step__choice
+  ):hover:not(:disabled) {
+    box-shadow:
+      0 0 10px rgba(164, 237, 134, 0.105),
+      inset 0 1px 0 rgba(245, 239, 210, 0.055);
+  }
+
+  .auth-shell :is(
+    .auth-form button[type='submit'],
+    .character-empty__create-button,
+    .character-dashboard__extras-button,
+    .character-dashboard__signout-button,
+    .character-class-step__actions button,
+    .character-origins-step__actions button,
+    .character-equipment-step__actions button,
+    .character-essence-step__actions button,
+    .character-journey-step__actions button,
+    .character-review-step__actions button
+  ):hover:not(:disabled) {
+    box-shadow:
+      0 0 12px rgba(164, 237, 134, 0.16),
+      inset 0 1px 0 rgba(245, 239, 210, 0.1);
+  }
+
+  .auth-shell .character-dashboard__saved > .character-sheet .character-sheet__hero:hover {
+    box-shadow:
+      inset 0 0 0 2px #07110b,
+      0 0 17px rgba(164, 237, 134, 0.12);
+  }
+
+  .auth-shell .character-dashboard__saved > .character-sheet .character-sheet__section:hover {
+    box-shadow:
+      inset 0 0 0 1px #152e1b,
+      0 0 13px rgba(164, 237, 134, 0.09);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-shell .auth-window,
+  .auth-shell :is(
+    .character-class-step__choice,
+    .character-origins-step__choice,
+    .character-equipment-step__choice,
+    .character-essence-step__choice,
+    .character-journey-step__choice,
+    .auth-form button[type='submit'],
+    .character-empty__create-button,
+    .character-dashboard__extras-button,
+    .character-dashboard__signout-button,
+    .character-class-step__actions button,
+    .character-origins-step__actions button,
+    .character-equipment-step__actions button,
+    .character-essence-step__actions button,
+    .character-journey-step__actions button,
+    .character-review-step__actions button
+  ) {
+    transition: none;
+  }
+
+  .auth-shell .character-dashboard__saved > .character-sheet .character-sheet__hero,
+  .auth-shell .character-dashboard__saved > .character-sheet .character-sheet__section {
+    transition: none;
+  }
+}
