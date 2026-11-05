@@ -41,7 +41,7 @@ VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_YOUR_PUBLIC_KEY
 VITE_TURNSTILE_SITE_KEY=YOUR_PUBLIC_TURNSTILE_SITE_KEY
 ```
 
-All three variables above are frontend-visible configuration; the Turnstile site key is optional during rollout. **Never** put a Supabase service-role/secret key, database password, or other privileged credential in any `VITE_` variable or committed file.
+All three variables above are frontend-visible configuration; the Turnstile site key is optional for local development but required on hosted frontends when Supabase CAPTCHA enforcement is enabled. **Never** put a Supabase service-role/secret key, database password, or other privileged credential in any `VITE_` variable or committed file.
 
 3. Start the Express API in a **separate Codespaces terminal**:
 
@@ -63,14 +63,16 @@ Open the forwarded port `5174` from the Codespaces **Ports** tab.
 
 The Vite **development** proxy forwards `/api` requests to the Express server at `127.0.0.1:3000`. Production hosting needs a separate forwarding/routing rule; the Vite development proxy does not run inside a production build.
 
-### Turnstile activation order (shared Supabase project)
+### Turnstile configuration and production verification
 
-1. In Cloudflare Turnstile, allow **every actual hostname** used for Auth, including the stable `adventure-files-staging.vercel.app` and the exact Vercel Preview hostname being tested. Widget mode is Managed; no pre-clearance is required.
-2. Set only the **public** `VITE_TURNSTILE_SITE_KEY` for the appropriate Vercel environment(s); redeploy and confirm sign-in, sign-up and recovery render/issue a challenge token. Keep Supabase CAPTCHA **disabled** during this deployment stage.
-3. The owner-approved PR #23 was merged on November 4. Before enabling Supabase CAPTCHA, verify the **Production** URL actually serves the token-enabled `main` build and that its Production environment has the public site key. Supabase CAPTCHA applies to all frontend hosts using the same project; turning it on early could lock out clients still running older code.
-4. In Supabase Authentication → Attack Protection, set the Cloudflare Turnstile **secret** (never `VITE_`, GitHub or screenshots) and enable CAPTCHA only after all auth hosts are ready. Re-test signup, sign-in and password-recovery request in private browsing, PT/EN and mobile; test an expired/failed challenge, then monitor Auth errors and SMTP rate limits. If live auth fails, disable Supabase CAPTCHA promptly, investigate, and restore only after verification.
+The initial CAPTCHA rollout has been implemented and merged into `main` through PRs #25 and #26. The owner reports successful PT/EN/mobile sign-in, signup, recovery and account-deletion/re-registration tests after authorizing the Vercel hostnames.
 
-The browser resets each single-use Turnstile proof after sending it to Supabase. The UI remains unchanged when the optional site key is absent; **that fallback is not equivalent to abuse protection**, so public launch requires completing the activation steps.
+1. In Cloudflare Turnstile, allow the stable `adventure-files-staging.vercel.app` hostname and any separate Preview hostname actually being tested. A new Vercel deployment URL can require a new hostname entry; never disable validation just to make a Preview work.
+2. Keep the **public** `VITE_TURNSTILE_SITE_KEY` in the appropriate Vercel environment(s); the Cloudflare **secret** belongs only in Supabase Authentication → Attack Protection. Never use any `VITE_` variable for a secret.
+3. Confirm that the stable Production frontend and Render API both serve the approved `main` build, and verify that Supabase CAPTCHA is **enabled**. Turning it off is an emergency troubleshooting measure, not the finished security configuration.
+4. The widget obtains a fresh single-use token for sign-in, signup, recovery, **and deletion confirmation**. The trusted API forwards the deletion proof during the fresh-password reauthentication; tokens are cleared/reset after requests. Never rely on the client widget alone without Supabase server-side enforcement.
+
+See Issue #24 for the remaining hosted security/header and free-plan recoverability sign-off.
 
 ## Commands
 
@@ -105,10 +107,10 @@ On November 3–4, hosted staging testing confirmed the Vercel `/api` rewrite to
 
 The initial zero-budget public portfolio demo may reuse the currently working Vercel Hobby + Render Free + Supabase Free setup after a specific launch approval. The API rewrite in `web/vercel.json` currently points to the staging Render service; do not assume the deployment already has a separate production backend. Verify the stable public URL and authentication redirect before publicity.
 
-The static `index.html` now has a descriptive title, meta description, Open Graph/Twitter sharing tags and an image URL referring to the existing original desktop title art. The canonical/og:url currently point to the configured stable production hostname `https://adventure-files-staging.vercel.app/`; **the approved PR #23 has since been merged into `main`; verify that Vercel Production deployed the merge commit `0b22f48`**. Validate the final link preview and image crop after promotion. The `/reset-password` response is configured with `X-Robots-Tag: noindex, nofollow` on Vercel; verify the live header after deployment. Do not index authenticated/private character data.
+The static `index.html` now has a descriptive title, meta description, Open Graph/Twitter sharing tags and an image URL referring to the existing original desktop title art. The canonical/og:url point to the stable hostname `https://adventure-files-staging.vercel.app/`; verify that Vercel Production serves the latest approved `main` commit (`0a0457d`). Validate the final link preview and image crop after promotion. The `/reset-password` response is configured with `X-Robots-Tag: noindex, nofollow` on Vercel; verify the live header after deployment. Do not index authenticated/private character data.
 
 See [the zero-budget release runbook](../docs/free-portfolio-release.md).
 
-[PR #23](https://github.com/AlexandroLeao/rpg-character-creator/pull/23) was merged and closed with owner approval on November 4. **Do not enable Supabase-wide CAPTCHA until the stable Production deployment includes the site key and new Auth code.** Live headers, rate limits, Render branch/origin alignment, privacy/recoverability and final production smoke remain tracked in [issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
+PRs #23, #25, #26 and #27 have been merged into `main`. The owner reports successful real-account authentication and account-deletion QA after enabling the client Turnstile integration. Verify the hosted Supabase CAPTCHA enforcement setting, security headers, Render branch/origin alignment and free-plan recoverability before closing [issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
 
 See the [product experience](../docs/product-experience.md), [requirements](../docs/requirements.md), and [architecture](../docs/architecture.md) for the approved scope.

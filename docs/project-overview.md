@@ -1,6 +1,6 @@
 # Adventure Files — Project Overview
 
-- **Status:** Feature-complete release candidate; final technical release verification and merge pending.
+- **Status:** Feature-complete release candidate merged into `main` (`0a0457d`); owner-reported functional QA passed. Only the hosted operations/security handoff remains in Issue #24.
 - **Product name:** Adventure Files
 - **Product type:** Full-stack RPG-inspired character creator
 - **Development environment:** GitHub Codespaces (browser-based); Cloud Shell optional
@@ -386,11 +386,11 @@ The account remains available for creating another character afterward.
 | Continuous integration | GitHub Actions |
 | Development environment | GitHub Codespaces (browser-based); Cloud Shell optional |
 
-Production hosting and deployment details must be validated during the deployment phase.
+The current demo uses Vercel Hobby (stable frontend), Render Free (Express API) and Supabase Free (Auth/PostgreSQL); the final hosted security, backup and runtime-header checks are tracked in Issue #24.
 
 ## 7. Current Implementation Status
 
-Adventure Files is in active development on a feature branch. Core character creation, management, and both exports are implemented. Local manual UX/accessibility/security-flow homologation is complete; controlled staging authorization, operational, and production checks remain.
+Adventure Files is functionally complete on `main`. The owner has approved the desktop/mobile PT/EN experience and reported successful hosted login, signup, password recovery, account deletion and recreation, cross-account isolation and both PNG exports. The remaining work is hosted operational sign-off, not feature implementation.
 
 ### Implemented
 

@@ -1,6 +1,6 @@
 # Adventure Files — Zero-Budget Portfolio Release
 
-> Status: **feature-complete and merged into `main` on November 4, 2026**, through owner-approved PR #23 (merge `0b22f48`; three GitHub Actions workflows green). The creator accepted PT/EN desktop/mobile functionality and reported successful Preview Auth/Turnstile checks. **Final Production security/operations verification, Supabase CAPTCHA enforcement and live smoke remain pending.** LinkedIn/social promotion is outside this project's definition of done. Track the final decisions in [PR #23](https://github.com/AlexandroLeao/rpg-character-creator/pull/23), [Issue #15](https://github.com/AlexandroLeao/rpg-character-creator/issues/15) and [Issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
+> **Current status (post PR #27):** Adventure Files is functionally complete on `main` at `0a0457d`. PRs #23, #25, #26 and #27 are merged; no PRs remain open. The owner reports successful PT/EN/mobile authentication, recovery, character management and account deletion/re-registration with other accounts unaffected. Frontend CI passed on `0a0457d`, frontend/API CI passed on account-deletion merge `843514a`, and database security tests last passed at the foundational merge (no subsequent DB migrations). **Issue #24 remains open only for final hosted security/operations evidence and the Supabase Free backup decision.** Public promotion, AWS and new character content are out of scope.
 
 ## 1. Release objective and scope freeze
 
@@ -14,7 +14,7 @@ Do not add PDF, Google OAuth, multiplayer, gameplay, a new design system, social
 
 | Component | Current host | Public-demo decision |
 |---|---|---|
-| Frontend | Vercel Hobby, Preview from `feat/adventure-files-character-creator` | Use a stable free `.vercel.app` hostname after approving the final build |
+| Frontend | Vercel Hobby, stable `https://adventure-files-staging.vercel.app/` from `main` | Owner-reported live demo; independently confirm final deployed commit and HTTP headers |
 | Express API | Render Free service `adventure-files-api-staging` | Reuse the existing working backend for the first public demo; document that there is only one shared environment |
 | Authentication + PostgreSQL | Supabase Free | Reuse the verified project for the first public demo, with data ownership enforced by Auth/RLS |
 | Authentication email | Personal Gmail custom SMTP | Suitable only for controlled low-volume portfolio use; verify limits and prevent automated abuse |
@@ -62,10 +62,10 @@ Earlier scoped text/history checks examined 109 files and 145 accessible commit 
 
 The product UX, character catalog, account deletion and PNG exports are **frozen and accepted**. No additional artwork, PDF, AWS infrastructure, OAuth, social sharing or SEO promotion campaign is necessary to complete the application. Before enabling public registration, finish only these engineering gates:
 
-1. **Abuse protection and email (required):** Integrate the already provisioned Cloudflare Turnstile **in the frontend auth calls** and test signup, sign-in and recovery with real allowed hostnames **before** switching on Supabase CAPTCHA. Do not toggle it on while the frontend lacks `captchaToken`. Confirm email verification and provider rate limits; the Gmail SMTP is a best-effort, low-volume choice, not a delivery SLA.
+1. **Abuse protection and email (final verification):** Turnstile is integrated into signup, sign-in, recovery and own-account deletion; the owner reported successful hosted tests. Confirm Supabase CAPTCHA remains **enabled and enforcing** server-side proofs, allowed stable hostname and configured SMTP/rate limits. Personal Gmail SMTP remains best-effort, not a delivery SLA.
 2. **Runtime security (required):** Verify HTTPS, strict Render CORS origins, no-store for authenticated API responses, appropriate browser security headers, safe errors/logs, and the separation of Vercel publishable keys from the server-only Render/Supabase secret. Production-only npm audits previously reported zero vulnerabilities; the known moderate `minimatch` development-toolchain advisory has a recorded risk triage, not an approved forced upgrade. If a check exposes a real defect, fix narrowly and rerun affected CI.
 3. **Privacy and recoverability (required):** Review the existing bilingual signup notice against the actual data flow, test account deletion using disposable accounts (developer has already reported positive PT/EN and isolation results), and acknowledge backup/retention limitations. A UI checkbox is not a versioned legal-consent database; do not claim legal certification. Supabase Free does not include automated backups; make a recoverability choice without adding a paid service or storing personal data in Git.
-4. **Integration and operations (required):** Review draft PR #23 and current Actions, obtain explicit owner approval to merge into `main`, align Vercel Production and Render's connected branch to the approved version, check Supabase Site URL/redirects and CORS, and execute one end-to-end live smoke in an anonymous browser and a disposable account. Keep existing protected data intact. No unapproved destructive migrations.
+4. **Integration and operations (final verification):** All scoped PRs #23/#25/#26/#27 were owner-merged and CI passed. Confirm the stable Vercel Production and Render services use the approved `main`, check Supabase Site URL/redirect allowlist and strict CORS, and record the owner's already successful disposable-account smoke. Preserve existing protected data; do not repeat destructive tests without a specific reason.
 5. **Technical indexing hygiene (small final verification):** After the real public domain serves the approved build, verify canonical/title/description/OG image and `/reset-password` `noindex`. Do not index authenticated characters. Search Console, LinkedIn, promotional screenshots and public GitHub visibility/licensing are **separate optional communication/source-publication decisions**, not criteria for the application's technical completion.
 
 **Already supported:** the creator verified desktop/mobile/PT/EN visuals, real signup with required terms, recovery, account isolation/deletion, character CRUD and PNG exports; CI passed all three workflows at `39cb50c` and again at docs-only `11e717b`. Verification of production runtime headers/Turnstile and final branch deployment is not yet recorded.
@@ -74,30 +74,21 @@ The product UX, character catalog, account deletion and PNG exports are **frozen
 
 ## 5. Final release execution — bounded sequence
 
-1. **Finish Turnstile once:** implement tokens with safe fallback/configuration, test all three Supabase auth flows in an authorized Preview hostname, then enable CAPTCHA and retest. Keep the approved pixel-art layout unchanged. Do not ask the developer to repeat previously passed character-creator tests.
-2. **Complete the operational check:** collect sanitized HTTP header/CORS results, confirm the Render-only admin credential is not in the browser, review the zero-cost backup/recovery trade-off, and sign off the short privacy notice. Correct only observed problems.
-3. **Freeze the feature:** re-run frontend (177 currently passing), API (107), and DB RLS/pgTAP CI after final changes; review PR #23 for accidental changes, secret exposure and migration risk.
-4. **Owner-approved integration:** request explicit merge authorization. Only then merge into `main`, align Vercel/Render deployed branches and redirect origin settings, and verify the stable production URL serves the approved commit.
-5. **Live smoke and handoff:** test public page, email signup/confirmation, login/recovery, protected character create/edit/delete, two PNGs and own-account deletion using disposable data. Confirm basic logs/health and `noindex` on recovery. Record evidence; close #15 after integration, #24 after live smoke. **The project can then be considered delivered.**
+1. **Confirm deployment:** check Vercel Production and Render are Ready/Live on the latest approved `main` code (`0a0457d` or a later reviewed documentation-only commit). Verify the stable URL and the `/api/health` 200 / unauthenticated `/api/characters/me` 401 behavior without credentials.
+2. **Confirm anti-abuse enforcement:** in Supabase Authentication → Attack Protection, verify the Cloudflare secret is configured and CAPTCHA **enabled**. The owner already reported successful signup/login/recovery/account deletion under the widget; investigate only if actual enforcement or rate-limit evidence contradicts this.
+3. **Read-only security check:** inspect HTTPS, Vercel response headers and recovery `noindex`, Render CORS/no-store/log redaction, publishable versus private key isolation, and brief bilingual privacy/support copy. Do not disclose tokens or secrets.
+4. **Accept or mitigate backup risk:** the Supabase Free project has been observed with “No backups”. Record the owner's choice: accept loss of demo data or arrange a secure manual off-repository export; no paid upgrade is mandatory.
+5. **Record sign-off and close Issue #24:** attach sanitized verification outcomes and the owner's approval. Close the release tracker only after these bounded technical checks. No new UI, catalog, AWS, SEO promotion or social-posting work is part of this task.
 
-Do not require a LinkedIn post, a Search Console ranking, public source visibility, extra characters, AWS or a second paid environment to declare the application complete.
-
-### Final security-control rollout (pending owner configuration)
-
-- [x] **Implementation CI green at `27b0829`:** 180 frontend Vitest tests in 20 files, frontend ESLint and production build, 107 API tests (2 optional integration tests skipped), API ESLint/build, and local Supabase database security/pgTAP all completed successfully on GitHub Actions. **This does not verify the hosted Turnstile/secret configuration or stable Production routing.**
-- [x] The feature branch now contains optional Cloudflare Turnstile proof collection for **sign-in, registration and recovery requests** and forwards proofs with the existing Supabase Auth client. The UI remains unchanged until the owner configures the public site key. Proofs are single-use and reset on each Auth attempt; the 15-character client-side minimum matches the observed Supabase setting.
-- [x] The feature branch adds limited browser security headers (nosniff, frame deny, limited browser permissions and strict origin-aware referrer) while preserving the existing API no-store and recovery noindex rules. **Verify these on the deployed Vercel Preview and after merging**; no restrictive CSP/HSTS has been introduced without a host-specific compatibility test.
-- [ ] Allow stable Production and the exact tested Preview hostname in the existing Cloudflare Managed widget; assign the **public** Turnstile site key to the matching Vercel environments; redeploy, and verify the challenge is available on each of the three Auth actions without breaking PT/EN/mobile. Never share the secret in a VITE variable, repository or screenshot.
-- [ ] **Critical order:** Supabase CAPTCHA is a project-wide setting and must remain OFF while any active host still serves legacy frontend code. Obtain owner authorization to merge/deploy the token-enabled build to the actual Production URL **first**, then enable CAPTCHA using the Cloudflare **secret** in Supabase Attack Protection and run live disposable-user tests. If Auth fails, disable CAPTCHA immediately and investigate. See [web/README.md](../web/README.md) for the operational steps.
-- [ ] Record current environment configuration (hostname, Render origin allowlist, redirect URL, HTTPS/CORS and headers), agree on Supabase Free recoverability and privacy limitations, and complete final manual smoke before closing the release tracker.
+**Historical rollout note:** Earlier stages intentionally kept Supabase CAPTCHA off while deploying the token-enabled frontend. That temporary procedure is superseded; the final configuration must enforce CAPTCHA server-side. Do not disable it as a routine release step.
 
 ## 6. Definition of done — technical delivery only
 
 - [x] Reviewed feature integrated into `main` through PR #23; merged commit `0b22f48` passed frontend, API and DB CI.
-- [ ] Stable Vercel Production URL serves the approved code over HTTPS and routes to the correct Render API.
-- [ ] Authentication, abuse controls, email confirmation/recovery and owner-only CRUD/account deletion work with disposable accounts in the final environment.
+- [x] Owner reports stable Vercel Production URL and Render API working end to end; independently confirm the latest commit SHA and hosted response headers at sign-off.
+- [x] Owner reports successful hosted authentication, CAPTCHA challenge, email recovery, protected CRUD and disposable-account deletion/re-registration without affecting a second account. Backend CAPTCHA enforcement setting still requires read-only verification.
 - [ ] Minimal privacy/support details and free-tier backup/retention limitations are documented; no secrets or private user data exposed.
-- [ ] Accepted PT/EN desktop/mobile UI and two PNG exports remain intact; major security risks are closed or explicitly documented and accepted.
+- [x] Owner accepted PT/EN desktop/mobile UI, including PR #27 CAPTCHA spacing, and both PNG exports. Remaining hosted security/backup risks must be documented and accepted before closing #24.
 - [ ] Public production smoke evidence recorded; #15 and #24 closed according to their acceptance conditions.
 
 Promotion (LinkedIn), optional Search Console ownership, GitHub visibility and future AWS/class expansions are **not** part of the software delivery acceptance criteria.
@@ -119,7 +110,7 @@ Promotion (LinkedIn), optional Search Console ownership, GitHub visibility and f
 
 **Ideas after public launch only (not current release work):** introduce additional class/art choices or richer configurable catalogs through a reviewed design proposal (original illustration, PT/EN copy, stable slugs, API/database constraints, migrations only if needed, regression testing). For cloud-learning/portfolio value, evaluate an **optional** AWS proof of concept such as S3/CloudFront for static asset distribution or SES for transactional emails, after comparing free-tier eligibility, cost controls, IAM security, deployment complexity and rollback. Neither AWS nor extra characters is needed for the present working Vercel/Render/Supabase demo; avoid creating billable resources by default.
 
-## November 4 — Post-merge integration checkpoint (current status)
+## November 4 — Post-merge integration checkpoint (historical; superseded by the current status above)
 
 - [x] Owner clicked Confirm merge on PR #23; GitHub reports merged/closed at 21:42 UTC with merge commit `0b22f48` in `main`.
 - [x] All three workflow runs on the **merged `main` commit** concluded successfully (frontend 180 tests, API 107, database pgTAP; applicable lint/build checks).
@@ -130,3 +121,13 @@ Promotion (LinkedIn), optional Search Console ownership, GitHub visibility and f
 - [ ] Check browser response headers (`nosniff`, `DENY`, referrer/permissions policy; `noindex` on `/reset-password`), canonical/OG source and HTTPS. Do not expose any private session/token in evidence.
 - [ ] **Only after Production verification**, configure the Cloudflare **secret** in Supabase Attack Protection and enable CAPTCHA. Re-test disposable-account sign-up, sign-in and recovery in PT/EN on mobile and desktop; if authentication breaks, turn CAPTCHA OFF again and investigate.
 - [ ] Record the chosen Supabase Free no-automatic-backup risk/mitigation, short Terms/Privacy/support and credential-isolation review, and final production smoke. Close #24 after acceptance, not merely after merge. LinkedIn, Search Console and optional AWS remain deferred.
+
+## Final post-merge QA record (November 2026)
+
+- [x] PR #25 — visible Turnstile and retry handling — merged `f11db839`.
+- [x] PR #26 — account-deletion CAPTCHA reauthentication — merged `843514ac`; API and frontend checks green.
+- [x] PR #27 — scoped 14px CAPTCHA spacing in account-deletion dialog — merged `0a0457d`; frontend checks green.
+- [x] Owner reports successful account deletion, re-registration with verified email, preserved unrelated accounts, login/recovery and mobile/desktop validation on the stable Vercel URL. This is manual evidence, not a new independent penetration test.
+- [ ] Hosted runtime headers/CORS, Supabase CAPTCHA enforcement setting, provider limits and Supabase Free backup/recovery decision must be signed off in [Issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24).
+
+The previous rollout and draft-PR checkpoints above are retained as historical evidence; **the current sign-off sequence is Section 5**.

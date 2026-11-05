@@ -37,14 +37,14 @@ A compact bilingual **Extras** panel in the authenticated dashboard contains cre
 
 ## Current Development Status
 
-Adventure Files is a feature-complete release candidate. The six-stage creator, saved-character management and both PNG exports have been accepted and were merged into `main` through [PR #23](https://github.com/AlexandroLeao/rpg-character-creator/pull/23) on November 4, 2026. Final hosted security/operations checks remain pending; merge and green CI do not establish production CAPTCHA enforcement.
+Adventure Files is a feature-complete, owner-tested release candidate on `main`. The original creator and exports landed in [PR #23](https://github.com/AlexandroLeao/rpg-character-creator/pull/23); the Turnstile reliability, account-deletion CAPTCHA compatibility and final dialog-spacing changes were subsequently merged in [PRs #25–#27](https://github.com/AlexandroLeao/rpg-character-creator/pulls?q=is%3Apr+is%3Amerged). The latest application-code merge is `0a0457d` (November 2026). No application pull requests remain open. The remaining Issue #24 is a short hosted operations/security sign-off, not new feature development.
 
 ### Implemented
 
 - React, Vite, and TypeScript frontend; Node.js, Express, and TypeScript API.
 - Supabase email/password authentication, account confirmation, recovery, sign-out, and session restoration.
 - Bilingual signup with expandable Terms of Use / Privacy Notice and an unchecked, mandatory terms acknowledgement before the signup UI can submit.
-- Optional Cloudflare Turnstile security proof on registration, sign-in and recovery, forwarded to Supabase Auth. The hosted CAPTCHA toggle **must stay off** until every active frontend has the site key and passes the rollout checks.
+- Cloudflare Turnstile in registration, sign-in, recovery and account-deletion confirmation. Auth requests forward a fresh token for Supabase validation; account deletion reauthenticates on the trusted API with a fresh token, password and independently verified session. CAPTCHA enforcement depends on the hosted Supabase setting and must be confirmed during final sign-off.
 - Fifteen-character minimum on signup/reset, matching the last verified Supabase Auth policy; limited browser-hardening response headers without changing the approved pixel-art UI.
 - PostgreSQL schema, user-scoped character storage, Row Level Security (RLS), and protected character CRUD endpoints.
 - One saved character per account.
@@ -77,10 +77,10 @@ Adventure Files is a feature-complete release candidate. The six-stage creator, 
 
 ### Remaining Before Public Portfolio Demo
 
-- The creator reported successful post-configuration Preview testing of registration, login and recovery. Verify the **actual** Production deployment is the merged `main` build and that the public Turnstile site key is present in its Production Vercel environment. Keep Supabase CAPTCHA **OFF** until that verification, then configure its private Cloudflare secret, enable it and smoke-test all three Auth operations with a rollback plan.
+- The creator reports successful hosted login, registration, recovery, account deletion/re-registration, cross-account isolation and desktop/mobile checks after the Turnstile rollout. Confirm that the stable Vercel Production and Render API deploy the latest approved `main` code and that Supabase CAPTCHA is **enabled and enforcing** fresh tokens; do not disable CAPTCHA as a routine release step.
 - Verify actual hosted browser security headers, HTTPS, Render CORS and secret isolation; accept or mitigate the Supabase Free no-backup risk and confirm the accepted bilingual Terms/Privacy notice reflects real data handling (checkbox is not an auditable legal consent register). Production-only dependency audits had zero findings; the moderate dev-only minimatch risk is documented in the runbook.
 - Verify the stable public Vercel URL in a signed-out browser, its authentication redirect allowlist, HTTPS, critical recovery flow, and the chosen single free-hosting environment.
-- [PR #23](https://github.com/AlexandroLeao/rpg-character-creator/pull/23) was owner-approved, merged and closed on November 4 (`main` merge `0b22f48`); all three `main` checks passed. Align the Render service's connected branch and CORS with the approved `main`, verify Auth redirects and perform the final disposable-account smoke. Issue #15 is closed for the integrated protected CRUD work; keep Issue #24 open until the remaining live acceptance gates pass.
+- PRs #23, #25, #26 and #27 are merged; frontend CI passed on `0a0457d`, frontend/API CI passed on account-deletion merge `843514a`, and database pgTAP last passed at foundational merge `0b22f48` (no subsequent migration changes). Issue #15 is closed. Keep Issue #24 open until hosted headers/CORS, Supabase CAPTCHA configuration and the free-plan backup risk are explicitly reviewed.
 - Known free-tier trade-offs include Render cold starts, possible Supabase inactivity pausing, and limited personal Gmail SMTP throughput. These affect availability; do not describe the demo as a commercial service with an uptime guarantee.
 
 See the [zero-budget portfolio release runbook](docs/free-portfolio-release.md) and [release-readiness issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24). The MVP scope remains frozen: no PDF, playable game, OAuth expansion, or new artwork variants for this release.
@@ -551,7 +551,7 @@ The initial release does not include:
 
 The six-stage character creator, protected CRUD, two PNG exports, session recovery, hosted database migration/RLS verification, two-account isolation and hosted account deletion are integrated into `main`. The creator manually approved the PT/EN desktop/mobile signup Terms of Use and Privacy Notice flow, including a successful new-account registration. At application commit `39cb50c`, GitHub Actions passed all three workflows: **177 frontend tests (19 files), 107 API tests (2 opt-in integration tests skipped)**, frontend/API lint and builds, and isolated database security/pgTAP.
 
-**Next milestone:** finish the deployed Production security/operations sign-off: verify Vercel Production SHA and runtime headers, align Render's branch/origin settings, enable Supabase CAPTCHA only after confirming the token-enabled build, check privacy and free-plan recoverability, and perform a disposable-account smoke. No additional product functionality is required. PR #23 has been merged and closed; Issue #15 is complete and Issue #24 tracks the remaining public-release checks. See the [release runbook](docs/free-portfolio-release.md).
+**Next milestone:** verify the deployed `main` SHA on Vercel and Render, confirm Supabase CAPTCHA remains enabled and that hosted HTTPS/CORS/security and recovery `noindex` headers are correct, acknowledge the Supabase Free backup/recoverability limitation and close Issue #24 after owner sign-off. The owner has already reported successful real account-deletion/re-registration and cross-account tests; do not repeat destructive tests without a specific need. No new application functionality or promotion is required. See the [release runbook](docs/free-portfolio-release.md).
 
 The roadmap includes **only two character-sheet downloads**: PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350). PDF is explicitly out of scope.
 

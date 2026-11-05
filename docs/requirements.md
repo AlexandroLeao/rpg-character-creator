@@ -2,7 +2,7 @@
 
 - **Project:** Adventure Files
 - **Document type:** Functional and non-functional requirements
-- **Status:** Approved functional specification implemented on the feature branch; final public-release gates pending.
+- **Status:** Approved functional specification implemented and merged into `main` (latest `0a0457d`); only final hosted operations/security acceptance remains in Issue #24.
 
 ## 1. Purpose and Scope
 
@@ -350,7 +350,7 @@ It does not introduce combat mechanics, statistics, or gameplay restrictions.
 
 ### 6.4. Implementation Alignment
 
-The revised catalog, shared types, API input validation, and Motivation field are implemented in the feature branch and supported by automated tests. The protected create, read, update, and delete paths have been exercised manually.
+The revised catalog, shared types, API input validation, and Motivation field are implemented on `main` and supported by automated tests. The protected create, read, update, and delete paths have been exercised manually.
 
 Before release:
 
@@ -671,6 +671,6 @@ Requirements should remain synchronized with:
 
 Changes to established scope should be reviewed before implementation.
 
-The six-stage creator and two PNG export formats are implemented on the feature branch. Local manual functional, responsive, keyboard-accessibility, reduced-motion, and error-state homologation was completed on November 2, 2026 with no reported issues; that day's local checks passed 146 frontend and 97 API tests. The latest November 3 GitHub Actions checks passed **167 frontend tests in 18 files, 97 API tests, ESLint/builds, and local database security tests**. The developer reported successful staging recovery email/OTP and mobile checks; deployed API ownership isolation, migration history, production email, monitoring, dependency auditing, and final review remain release gates (see [issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24)).
+The six-stage creator and two PNG export formats are implemented on `main`. Local manual functional, responsive, keyboard-accessibility, reduced-motion, and error-state homologation was completed on November 2, 2026 with no reported issues; that day's local checks passed 146 frontend and 97 API tests. The latest November 3 GitHub Actions checks passed **167 frontend tests in 18 files, 97 API tests, ESLint/builds, and local database security tests**. The developer reported successful staging recovery email/OTP and mobile checks; deployed API ownership isolation, migration history, production email, monitoring, dependency auditing, and final review remain release gates (see [issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24)).
 
 Adventure Files should prioritize a complete, secure, accessible, and visually coherent character-creation experience over unnecessary feature expansion.
