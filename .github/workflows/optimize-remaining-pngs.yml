@@ -1,0 +1,77 @@
+name: One-time lossless PNG optimization
+
+on:
+  push:
+    branches: [perf/lossless-remaining-pngs]
+    paths:
+      - .github/workflows/optimize-remaining-pngs.yml
+
+permissions:
+  contents: write
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install PNG optimizer
+        run: python -m pip install --disable-pip-version-check Pillow==13.0.0
+      - name: Verify and losslessly optimize exactly six files
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib
+          import io
+          from pathlib import Path
+          from PIL import Image
+
+          expected = {
+              "web/public/art/adventure-files-start-desktop.png": "2abd2c3d43b2c1b6b61b015f797bad43546992f0",
+              "web/public/art/adventure-files-start-mobile.png": "405384f193cd2b62e4db64098d735c5d89605b0f",
+              "web/public/art/characters/classes-together.png": "f40e497136d71b9389007bccbf42d800da49d4b4",
+              "web/public/art/characters/cleric.png": "7d5cb287d23d802786ed25dd3b8c53b9b92d03a3",
+              "web/public/art/characters/druid.png": "f1109e1f318ed39558179d4a79bb794ffe747efb",
+              "web/public/art/characters/ranger.png": "331727d392def8e75f38dfefffa34d97f8768672",
+          }
+
+          def blob_hash(data):
+              return hashlib.sha1(f"blob {len(data)}\\0".encode() + data).hexdigest()
+
+          total_original = 0
+          total_optimized = 0
+          for name, sha in expected.items():
+              path = Path(name)
+              original = path.read_bytes()
+              assert blob_hash(original) == sha, f"Unexpected original SHA: {name}"
+              with Image.open(io.BytesIO(original)) as source:
+                  source.load()
+                  old_mode, old_size, old_pixels, old_info = source.mode, source.size, source.tobytes(), dict(source.info)
+                  buffer = io.BytesIO()
+                  source.save(buffer, format="PNG", optimize=True, compress_level=9)
+              updated = buffer.getvalue()
+              with Image.open(io.BytesIO(updated)) as result:
+                  result.load()
+                  assert result.mode == old_mode and result.size == old_size, name
+                  assert result.tobytes() == old_pixels, f"Pixel mismatch: {name}"
+                  assert result.info == old_info, f"Metadata mismatch: {name}"
+              assert len(updated) < len(original), f"Not smaller: {name}"
+              path.write_bytes(updated)
+              total_original += len(original)
+              total_optimized += len(updated)
+              print(f"{name}: {len(original)} -> {len(updated)} bytes", flush=True)
+
+          print(f"Total: {total_original} -> {total_optimized}; saved {total_original-total_optimized} bytes")
+          PY
+      - name: Commit optimized assets to isolated branch
+        shell: bash
+        run: |
+          git add -- web/public/art/adventure-files-start-desktop.png web/public/art/adventure-files-start-mobile.png web/public/art/characters/classes-together.png web/public/art/characters/cleric.png web/public/art/characters/druid.png web/public/art/characters/ranger.png
+          git diff --cached --quiet && exit 1
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "perf(assets): losslessly recompress six remaining PNGs"
+          git push origin HEAD:perf/lossless-remaining-pngs
