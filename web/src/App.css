@@ -1163,10 +1163,48 @@
   }
 }
 
-/* Keep occasional Turnstile challenges centered without changing auth layout. */
+/* Keep Turnstile centered and visible in the existing auth form. */
 .auth-turnstile {
   display: flex;
   justify-content: center;
   width: 100%;
   min-width: 0;
+}
+
+.auth-turnstile-group {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+
+.auth-turnstile-message {
+  margin: 0;
+  color: var(--auth-muted);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  line-height: 1.8;
+  text-align: center;
+}
+
+.auth-turnstile-message--error {
+  color: #ffd3c8;
+}
+
+.auth-turnstile-retry {
+  min-height: 34px;
+  padding: 8px 12px;
+  border: 1px solid var(--auth-green);
+  border-radius: 6px;
+  background: var(--auth-surface-dark);
+  color: var(--auth-green);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  line-height: 1.6;
+  cursor: pointer;
+}
+
+.auth-turnstile-retry:hover {
+  background: #192b1e;
 }
