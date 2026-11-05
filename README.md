@@ -96,6 +96,16 @@ Each replacement was checked against the original Git blob and validated for exa
 
 This was a lossless storage optimization, not an artwork revision or a new design feature.
 
+### Post-START Retro-Futuristic Finish — November 5, 2026
+
+The owner approved a restrained, glass-inspired lighting finish across the existing post-START interface:
+
+- [PR #38](https://github.com/AlexandroLeao/rpg-character-creator/pull/38) added soft highlights and hover depth to existing login, creator, dashboard and dialog surfaces.
+- [PR #39](https://github.com/AlexandroLeao/rpg-character-creator/pull/39) strengthened layered reflections and fixed Chrome's autofilled-password hover background: the dark inset paint remains intact on hover/focus/active.
+- Changes are confined to `web/src/App.css`; the START artwork and animations, palette, typography, spacing, functionality, and exported PNG layouts are preserved. There is no heavy backdrop blur or continuous new animation, and reduced-motion support remains in place.
+
+The merged frontend workflow and Vercel deployment passed after PR #39. This is a visual finish, not a redesign or a new gameplay feature.
+
 ## User Experience
 
 The approved experience follows this structure:
