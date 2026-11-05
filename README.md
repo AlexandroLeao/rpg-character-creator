@@ -37,14 +37,14 @@ A compact bilingual **Extras** panel in the authenticated dashboard contains cre
 
 ## Current Development Status
 
-Adventure Files is a feature-complete, owner-tested release candidate on `main`. The original creator and exports landed in [PR #23](https://github.com/AlexandroLeao/rpg-character-creator/pull/23); the Turnstile reliability, account-deletion CAPTCHA compatibility and final dialog-spacing changes were subsequently merged in [PRs #25–#27](https://github.com/AlexandroLeao/rpg-character-creator/pulls?q=is%3Apr+is%3Amerged). The latest application-code merge is `0a0457d` (November 2026). No application pull requests remain open. The remaining Issue #24 is a short hosted operations/security sign-off, not new feature development.
+Adventure Files is a **completed, owner-tested MVP** on `main` at application commit `32bb63d` (November 5, 2026). The creator/PNG exports, Turnstile compatibility, account-deletion fixes, and email-only signup were reviewed and merged. The owner accepted desktop/mobile PT/EN smoke tests, account deletion/re-registration and account isolation; [release issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24) is closed. [Post-MVP security review #31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31) records bounded additional checks and accepted follow-ups, not a release blocker.
 
 ### Implemented
 
 - React, Vite, and TypeScript frontend; Node.js, Express, and TypeScript API.
 - Supabase email/password authentication, account confirmation, recovery, sign-out, and session restoration.
 - Bilingual signup with expandable Terms of Use / Privacy Notice and an unchecked, mandatory terms acknowledgement before the signup UI can submit.
-- Cloudflare Turnstile in registration, sign-in, recovery and account-deletion confirmation. Auth requests forward a fresh token for Supabase validation; account deletion reauthenticates on the trusted API with a fresh token, password and independently verified session. CAPTCHA enforcement depends on the hosted Supabase setting and must be confirmed during final sign-off.
+- Cloudflare Turnstile in registration, sign-in, recovery and account-deletion confirmation. Auth requests forward a fresh token for Supabase validation; account deletion reauthenticates on the trusted API with a fresh token, password and independently verified session. The owner reports successful hosted CAPTCHA-protected authentication and account-deletion checks; continued enforcement depends on keeping the Supabase protection setting enabled.
 - Fifteen-character minimum on signup/reset, matching the last verified Supabase Auth policy; limited browser-hardening response headers without changing the approved pixel-art UI.
 - PostgreSQL schema, user-scoped character storage, Row Level Security (RLS), and protected character CRUD endpoints.
 - One saved character per account.
@@ -75,15 +75,15 @@ Adventure Files is a feature-complete, owner-tested release candidate on `main`.
 
 - On November 4, the developer reported successful **hosted account deletion in Portuguese and English**, inability to sign back into a deleted account, successful re-registration with the same email after confirmation, and preservation of a separate account. These are valuable manual acceptance results; they do **not** independently prove the removed character row or cover every token failure mode. Render startup logs show a Live service; no server-side account data was accessed for this report.
 
-### Remaining Before Public Portfolio Demo
+### Final Release Acceptance — November 5, 2026
 
-- The creator reports successful hosted login, registration, recovery, account deletion/re-registration, cross-account isolation and desktop/mobile checks after the Turnstile rollout. Confirm that the stable Vercel Production and Render API deploy the latest approved `main` code and that Supabase CAPTCHA is **enabled and enforcing** fresh tokens; do not disable CAPTCHA as a routine release step.
-- Verify actual hosted browser security headers, HTTPS, Render CORS and secret isolation; accept or mitigate the Supabase Free no-backup risk and confirm the accepted bilingual Terms/Privacy notice reflects real data handling (checkbox is not an auditable legal consent register). Production-only dependency audits had zero findings; the moderate dev-only minimatch risk is documented in the runbook.
-- Verify the stable public Vercel URL in a signed-out browser, its authentication redirect allowlist, HTTPS, critical recovery flow, and the chosen single free-hosting environment.
-- PRs #23, #25, #26 and #27 are merged; frontend CI passed on `0a0457d`, frontend/API CI passed on account-deletion merge `843514a`, and database pgTAP last passed at foundational merge `0b22f48` (no subsequent migration changes). Issue #15 is closed. Keep Issue #24 open until hosted headers/CORS, Supabase CAPTCHA configuration and the free-plan backup risk are explicitly reviewed.
-- Known free-tier trade-offs include Render cold starts, possible Supabase inactivity pausing, and limited personal Gmail SMTP throughput. These affect availability; do not describe the demo as a commercial service with an uptime guarantee.
+- The owner confirmed signup, login, recovery, account deletion/re-registration, cross-account isolation, mobile/PT/EN flows, and both PNG exports. These are owner-reported hosted smoke tests, not an exhaustive production audit.
+- Hosted checks confirmed HTTPS/HSTS and browser-hardening headers, recovery-page `noindex`, Vercel-proxied API `401`/`Cache-Control: no-store`, origin-specific Render API CORS, and a **SecurityHeaders.com grade A** on the stable frontend. The public bundle search found no exposed private key; a literal `sb_secret_` SDK prefix check is not a secret value.
+- A **manual ZAP Safe-mode passive review** of public pages reported **0 High, 7 Medium, 3 Low, 4 Informational** alerts across mixed first- and third-party hosts. Reviewed samples included Cloudflare-owned challenge CSP/clickjacking alerts, public CSS wildcard CORS, and Google Fonts SRI. These observations are not a complete pentest or an automated ZAP Baseline pass.
+- Accepted/deferred hardening: frontend CSP is absent; direct Render anonymous character API `401` did not include `Cache-Control: no-store` (the Vercel proxy and account-deletion route already set it); no generic Express rate limiter is configured. Review these if the application serves meaningful real-user data or an incident justifies the work; no confirmed private-data exposure was observed in these checks.
+- The owner accepted **Supabase Free without automatic database backups** for this disposable portfolio demo, deferring manual off-repository exports until meaningful recovery requirements arise. Known free-tier limitations include Render cold starts, Supabase inactivity pauses and best-effort SMTP delivery.
 
-See the [zero-budget portfolio release runbook](docs/free-portfolio-release.md) and [release-readiness issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24). The MVP scope remains frozen: no PDF, playable game, OAuth expansion, or new artwork variants for this release.
+See the [historical release runbook](docs/free-portfolio-release.md), [closed release issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24), and [security review #31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31). The MVP scope remains frozen: no PDF, playable game, OAuth expansion, or new artwork variants.
 
 ## User Experience
 
@@ -100,7 +100,7 @@ The approved experience follows this structure:
 
 Authentication credentials and character creation are separate processes.
 
-Users register with a display name, email address, and password. Character creation takes place after authentication.
+Users register with an email address and password, with mandatory acknowledgement of the Terms of Use and Privacy Notice. Character naming takes place after authentication.
 
 ### Start Screen
 
@@ -223,7 +223,7 @@ The project does not include character gender selection, combat mechanics, or re
 
 ## Documentation
 
-- [Free Portfolio Release Runbook](docs/free-portfolio-release.md) — evidence, remaining gates, zero-cost hosting risks, and final delivery sequence.
+- [Free Portfolio Release Runbook](docs/free-portfolio-release.md) — historical release gates, owner acceptance evidence, and zero-cost hosting risk decisions.
 - [Project Overview](docs/project-overview.md)
 - [System Requirements](docs/requirements.md)
 - [Customization Catalog](docs/customization-catalog.md)
@@ -551,7 +551,7 @@ The initial release does not include:
 
 The six-stage creator, owner-scoped CRUD, two PNG exports, email recovery, verified account deletion, responsive bilingual UI and minimal email-only signup are integrated into `main` at `32bb63d`. The latest Frontend GitHub Actions check and Vercel integration status passed; API and database security checks passed on earlier approved implementation commits with no subsequent API/database schema changes. The owner reports successful live account deletion/re-registration and cross-account regression testing.
 
-**Optional post-release checks:** focused live response headers, negative/preflight CORS, public bundle-secret inspection, a bounded OWASP ZAP Baseline and a proportional API rate-limit assessment are tracked in [security issue #31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31). Do not repeat successful destructive account/RLS tests without a concrete defect. The owner accepted the Supabase Free no-automatic-backup risk for this disposable demo; manual exports are deferred until meaningful user data or recovery requirements justify them. See the [historical release runbook](docs/free-portfolio-release.md).
+**Bounded post-release security review:** hosted HTTPS/headers, public assets, CORS, noindex, the public-bundle secret search and a manual ZAP Safe-mode passive review are documented in [#31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31). A full penetration test or automated ZAP Baseline was **not** performed. No high-severity alert was recorded in the reviewed passive session, but this is not a security certification. The documented CSP, direct Render response caching and Express limiter considerations are optional follow-ups, not verified vulnerabilities or current MVP blockers. The owner accepted the Supabase Free no-automatic-backup risk; manual exports remain deferred.
 
 The roadmap includes **only two character-sheet downloads**: PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350). PDF is explicitly out of scope.
 
@@ -564,7 +564,7 @@ The following are **ideas for a future milestone, not pending requirements for t
 - **AWS as a learning exercise, not a mandatory migration:** evaluate a small isolated proof of concept for S3/CloudFront asset hosting or SES transactional email, with IAM least privilege, cost budgets/alerts, provider quotas, deployment/rollback plans and comparison to the current free Vercel/Render/Supabase stack. No paid or irreversible cloud setup is required for the current release.
 - **Future least-privilege RBAC/admin roles:** research actual support/admin workflows before creating roles, authorize privileges by verified user UUID (never automatically by support sender email), and require RLS/server enforcement, MFA, tests and audit logging. Planning only; see [#30](https://github.com/AlexandroLeao/rpg-character-creator/issues/30).
 - **Privacy-first usage analytics/dashboard:** research whether aggregated creator completion, usability and error metrics would inform decisions before collecting any behavioral data. Minimize personal data, evaluate retention/transparency/consent and secure dashboard access; do not introduce tracking in the completed MVP. Planning only; see [#32](https://github.com/AlexandroLeao/rpg-character-creator/issues/32).
-- **Operational maturity:** consider observability and broader integration testing after the public demo is stable, prioritizing fixes to actual incidents or user feedback.
+- **Operational maturity:** if real usage warrants it, add `Cache-Control: no-store` to direct authenticated Render API responses, evaluate an appropriate CSP in Report-Only mode with Turnstile compatibility, consider narrowly scoped Express rate limiting, and revisit observability or broader security testing. Prioritize actual incidents and user feedback; see [#31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31).
 
 ---
 
