@@ -33,3 +33,9 @@ On Linux CI install browser system dependencies with `npx playwright install --w
 The test checks the existing PNG formats Story 1080 × 1920 and Portrait 1080 × 1350. The one injected save failure is an explicit UI error-path simulation; normal auth/save/read operations use real services. No broad claims of cross-browser coverage, accessibility conformance, penetration testing, production deployment verification or Docker-to-Supabase authenticated connectivity are made. The backend in this suite runs as a compiled Node process; Docker is used for the isolated Supabase stack. The credential-free API Docker smoke is separate.
 
 CI: [Full-stack E2E](../.github/workflows/full-stack-e2e.yml) starts and stops a fresh local Supabase stack on a standard GitHub Linux runner. It runs for changes to web, API, Supabase, e2e and the workflow itself. No registry publish, hosted data, paid service, or real account credentials.
+
+## Verified CI evidence — November 12, 2026
+
+- [Initial run](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43233773537): 2 passed, 1 failed at the final sign-out expectation after PNG verification. The existing app returns to PRESS START after reload/sign-out; only the test was corrected in `cf91a7d`.
+- [Corrected PR run](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43234975048): all 3 passed in 8.6s, fresh local stack and cleanup passed.
+- [Post-merge main run](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43235672788): all 3 passed in 10.2s (3.6s lifecycle, 3.4s isolation, 1.0s mobile/language); merge `348bc83`, [PR #50](https://github.com/AlexandroLeao/rpg-character-creator/pull/50) and [Issue #49](https://github.com/AlexandroLeao/rpg-character-creator/issues/49) closed. These are suite execution times, not workflow or performance benchmark durations.

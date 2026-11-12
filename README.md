@@ -39,7 +39,7 @@ A compact bilingual **Extras** panel in the authenticated dashboard contains cre
 
 Adventure Files is a **completed, owner-tested MVP** on `main` at application commit `32bb63d` (November 5, 2026). The creator/PNG exports, Turnstile compatibility, account-deletion fixes, and email-only signup were reviewed and merged. The owner accepted desktop/mobile PT/EN smoke tests, account deletion/re-registration and account isolation; [release issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24) is closed. [Post-MVP security review #31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31) records bounded additional checks and accepted follow-ups, not a release blocker.
 
-**November 12 post-MVP review:** [Frontend Checks](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/42101618668) and [API Checks](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/42101618812) on `main` commit `fea7ac8` passed **183 frontend tests (20 files)** and **108 API tests (9 files passed; 2 opt-in tests in a tenth file skipped)**, respectively, with lint and builds. The [November 4 database run](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/41918531601) passed **39 pgTAP assertions (2 files)** at `0b22f48`; no database files or workflow changed through `fea7ac8`. These original logs were inspected, not rerun. The [post-MVP engineering roadmap](docs/post-mvp-engineering.md) tracks the separate R1–R7 cycle, including OpenAPI, Docker and full-stack Playwright as future work.
+**Post-MVP engineering evidence (November 12, 2026):** R1–R5 are integrated through merge `348bc83` ([PR #50](https://github.com/AlexandroLeao/rpg-character-creator/pull/50)). Latest applicable main workflows: [frontend](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43227874332) **183 tests / 20 files**, [API](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43233078424) **133 tests / 10 files** (including 16 OpenAPI checks; 2 opt-in tests skipped in an eleventh file), [database](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43233078236) **39 pgTAP assertions / 2 files**, and [full-stack Playwright](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43235672788) **3 Chromium scenarios**. These total 358 passing tests/assertions across separate runs, plus a separate successful [Docker build and smoke](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43233078118). The original R5 PR passed after a sign-out test-expectation fix. All checks were local/CI, not a fresh hosted audit. R2 live header smoke remains pending. See the [post-MVP engineering roadmap](docs/post-mvp-engineering.md).
 
 ### Implemented
 
@@ -56,7 +56,7 @@ Adventure Files is a **completed, owner-tested MVP** on `main` at application co
 - Required selections, preserved drafts, explicit Save, and the revised catalog with Motivation.
 - Illustrated My Character dashboard with editing, confirmed character deletion, Extras/Credits, and password-reconfirmed self-service account deletion executed only by the server (hosted manual QA reported on November 4).
 - PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350) exports using the saved character.
-- Automated frontend/API/security test suites and GitHub Actions workflows.
+- Automated frontend/API/security test suites, OpenAPI 3.1 contract, local API Docker image/smoke and isolated full-stack Playwright with GitHub Actions.
 
 ### Local Homologation Completed — November 2, 2026
 
@@ -220,12 +220,15 @@ The project does not include character gender selection, combat mechanics, or re
 - Node.js
 - Express
 - TypeScript
+- OpenAPI 3.1
+- Vitest and Supertest
 
 ### Database and Authentication
 
 - Supabase Auth
 - PostgreSQL
 - Row Level Security (RLS)
+- pgTAP
 
 ### Development and Automation
 
@@ -234,6 +237,8 @@ The project does not include character gender selection, combat mechanics, or re
 - GitHub Codespaces (current browser-based development)
 - Google Cloud Shell (optional)
 - GitHub Actions
+- Docker (local API and isolated Supabase)
+- Playwright (Chromium, full-stack local E2E)
 - npm
 
 ## Repository Structure
@@ -241,6 +246,7 @@ The project does not include character gender selection, combat mechanics, or re
 - `web/` — React frontend and user interface.
 - `api/` — Express REST API.
 - `supabase/` — Database migrations, configuration, and security tests.
+- `e2e/` — Separate locked Playwright package and local full-stack runner.
 - `docs/` — Product documentation, requirements, architecture, and diagrams.
 - `.github/workflows/` — Continuous integration workflows.
 
@@ -533,6 +539,14 @@ Workflow:
 .github/workflows/database.yml
 ```
 
+### API Docker Checks
+
+`.github/workflows/api-docker.yml` builds the Node 24 multi-stage image and runs a credential-free health, non-root, production-dependency and private-response smoke. No registry push or hosted Docker deployment.
+
+### Full-stack E2E
+
+`.github/workflows/full-stack-e2e.yml` uses Playwright Chromium, Vite, compiled Express and a disposable local Supabase stack. It verifies the six-stage character lifecycle, save retry, persistence, PNG dimensions, account separation, PT/EN and mobile login. See [E2E instructions](e2e/README.md). The five workflows have path filters; their results must not be treated as one combined run.
+
 ## Contribution Workflow
 
 Development follows these steps:
@@ -578,9 +592,11 @@ The initial release does not include:
 
 The six-stage creator, owner-scoped CRUD, two PNG exports, email recovery, verified account deletion, responsive bilingual UI and minimal email-only signup are integrated into `main` at `32bb63d`. Frontend and API GitHub Actions checks and Vercel commit status passed on the later reviewed `main` commit `fea7ac8`; database CI passed at `0b22f48`, with no subsequent database files/workflow changes through `fea7ac8`. See the [dated engineering baseline](docs/post-mvp-engineering.md). The owner reports successful live account deletion/re-registration and cross-account regression testing.
 
-**Bounded post-release security review:** hosted HTTPS/headers, public assets, CORS, noindex, the public-bundle secret search and a manual ZAP Safe-mode passive review are documented in [#31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31). A full penetration test or automated ZAP Baseline was **not** performed. No high-severity alert was recorded in the reviewed passive session, but this is not a security certification. The documented CSP, direct Render response caching and Express limiter considerations are optional follow-ups, not verified vulnerabilities or current MVP blockers. The owner accepted the Supabase Free no-automatic-backup risk; manual exports remain deferred.
+**Bounded post-release security review:** hosted HTTPS/headers, public assets, CORS, noindex, the public-bundle secret search and a manual ZAP Safe-mode passive review are documented in [#31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31). A full penetration test or automated ZAP Baseline was **not** performed. No high-severity alert was recorded in the reviewed passive session, but this is not a security certification. R2 has implemented direct API no-store and safer error logging; the hosted HTTP confirmation remains pending. CSP and Express limiter considerations remain optional follow-ups, not verified vulnerabilities or current MVP blockers. The owner accepted the Supabase Free no-automatic-backup risk; manual exports remain deferred.
 
 The roadmap includes **only two character-sheet downloads**: PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350). PDF is explicitly out of scope.
+
+**Post-MVP milestone (November 12):** R1–R5 merged and CI-verified; R2 published header smoke is separate. Recommend deferring R6 unless a concrete risk or operational need justifies it, and completing the consolidated portfolio update R7 after owner review. See the [engineering roadmap](docs/post-mvp-engineering.md).
 
 ### Optional Improvements After the First Public Release
 
@@ -591,7 +607,7 @@ The following are **ideas for a future milestone, not pending requirements for t
 - **AWS as a learning exercise, not a mandatory migration:** evaluate a small isolated proof of concept for S3/CloudFront asset hosting or SES transactional email, with IAM least privilege, cost budgets/alerts, provider quotas, deployment/rollback plans and comparison to the current free Vercel/Render/Supabase stack. No paid or irreversible cloud setup is required for the current release.
 - **Future least-privilege RBAC/admin roles:** research actual support/admin workflows before creating roles, authorize privileges by verified user UUID (never automatically by support sender email), and require RLS/server enforcement, MFA, tests and audit logging. Planning only; see [#30](https://github.com/AlexandroLeao/rpg-character-creator/issues/30).
 - **Privacy-first usage analytics/dashboard:** research whether aggregated creator completion, usability and error metrics would inform decisions before collecting any behavioral data. Minimize personal data, evaluate retention/transparency/consent and secure dashboard access; do not introduce tracking in the completed MVP. Planning only; see [#32](https://github.com/AlexandroLeao/rpg-character-creator/issues/32).
-- **Operational maturity:** if real usage warrants it, add `Cache-Control: no-store` to direct authenticated Render API responses, evaluate an appropriate CSP in Report-Only mode with Turnstile compatibility, consider narrowly scoped Express rate limiting, and revisit observability or broader security testing. Prioritize actual incidents and user feedback; see [#31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31).
+- **Operational maturity:** if real usage warrants it, evaluate an appropriate CSP in Report-Only mode with Turnstile compatibility, consider narrowly scoped Express rate limiting, and revisit observability or broader security testing. Prioritize actual incidents and user feedback; see [#31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31).
 
 ---
 

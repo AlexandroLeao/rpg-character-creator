@@ -26,6 +26,8 @@ Run `npm test` or `npx vitest run src/openapi.test.ts` from `api/` to check loca
 - Vitest
 - Supertest
 - OpenAPI 3.1 (version-controlled contract)
+- Docker (local build and smoke)
+- Playwright (separate full-stack suite)
 - GitHub Actions
 
 ## Project Status
@@ -638,7 +640,7 @@ npm test
 
 The November 5, 2026 [API Checks run](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/42101618812) at `fea7ac8` passed **108 tests across 9 files**; **2 opt-in local integration tests in a tenth file were skipped by design**. Lint and build also passed. The original job log was reviewed on November 12; this is not a new local execution. See the [post-MVP engineering baseline](../docs/post-mvp-engineering.md).
 
-The R2 merge `f6f3102` on November 12 passed **117 API tests + 2 opt-in skipped**, ESLint and build ([CI](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43230655232)). The table below is the historical November 5 breakdown; R2 added nine app-level cases and R3 adds a separate OpenAPI contract suite. See the latest CI for the current total.
+The R2 merge `f6f3102` on November 12 passed **117 API tests + 2 opt-in skipped**, ESLint and build ([CI](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43230655232)). **Current default suite:** [R4 main API CI](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43233078424) passed **133 tests across 10 files**, with 2 opt-in local integrations skipped in an eleventh file; lint and build passed. R2 added nine app-level cases; R3 added 16 OpenAPI cases. The table below preserves the historical November 5 breakdown.
 
 ### Historical Test Organization — November 5
 
@@ -776,6 +778,8 @@ GitHub Actions runs the following checks when relevant API files change:
 The workflow also runs on relevant changes merged into `main`.
 
 Changes must pass automated checks before being considered ready for merging.
+
+The separate [API Docker CI](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43233078118) passed on the R4 merge, including real image build, healthcheck, non-root execution and credential-free 401/no-store. The R4 PR image measured 83,638,567 bytes (not a guaranteed future size). The [full-stack E2E CI](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43235672788) passed three browser scenarios after R5 merge; it runs compiled Express with real local Supabase, not the API container. See [E2E instructions](../e2e/README.md). Neither replaces hosted smoke verification.
 
 ## Security Requirements
 
