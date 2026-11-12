@@ -111,6 +111,7 @@ describe('GET /api/characters/me', () => {
       .get('/api/characters/me')
 
     expect(response.status).toBe(401)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.body).toEqual({
       error: 'Unauthorized',
@@ -137,6 +138,7 @@ describe('GET /api/characters/me', () => {
       )
 
     expect(response.status).toBe(401)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(
       mocks.createUserDatabaseClient,
@@ -162,6 +164,7 @@ describe('GET /api/characters/me', () => {
       )
 
     expect(response.status).toBe(403)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.body).toEqual({
       error: 'Email verification required',
@@ -185,6 +188,7 @@ describe('GET /api/characters/me', () => {
       )
 
     expect(response.status).toBe(404)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.body).toEqual({
       error: 'Character not found',
@@ -209,6 +213,7 @@ describe('GET /api/characters/me', () => {
       )
 
     expect(response.status).toBe(200)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.body).toEqual({
       character: {
@@ -260,6 +265,7 @@ describe('GET /api/characters/me', () => {
       )
 
     expect(response.status).toBe(200)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(
       response.body.character.motivation,
@@ -290,6 +296,7 @@ describe('GET /api/characters/me', () => {
       )
 
     expect(response.status).toBe(200)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(
       mocks.createUserDatabaseClient,
@@ -335,6 +342,7 @@ describe('GET /api/characters/me', () => {
       )
 
     expect(response.status).toBe(404)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(mocks.eq).toHaveBeenCalledWith(
       'user_id',
@@ -364,6 +372,7 @@ describe('GET /api/characters/me', () => {
       )
 
     expect(response.status).toBe(503)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.body).toEqual({
       error: 'Character storage unavailable',
@@ -389,6 +398,7 @@ describe('GET /api/characters/me', () => {
       )
 
     expect(response.status).toBe(503)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.body).toEqual({
       error: 'Character storage unavailable',

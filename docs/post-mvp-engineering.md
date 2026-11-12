@@ -29,7 +29,7 @@ The accepted release uses one documented **Vercel Hobby + Render Free + Supabase
 - [x] Inspect original CI evidence and distinguish dated frontend/API results from database results.
 - [x] Review documented single-environment deployment and prior backup decision; preserve historical limitations.
 - [x] Correct current test counts in technical documentation and record a separate post-MVP plan.
-- [ ] Owner review and merge of [R1 Issue #41](https://github.com/AlexandroLeao/rpg-character-creator/issues/41) implementation.
+- [x] Owner reviewed and merged [PR #42](https://github.com/AlexandroLeao/rpg-character-creator/pull/42) on November 12, 2026; [Issue #41](https://github.com/AlexandroLeao/rpg-character-creator/issues/41) closed. Frontend, API and database checks passed on the PR. Merge commit: `8c36830`.
 - [ ] If hosting settings have changed, reconfirm the free-tier/backup configuration with the owner; no hosted data access is required for this document.
 
 ## R2–R7 — Agreed sequence
@@ -43,7 +43,16 @@ The accepted release uses one documented **Vercel Hobby + Render Free + Supabase
 | R6 (optional) | Operational maturity | Only if justified: report-only CSP, narrow rate-limit or privacy-safe logging improvements, without unnecessary maintenance |
 | R7 | One consolidated developer-portfolio refresh | Update the Adventure Files card and technology evidence after implementation is verified; then begin external open-source work |
 
-All R2–R7 steps remain unimplemented in this baseline. Existing MVP tests and safeguards are not proof of the future improvements. Issues #30 (future admin/RBAC) and #32 (analytics) are separate product research, outside this cycle.
+### R2 — Current implementation review (November 12, 2026)
+
+- [x] Review the existing Express routes, authentication middleware, error handlers and Vercel rewrite.
+- [x] Add an early no-store response policy for the character and account namespaces; preserve public health and the existing API contract.
+- [x] Restrict unexpected-error and account-deletion logging to fixed event identifiers; add synthetic regression assertions.
+- [x] Add and extend Supertest checks for private success/error responses, including malformed/oversized JSON and CORS preflight.
+- [ ] Confirm API CI and owner review/merge in [Issue #43](https://github.com/AlexandroLeao/rpg-character-creator/issues/43).
+- [ ] After merge and confirmed deployment, verify public health and non-authenticated private response headers without accessing real user data.
+
+R2 is proposed on a separate branch, not yet merged or verified in the hosted environment. R3–R7 remain pending. Existing MVP tests and safeguards are not proof of the future improvements. Issues #30 (future admin/RBAC) and #32 (analytics) are separate product research, outside this cycle.
 
 ## Constraints
 

@@ -537,6 +537,14 @@ Column-level permissions prevent ordinary authenticated users from updating prot
 
 The backend must preserve these restrictions.
 
+## Private API response caching and logging (R2)
+
+The character and account API namespaces set `Cache-Control: no-store` at the Express application boundary, before CORS, JSON parsing and authentication. This covers successful responses, authentication/validation errors, malformed requests and other errors within these namespaces, including direct API access. The public health route is unchanged. The Vercel rewrite already has its own no-store rule; no proxy or hosting configuration is changed here.
+
+Server-side unexpected-error and account-deletion logs use fixed event identifiers. Raw exceptions, provider error details, request bodies, tokens, passwords and account identifiers are not included in these application logs. Existing HTTP status codes, response bodies, authentication and authorization behavior are unchanged. These measures reduce unnecessary caching and sensitive logging; they are not evidence of a prior data exposure.
+
+Regression tests exercise the Express app with Supertest and mocked services. Hosted verification requires a confirmed deployment after owner review and merge; no real user account or destructive hosted request is necessary.
+
 ## API Error Responses
 
 | Status | Description |

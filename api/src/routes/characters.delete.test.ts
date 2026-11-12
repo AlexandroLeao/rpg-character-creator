@@ -64,6 +64,7 @@ describe('DELETE /api/characters/me', () => {
       .delete('/api/characters/me')
 
     expect(response.status).toBe(401)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.body).toEqual({
       error: 'Unauthorized',
@@ -85,6 +86,7 @@ describe('DELETE /api/characters/me', () => {
       .set('Authorization', 'Bearer invalid-token')
 
     expect(response.status).toBe(401)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(mocks.delete).not.toHaveBeenCalled()
   })
@@ -105,6 +107,7 @@ describe('DELETE /api/characters/me', () => {
       .set('Authorization', 'Bearer unverified-token')
 
     expect(response.status).toBe(403)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(mocks.delete).not.toHaveBeenCalled()
   })
@@ -115,6 +118,7 @@ describe('DELETE /api/characters/me', () => {
       .set('Authorization', 'Bearer valid-token')
 
     expect(response.status).toBe(204)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.text).toBe('')
 
@@ -154,6 +158,7 @@ describe('DELETE /api/characters/me', () => {
       .set('Authorization', 'Bearer valid-token')
 
     expect(response.status).toBe(204)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(
       mocks.createUserDatabaseClient,
@@ -179,6 +184,7 @@ describe('DELETE /api/characters/me', () => {
       .set('Authorization', 'Bearer valid-token')
 
     expect(response.status).toBe(503)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.body).toEqual({
       error: 'Character storage unavailable',
@@ -199,6 +205,7 @@ describe('DELETE /api/characters/me', () => {
       .set('Authorization', 'Bearer valid-token')
 
     expect(response.status).toBe(503)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.body).toEqual({
       error: 'Character storage unavailable',
@@ -219,6 +226,7 @@ describe('DELETE /api/characters/me', () => {
       .set('Authorization', 'Bearer valid-token')
 
     expect(response.status).toBe(503)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.body).toEqual({
       error: 'Character storage unavailable',
