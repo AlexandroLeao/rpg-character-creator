@@ -384,6 +384,10 @@ The account remains available for creating another character afterward.
 | Authorization | Row Level Security and authenticated API checks |
 | Frontend tests | Vitest and React Testing Library |
 | API tests | Vitest and Supertest |
+| API contract | OpenAPI 3.1 |
+| Local API container | Docker, Node 24 |
+| Database tests | pgTAP |
+| Full-stack browser tests | Playwright Chromium |
 | Version control | Git and GitHub |
 | Continuous integration | GitHub Actions |
 | Development environment | GitHub Codespaces (browser-based); Cloud Shell optional |
@@ -403,20 +407,23 @@ Adventure Files is an **owner-accepted MVP** on `main` (application commit `32bb
 - Dedicated Final Review, explicit Save, draft preservation, and authenticated character persistence.
 - Illustrated My Character dashboard, saved-character editing, and confirmation-based deletion.
 - Browser-generated PNG Story/Status (1080 × 1920) and PNG Portrait (1080 × 1350) downloads using the saved record and class artwork.
-- Automated frontend, API, and database security checks with GitHub Actions.
+- Automated frontend, API, database security, Docker and full-stack Playwright checks with GitHub Actions.
+- Post-MVP private-response no-store/error-log hygiene and machine-readable OpenAPI contract.
 
 On November 2, 2026, local manual QA reported no issues across the start screen, authentication, six-stage flow, saved-character CRUD, PNG exports, responsive layouts, PT/EN, keyboard accessibility, reduced-motion behavior, and recoverable errors. Two test accounts were exercised without observed cross-account mixing. Local checks passed **146 frontend tests (17 files)** and **97 API tests (8 files)**, plus lint and builds. The two opt-in Express/Supabase integration tests are intentionally skipped in the standard API suite and were run previously against isolated local Supabase.
 
-**November 3 update:** the most recent feature-branch CI passed **167 frontend tests (18 files)**, 97 API tests, lint/builds, and local database RLS tests. Vercel reported the latest staging deployment as ready, and the developer reported successful recovery email/OTP and responsive QA. These are staging/CI observations, not an independently verified deployed API authorization or production-readiness assessment.
+**Historical November 3 update:** the feature-branch CI passed **167 frontend tests (18 files)**, 97 API tests, lint/builds, and local database RLS tests. Vercel reported the latest staging deployment as ready, and the developer reported successful recovery email/OTP and responsive QA. These are staging/CI observations, not an independently verified deployed API authorization or production-readiness assessment.
 
-### Current Hosted Evidence (November 3–4, 2026)
+**Current post-MVP evidence (November 12):** R1–R5 merged through `348bc83`. Across the latest applicable CI runs, 183 frontend tests, 133 API tests (16 OpenAPI cases included; 2 opt-in skipped), 39 pgTAP assertions and 3 Playwright scenarios passed. The separate Docker smoke passed with real image build and container execution. See [dated evidence](./post-mvp-engineering.md). Local CI is not a new hosted assessment; R2 published header smoke remains pending.
+
+### Historical Hosted Evidence (November 3–4, 2026)
 
 1. The developer confirmed Vercel Preview/Render API health, unauthenticated 401 behavior, guarded `/reset-password`, password/code recovery, separate sessions and negative cross-account character operations.
 2. Hosted Supabase read-only SQL confirmed both project migrations, `public.characters` RLS, four owner-scoped policies and a snapshot of **2 characters / 0 without Motivation**.
 3. Render redeployed successfully after its explicit CORS origin list was updated, and the developer repeated the API smoke tests. Latest GitHub Actions on `c115039` passed frontend, API and database security workflows.
 4. These November 3–4 findings were followed by the November 5 owner acceptance and bounded security review, documented in closed [Issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24) and [#31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31). Earlier release gates are historical; future operational changes should revisit the [release runbook](./free-portfolio-release.md) and its explicitly accepted limitations.
 
-The portfolio owner requires **zero paid hosting and fast, quality-focused delivery**. The approved MVP is frozen; a single free demonstration environment is acceptable if its availability and isolation limitations are documented and explicitly approved. The repository remains private until any source-history secret audit is complete and a separate visibility decision is made.
+The portfolio owner requires **zero paid hosting and fast, quality-focused delivery**. The approved MVP is frozen; a single free demonstration environment is acceptable if its availability and isolation limitations are documented and explicitly approved. Repository visibility is currently public (GitHub metadata verified November 12); the earlier pre-publication secret-audit and visibility gate is historical. This review did not independently audit the full Git history. Never commit secrets.
 
 ## 8. Security and Privacy Requirements
 
