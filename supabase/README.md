@@ -43,6 +43,8 @@ The suite reads local CLI credentials internally using `supabase status -o env`;
 
 The two integration tests are skipped during ordinary `npm test` runs unless `RUN_LOCAL_AUTH_INTEGRATION=1` is set. They must not be run against the hosted project.
 
+**Later verified CI evidence (November 4, 2026):** [Database Security Tests](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/41918531601) at `0b22f48` passed all **39 pgTAP assertions across 2 files**. The original job log and unchanged database files/workflow through `fea7ac8` were checked on November 12. No fresh local or hosted database tests were executed in that review. See the [post-MVP engineering baseline](../docs/post-mvp-engineering.md).
+
 **Latest reported local verification (November 1, 2026):** 39 pgTAP assertions passed; 2 opt-in Express/Supabase integration tests passed; the API's standard suite passed 97 tests with 2 integration tests skipped by default. CI and final deployment-specific verification remain separate release gates.
 
 ## Security verification matrix
