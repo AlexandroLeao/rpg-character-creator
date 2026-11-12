@@ -160,6 +160,7 @@ describe('PUT /api/characters/me', () => {
       .send(validCharacter)
 
     expect(response.status).toBe(401)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(
       mocks.createUserDatabaseClient,
@@ -183,6 +184,7 @@ describe('PUT /api/characters/me', () => {
       .send(validCharacter)
 
     expect(response.status).toBe(401)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(mocks.update).not.toHaveBeenCalled()
     expect(mocks.insert).not.toHaveBeenCalled()
@@ -208,6 +210,7 @@ describe('PUT /api/characters/me', () => {
       .send(validCharacter)
 
     expect(response.status).toBe(403)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(mocks.update).not.toHaveBeenCalled()
     expect(mocks.insert).not.toHaveBeenCalled()
@@ -232,6 +235,7 @@ describe('PUT /api/characters/me', () => {
       .send(validCharacter)
 
     expect(response.status).toBe(201)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.body.character.id).toBe(
       'character-123',
@@ -265,6 +269,7 @@ describe('PUT /api/characters/me', () => {
       .send(validCharacter)
 
     expect(response.status).toBe(200)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.body.character.id).toBe(
       'character-123',
@@ -298,6 +303,7 @@ describe('PUT /api/characters/me', () => {
       .send(validCharacter)
 
     expect(response.status).toBe(200)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(mocks.eq).toHaveBeenCalledWith(
       'user_id',
@@ -322,6 +328,7 @@ describe('PUT /api/characters/me', () => {
       })
 
     expect(response.status).toBe(400)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.body.error).toBe(
       'Invalid character data',
@@ -344,6 +351,7 @@ describe('PUT /api/characters/me', () => {
       })
 
     expect(response.status).toBe(400)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(mocks.update).not.toHaveBeenCalled()
     expect(mocks.insert).not.toHaveBeenCalled()
@@ -359,6 +367,7 @@ describe('PUT /api/characters/me', () => {
       .send({})
 
     expect(response.status).toBe(400)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(mocks.update).not.toHaveBeenCalled()
     expect(mocks.insert).not.toHaveBeenCalled()
@@ -394,6 +403,7 @@ describe('PUT /api/characters/me', () => {
       .send(withoutMotivation)
 
     expect(response.status).toBe(400)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.body.details).toHaveProperty(
       'motivation',
@@ -416,6 +426,7 @@ describe('PUT /api/characters/me', () => {
       })
 
     expect(response.status).toBe(400)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.body.details).toHaveProperty(
       'motivation',
@@ -442,6 +453,7 @@ describe('PUT /api/characters/me', () => {
       })
 
     expect(response.status).toBe(200)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(mocks.update).toHaveBeenCalledWith(
       databaseFields,
@@ -480,6 +492,7 @@ describe('PUT /api/characters/me', () => {
       .send(validCharacter)
 
     expect(response.status).toBe(200)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(mocks.update).toHaveBeenCalledTimes(2)
 
@@ -513,6 +526,7 @@ describe('PUT /api/characters/me', () => {
       .send(validCharacter)
 
     expect(response.status).toBe(409)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.body).toEqual({
       error: 'Character changed. Please retry.',
@@ -542,6 +556,7 @@ describe('PUT /api/characters/me', () => {
       .send(validCharacter)
 
     expect(response.status).toBe(503)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.body).toEqual({
       error: 'Character storage unavailable',
@@ -575,6 +590,7 @@ describe('PUT /api/characters/me', () => {
       .send(validCharacter)
 
     expect(response.status).toBe(503)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.body).toEqual({
       error: 'Character storage unavailable',
@@ -601,6 +617,7 @@ describe('PUT /api/characters/me', () => {
       .send(validCharacter)
 
     expect(response.status).toBe(503)
+    expect(response.headers['cache-control']).toBe('no-store')
 
     expect(response.body).toEqual({
       error: 'Character storage unavailable',
