@@ -4,6 +4,8 @@
 - **Product name:** Adventure Files
 - **Linked specs:** [Requirements](./requirements.md), [Catalog](./customization-catalog.md), [Product Experience](./product-experience.md).
 
+**Post-MVP status (November 12, 2026):** R1–R5 integrated through `348bc83`; [engineering evidence](./post-mvp-engineering.md). Production topology and product contracts are unchanged. R2 live header smoke remains pending.
+
 ## 1. System Context
 
 Adventure Files is a retro-themed full-stack application for creating and managing **at most one fictional RPG character per registered account**.
@@ -39,6 +41,10 @@ PostgreSQL owns persistent character records, database constraints, and Row Leve
 | Database | Supabase PostgreSQL with Row Level Security |
 | Frontend testing | Vitest + React Testing Library |
 | API testing | Vitest + Supertest + integration/ownership checks |
+| API contract | OpenAPI 3.1 JSON + 16 bounded contract regression checks |
+| Container development | Docker multi-stage Node 24 API image; non-root runtime and healthcheck |
+| Database testing | pgTAP on isolated local Supabase PostgreSQL |
+| Browser E2E | Playwright Chromium, real local Vite/Express/Auth/PostgreSQL |
 | Version control | Git + GitHub |
 | CI/CD | GitHub Actions |
 | Deployment | Vercel Hobby frontend with `/api` proxy to Render Free API and Supabase Free; hosted smoke/migration checks and owner acceptance recorded, single free demonstration environment accepted with documented limitations |
@@ -520,7 +526,7 @@ The application uses one fixed dark theme.
 | Data migration | Existing records remain readable and safely editable during schema evolution |
 | Story/Status export | Valid PNG at exactly 1080 × 1920 pixels |
 | Portrait export | Valid PNG at exactly 1080 × 1350 pixels |
-| CI | Frontend and API install, build, lint, tests, and configured security checks |
+| CI | Five path-filtered workflows: frontend, API, pgTAP, API Docker smoke and local full-stack E2E |
 
 Passing frontend tests alone does not establish database or API compatibility.
 
@@ -536,6 +542,21 @@ The completed workflow must be validated through integration tests.
 - Development remains in GitHub Codespaces with Cloud Shell as an alternative. Never commit credentials; use environment-specific public keys and server-side secret storage. Private repository visibility must not change until the full Git history is reviewed for secrets.
 - If production isolation becomes necessary **after the portfolio release**, introduce it as a separately scoped improvement rather than delaying this frozen MVP.
 - See [the release runbook](./free-portfolio-release.md) for launch gates, rollback expectations, SEO, privacy and issue/PR sequencing.
+
+### 11.1. Local development and CI isolation (post-MVP)
+
+```mermaid
+flowchart LR
+    P[Playwright Chromium] --> V[Vite frontend]
+    V --> A[Compiled Express API]
+    V --> S[Local Supabase Auth]
+    A --> S
+    A --> D[(Local PostgreSQL + RLS)]
+    S --> D
+    C[Separate Docker smoke] --> I[Node 24 API container]
+```
+
+The [full-stack suite](../e2e/README.md) creates disposable local users, uses real Auth and PostgreSQL, and cleans only its own accounts. It does not run the API container: the [separate Docker smoke](../api/README.md#local-docker-execution-r4) runs without credentials. No hosted services or live accounts are involved. The [OpenAPI contract](../api/openapi.json) documents the existing routes without generating runtime routes. The R2 no-store middleware precedes parsing/authentication on private namespaces; fixed error event identifiers avoid leaking request/provider details. The direct hosted HTTP confirmation is pending.
 
 ## 12. Architectural Decisions
 
@@ -554,6 +575,10 @@ The completed workflow must be validated through integration tests.
 - **AD-13:** Introduce the Motivation field and changed catalog identifiers through reviewed, compatibility-safe API and database updates.
 - **AD-14:** Require explicit user confirmation before saving changes or deleting a character.
 - **AD-15:** Use the saved character record as the common source for the My Character dashboard and all export formats.
+
+- **AD-16:** Maintain a machine-readable OpenAPI contract and bounded regression checks without changing the Express runtime.
+- **AD-17:** Provide a local-only multi-stage Docker API build and separate smoke workflow; do not migrate the free hosted service.
+- **AD-18:** Validate selected full-stack flows in isolated local Supabase with disposable accounts and a separate Playwright workflow; preserve real production CAPTCHA and authentication settings.
 
 ## 13. Documentation Index
 
