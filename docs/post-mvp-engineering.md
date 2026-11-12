@@ -70,9 +70,19 @@ No runtime API, dependencies, frontend, database or deployment configuration was
 - [x] Restrict build context via `.dockerignore`; pass local environment values only at runtime.
 - [x] Add a reusable smoke script and separate GitHub Actions Docker workflow on a standard Linux runner. It builds a real container and checks health, non-root UID, Node version, compiled output and unauthenticated no-store responses.
 - [x] Document local execution, cleanup, optional Supabase network configuration and existing isolated database test commands.
-- [ ] Confirm API, Docker and applicable database checks plus owner review/merge in [Issue #47](https://github.com/AlexandroLeao/rpg-character-creator/issues/47).
+- [x] [PR #48](https://github.com/AlexandroLeao/rpg-character-creator/pull/48) merged; [Issue #47](https://github.com/AlexandroLeao/rpg-character-creator/issues/47) closed. Merge `1c641b1`; [Docker CI](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43232475291) verified Node 24, UID 1000, HTTP 200/401, no-store and image size 83,638,567 bytes. [API CI](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43232475172) passed 133 tests + 2 opt-in skipped; [database CI](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43232475475) passed 39 pgTAP checks. All three post-merge workflows passed.
 
-No deployed service, dependency manifest, runtime route or migration is changed in R4. The Docker smoke is credential-free; actual authenticated container-to-Supabase flows are not claimed. R5–R7 remain pending. Existing MVP tests and safeguards are not proof of future improvements. Issues #30 (future admin/RBAC) and #32 (analytics) are separate product research, outside this cycle.
+No deployed service, dependency manifest, runtime route or migration was changed in R4. The Docker smoke is credential-free; actual authenticated container-to-Supabase flows are not claimed.
+
+### R5 — Isolated full-stack Playwright (November 12, 2026)
+
+- [x] Add a separate locked Playwright Chromium package and local-only launcher; start real Vite, compiled Express and isolated Supabase services in CI.
+- [x] Add browser scenarios for real login, six stages, save/retry, reload, edit, PNG file signatures and dimensions, sign-out/re-login, separate account isolation, PT/EN and mobile login/error feedback.
+- [x] Use disposable local accounts with cleanup, loopback-only URLs, no hosted credentials and no trace/video/screenshot recording of authentication.
+- [x] Document local usage and exact scope in [e2e/README.md](../e2e/README.md).
+- [ ] Confirm the new full-stack CI actually passes and owner review/merge in [Issue #49](https://github.com/AlexandroLeao/rpg-character-creator/issues/49).
+
+No runtime UI or auth change, production settings, migrations or hosted data. One intentionally simulated save failure is followed by real persistence; the remaining authentication/character operations use the local stack. The API runs as a compiled Node process; the API Docker smoke remains separate. R6–R7 remain pending. Existing MVP tests and safeguards are not proof of future improvements. Issues #30 (future admin/RBAC) and #32 (analytics) are separate product research, outside this cycle.
 
 ## Constraints
 
