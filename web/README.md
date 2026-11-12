@@ -101,6 +101,8 @@ npm run build
 
 ## Verification and Release
 
+**Latest verified baseline:** [Frontend Checks on November 5, 2026](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/42101618668) at `fea7ac8` passed **183 tests across 20 files**, ESLint and the production build. The original job log was reviewed on November 12. See the [post-MVP engineering baseline](../docs/post-mvp-engineering.md); the older acceptance results below remain historical.
+
 Developer-reported desktop/mobile, PT/EN, keyboard/reduced-motion, six-stage creator, save/edit/delete and PNG Story/Portrait QA passed. At merged `main` commit `0b22f48` on November 4, CI passed **180 frontend tests across 20 files**, **107 API tests** (2 opt-in integration tests skipped by default), frontend/API lint and builds, and database security/pgTAP. The creator also reported a successful desktop/mobile PT/EN signup-terms acceptance and real new-account creation test.
 
 On November 3–4, hosted staging testing confirmed the Vercel `/api` rewrite to Render and the `/reset-password` SPA fallback. The developer reported successful Gmail SMTP recovery, expired/used-code rejection, per-tab session isolation, and two-account ownership checks. Read-only hosted database migration/RLS checks also passed. These manual results are not equivalent to a formal penetration test or production-scale email certification.
