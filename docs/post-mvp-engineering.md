@@ -49,10 +49,20 @@ The accepted release uses one documented **Vercel Hobby + Render Free + Supabase
 - [x] Add an early no-store response policy for the character and account namespaces; preserve public health and the existing API contract.
 - [x] Restrict unexpected-error and account-deletion logging to fixed event identifiers; add synthetic regression assertions.
 - [x] Add and extend Supertest checks for private success/error responses, including malformed/oversized JSON and CORS preflight.
-- [ ] Confirm API CI and owner review/merge in [Issue #43](https://github.com/AlexandroLeao/rpg-character-creator/issues/43).
+- [x] [PR #44](https://github.com/AlexandroLeao/rpg-character-creator/pull/44) merged November 12; [Issue #43](https://github.com/AlexandroLeao/rpg-character-creator/issues/43) closed. Merge `f6f3102`; [API CI on main](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43230655232) passed 117 tests (+2 opt-in skipped), lint and build.
 - [ ] After merge and confirmed deployment, verify public health and non-authenticated private response headers without accessing real user data.
 
-R2 is proposed on a separate branch, not yet merged or verified in the hosted environment. R3–R7 remain pending. Existing MVP tests and safeguards are not proof of the future improvements. Issues #30 (future admin/RBAC) and #32 (analytics) are separate product research, outside this cycle.
+R2 is integrated. Live response-header smoke remains pending; the prior review could not access the published URLs. The owner can verify without credentials from a network that can reach the service. R3 can proceed independently because it changes documentation and tests only.
+
+### R3 — OpenAPI contract (November 12, 2026)
+
+- [x] Describe all five existing HTTP operations in [OpenAPI 3.1 JSON](../api/openapi.json), using the local server and fictional examples.
+- [x] Document Bearer authentication, current write catalog, legacy read data, status codes, no-store headers and existing account-deletion/CAPTCHA behavior.
+- [x] Add a contract regression suite covering local references, examples, catalog parity and selected HTTP responses with mocked services. This is a bounded check, not full OpenAPI conformance validation.
+- [x] Link the specification and usage instructions from the root and API READMEs.
+- [ ] Confirm API CI and owner review/merge in [Issue #45](https://github.com/AlexandroLeao/rpg-character-creator/issues/45).
+
+No runtime API, dependencies, frontend, database or deployment configuration is changed in R3. R4–R7 remain pending. Existing MVP tests and safeguards are not proof of future improvements. Issues #30 (future admin/RBAC) and #32 (analytics) are separate product research, outside this cycle.
 
 ## Constraints
 
