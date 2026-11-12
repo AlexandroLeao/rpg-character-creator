@@ -13,6 +13,13 @@ const allowedOrigins = (
 
 app.disable('x-powered-by')
 
+// Apply before CORS, parsing and authentication so private route errors
+// and successful responses follow the same cache policy.
+app.use(['/api/characters', '/api/account'], (_req, res, next) => {
+  res.set('Cache-Control', 'no-store')
+  next()
+})
+
 app.use(
   cors({
     origin: allowedOrigins,
@@ -50,7 +57,9 @@ const errorHandler: ErrorRequestHandler = (
     return
   }
 
-  console.error('Unhandled API error:', error)
+  // Exceptions can carry request bodies, headers or upstream details.
+  // Keep server logs limited to a stable, non-sensitive event identifier.
+  console.error('[api] unhandled_error')
 
   res.status(500).json({
     error: 'Internal server error',
