@@ -126,6 +126,52 @@ Do not disable CORS restrictions to bypass configuration errors.
 
 CORS is a browser access policy. It does not replace authentication or database authorization.
 
+## Local Docker execution (R4)
+
+The [Dockerfile](Dockerfile) builds the existing Express API using the official Node 24 Debian slim base, consistent with API CI. It installs dependencies from the committed lockfile, compiles TypeScript in a separate build stage and copies only the compiled output and production dependencies into the non-root runtime image. The Node major and OS variant are explicit; the tag follows upstream patch updates and is not an immutable digest. The restricted [.dockerignore](.dockerignore) excludes local configuration and test/build artifacts. No frontend or hosted service is changed.
+
+From the repository root on a machine with a running Docker engine:
+
+```bash
+docker build -t adventure-files-api:local api
+docker run --rm --name adventure-files-api-local \
+  -p 127.0.0.1:3000:3000 adventure-files-api:local
+```
+
+The API starts without Supabase configuration for public liveness and unauthenticated requests. In another terminal:
+
+```bash
+curl -i http://127.0.0.1:3000/api/health
+curl -i http://127.0.0.1:3000/api/characters/me
+docker inspect --format '{{.State.Health.Status}}' adventure-files-api-local
+docker stop adventure-files-api-local
+```
+
+Expected: health 200, unauthenticated character request 401 with no-store, and Docker health `healthy` after the first successful probe. Health is process liveness only, not a database readiness check. If port 3000 is busy, use another **host** port (for example `127.0.0.1:3001:3000`) and adjust the test URL. The stopped container is removed by `--rm`; optionally remove your local image with `docker image rm adventure-files-api:local`. Do not run a global Docker prune.
+
+The automated smoke script can run the same checks on a local Linux/macOS shell with Docker and curl, or on the standard GitHub Actions runner:
+
+```bash
+bash api/scripts/smoke-container.sh
+```
+
+It uses an ephemeral loopback port and isolated image tag, waits for the real Docker healthcheck, checks Node major, non-root UID, compiled output and absence of development tools, then tests HTTP 200/401 and no-store. Cleanup removes only its own container/tag and temporary files. It does not use credentials, contact hosted Supabase or certify authenticated end-to-end behavior.
+
+### Optional local Supabase integration
+
+Use the existing [local Supabase instructions](../supabase/README.md) and CLI migrations. The API container's loopback is not the host's loopback. If running both services in Docker, start the local Supabase stack on a dedicated Docker network (see [Supabase local development](https://supabase.com/docs/guides/local-development)); join the API container to that same network with `--network`. Inspect the local network and API gateway container name/listening port before setting `SUPABASE_URL` to its **internal local** address. Do not use a hosted project URL, production keys, or link/push/reset the hosted database. The browser frontend still uses the host-accessible local Supabase URL.
+
+Pass only local development keys at runtime via a gitignored env file (for example `api/.env.docker.local`), never build arguments, Dockerfile ENV secrets, or image layers. Set `PORT=3000`, local `CORS_ORIGIN`, `SUPABASE_URL`, and the local publishable/anon key as `SUPABASE_PUBLISHABLE_KEY`. Only if testing account deletion locally, use the local secret/service-role value as `SUPABASE_SECRET_KEY`. Run with the confirmed network and env file:
+
+```bash
+docker run --rm --name adventure-files-api-local \
+  --network <local-supabase-network> \
+  --env-file api/.env.docker.local \
+  -p 127.0.0.1:3000:3000 adventure-files-api:local
+```
+
+Replace the network placeholder before running. Stop the API with `docker stop adventure-files-api-local`, and stop your local Supabase stack with `supabase stop` from the root. Do not expose the development stack publicly. The database pgTAP suite and the existing opt-in Express/Supabase integration suite can be run separately as documented; this Docker smoke is intentionally credential-free. Authenticated container-to-Supabase end-to-end flows are a separate future validation, not claimed by this PR.
+
 ## Authentication
 
 The API uses Supabase Auth to validate user access tokens.
