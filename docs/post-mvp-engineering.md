@@ -60,9 +60,19 @@ R2 is integrated. Live response-header smoke remains pending; the prior review c
 - [x] Document Bearer authentication, current write catalog, legacy read data, status codes, no-store headers and existing account-deletion/CAPTCHA behavior.
 - [x] Add a contract regression suite covering local references, examples, catalog parity and selected HTTP responses with mocked services. This is a bounded check, not full OpenAPI conformance validation.
 - [x] Link the specification and usage instructions from the root and API READMEs.
-- [ ] Confirm API CI and owner review/merge in [Issue #45](https://github.com/AlexandroLeao/rpg-character-creator/issues/45).
+- [x] [PR #46](https://github.com/AlexandroLeao/rpg-character-creator/pull/46) merged November 12; [Issue #45](https://github.com/AlexandroLeao/rpg-character-creator/issues/45) closed. Merge `ea429e2`; [PR API CI](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43231612017) passed 133 tests (16 OpenAPI cases included; 2 opt-in skipped), lint and build.
 
-No runtime API, dependencies, frontend, database or deployment configuration is changed in R3. R4–R7 remain pending. Existing MVP tests and safeguards are not proof of future improvements. Issues #30 (future admin/RBAC) and #32 (analytics) are separate product research, outside this cycle.
+No runtime API, dependencies, frontend, database or deployment configuration was changed in R3.
+
+### R4 — Local API Docker container (November 12, 2026)
+
+- [x] Add a multi-stage Node 24 Debian slim [Dockerfile](../api/Dockerfile), lockfile installation, non-root runtime, production-only dependencies and HTTP healthcheck.
+- [x] Restrict build context via `.dockerignore`; pass local environment values only at runtime.
+- [x] Add a reusable smoke script and separate GitHub Actions Docker workflow on a standard Linux runner. It builds a real container and checks health, non-root UID, Node version, compiled output and unauthenticated no-store responses.
+- [x] Document local execution, cleanup, optional Supabase network configuration and existing isolated database test commands.
+- [ ] Confirm API, Docker and applicable database checks plus owner review/merge in [Issue #47](https://github.com/AlexandroLeao/rpg-character-creator/issues/47).
+
+No deployed service, dependency manifest, runtime route or migration is changed in R4. The Docker smoke is credential-free; actual authenticated container-to-Supabase flows are not claimed. R5–R7 remain pending. Existing MVP tests and safeguards are not proof of future improvements. Issues #30 (future admin/RBAC) and #32 (analytics) are separate product research, outside this cycle.
 
 ## Constraints
 
