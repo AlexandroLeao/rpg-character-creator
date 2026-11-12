@@ -15,8 +15,6 @@ export const accountRouter = Router()
  * No user ID or email is accepted from the request body.
  */
 accountRouter.delete('/me', requireAuth, async (req, res) => {
-  res.set('Cache-Control', 'no-store')
-
   const body: unknown = req.body
 
   if (
@@ -101,14 +99,8 @@ accountRouter.delete('/me', requireAuth, async (req, res) => {
       await admin.auth.admin.deleteUser(userId)
 
     if (deleteError) {
-      console.error('[account-delete] admin_delete_rejected', {
-        status: typeof deleteError.status === 'number'
-          ? deleteError.status
-          : null,
-        code: 'code' in deleteError && typeof deleteError.code === 'string'
-          ? deleteError.code
-          : 'unknown',
-      })
+      // Do not log untrusted provider error fields or account information.
+      console.error('[account-delete] admin_delete_rejected')
       res.status(503).json({
         error: 'Account deletion unavailable',
       })
