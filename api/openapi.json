@@ -1,0 +1,1044 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Adventure Files API",
+    "version": "1.0.0",
+    "description": "Version-controlled HTTP contract for the existing Express API. Authentication is managed separately by Supabase Auth. Examples are fictional; use isolated local test accounts only, never execute destructive requests against the public demo. The contract describes intended application responses, not every possible network/proxy error. JSON parsing is limited to 16 KiB; existing malformed JSON returns 400 and other unhandled parsing errors currently return 500."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local Express development server only"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Health"
+    },
+    {
+      "name": "Characters"
+    },
+    {
+      "name": "Account"
+    }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "getHealth",
+        "tags": [
+          "Health"
+        ],
+        "summary": "Check API availability",
+        "description": "Public liveness check; does not verify the database or authentication service.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "API process is available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                },
+                "example": {
+                  "status": "ok",
+                  "service": "rpg-character-creator-api"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/characters/me": {
+      "get": {
+        "operationId": "getCharacter",
+        "tags": [
+          "Characters"
+        ],
+        "summary": "Read the current user's character",
+        "description": "Identity comes from a verified Supabase Bearer token, not a query parameter. Older stored records may contain legacy catalog values or null motivation.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Character belonging to the verified account.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterEnvelope"
+                },
+                "example": {
+                  "character": {
+                    "id": "11111111-1111-4111-8111-111111111111",
+                    "name": "Eldrin",
+                    "characterClass": "mage",
+                    "ancestry": "elf",
+                    "background": "scholar",
+                    "weapon": "staff",
+                    "artifact": "moon-crystal",
+                    "personality": "curious",
+                    "aura": "arcane",
+                    "companion": "owl",
+                    "motivation": "knowledge",
+                    "createdAt": "2026-10-29T10:00:00Z",
+                    "updatedAt": "2026-10-29T10:00:00Z"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, malformed, invalid or expired Bearer token, or unavailable verified identity.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated user has not confirmed their email.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Email verification required"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No visible character exists for the verified owner.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Character not found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected application error, including the current generic response to an oversized JSON body.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Internal server error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Authentication provider or character storage unavailable.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "case1": {
+                    "value": {
+                      "error": "Authentication service unavailable"
+                    }
+                  },
+                  "case2": {
+                    "value": {
+                      "error": "Character storage unavailable"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "saveCharacter",
+        "tags": [
+          "Characters"
+        ],
+        "summary": "Create or update the current user's character",
+        "description": "One character per verified account. All ten fields are required; unknown fields are rejected. The server trims the name and validates the current catalog. A concurrent insert may become an update or return 409.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Complete character selections using current catalog slugs.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CharacterInput"
+              },
+              "example": {
+                "name": "Eldrin",
+                "characterClass": "mage",
+                "ancestry": "elf",
+                "background": "scholar",
+                "weapon": "staff",
+                "artifact": "moon-crystal",
+                "personality": "curious",
+                "aura": "arcane",
+                "companion": "owl",
+                "motivation": "knowledge"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Character belonging to the verified account.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterEnvelope"
+                },
+                "example": {
+                  "character": {
+                    "id": "11111111-1111-4111-8111-111111111111",
+                    "name": "Eldrin",
+                    "characterClass": "mage",
+                    "ancestry": "elf",
+                    "background": "scholar",
+                    "weapon": "staff",
+                    "artifact": "moon-crystal",
+                    "personality": "curious",
+                    "aura": "arcane",
+                    "companion": "owl",
+                    "motivation": "knowledge",
+                    "createdAt": "2026-10-29T10:00:00Z",
+                    "updatedAt": "2026-10-29T10:00:00Z"
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "New character created.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CharacterEnvelope"
+                },
+                "example": {
+                  "character": {
+                    "id": "11111111-1111-4111-8111-111111111111",
+                    "name": "Eldrin",
+                    "characterClass": "mage",
+                    "ancestry": "elf",
+                    "background": "scholar",
+                    "weapon": "staff",
+                    "artifact": "moon-crystal",
+                    "personality": "curious",
+                    "aura": "arcane",
+                    "companion": "owl",
+                    "motivation": "knowledge",
+                    "createdAt": "2026-10-29T10:00:00Z",
+                    "updatedAt": "2026-10-29T10:00:00Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid character payload or malformed JSON.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/Error"
+                    },
+                    {
+                      "$ref": "#/components/schemas/CharacterValidationError"
+                    }
+                  ]
+                },
+                "examples": {
+                  "malformed": {
+                    "value": {
+                      "error": "Invalid JSON body"
+                    }
+                  },
+                  "invalid": {
+                    "value": {
+                      "error": "Invalid character data",
+                      "details": {
+                        "motivation": "Invalid motivation selection."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, malformed, invalid or expired Bearer token, or unavailable verified identity.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated user has not confirmed their email.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Email verification required"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Concurrent character change; retry the request.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Character changed. Please retry."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected application error, including the current generic response to an oversized JSON body.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Internal server error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Authentication provider or character storage unavailable.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "case1": {
+                    "value": {
+                      "error": "Authentication service unavailable"
+                    }
+                  },
+                  "case2": {
+                    "value": {
+                      "error": "Character storage unavailable"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteCharacter",
+        "tags": [
+          "Characters"
+        ],
+        "summary": "Delete the current user's character",
+        "description": "Idempotent for the verified owner. This does not delete the user account.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Character deleted, or no character existed. No response body.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, malformed, invalid or expired Bearer token, or unavailable verified identity.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Authenticated user has not confirmed their email.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Email verification required"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected application error, including the current generic response to an oversized JSON body.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Internal server error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Authentication provider or character storage unavailable.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "case1": {
+                    "value": {
+                      "error": "Authentication service unavailable"
+                    }
+                  },
+                  "case2": {
+                    "value": {
+                      "error": "Character storage unavailable"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/account/me": {
+      "delete": {
+        "operationId": "deleteAccount",
+        "tags": [
+          "Account"
+        ],
+        "summary": "Permanently delete the current user's account",
+        "description": "Irreversible self-service deletion. Requires a verified Bearer token, current password and explicit DELETE confirmation; pass a fresh CAPTCHA token when Supabase protection is configured. The server uses only the verified session identity and ignores extra body fields. Successful deletion cascades to the owned character.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "JSON body required by the existing DELETE endpoint; some clients need explicit support for DELETE bodies. Never use real credentials in examples.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccountDeletionInput"
+              },
+              "example": {
+                "password": "fictional-local-test-password",
+                "confirmation": "DELETE",
+                "captchaToken": "fictional-local-test-token"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Account deletion acknowledged by the provider. No response body.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body or malformed JSON.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "case1": {
+                    "value": {
+                      "error": "Invalid request"
+                    }
+                  },
+                  "case2": {
+                    "value": {
+                      "error": "Invalid JSON body"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, malformed, invalid or expired Bearer token, or unavailable verified identity.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Unauthorized"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Unverified email or failed password/CAPTCHA/identity confirmation.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "case1": {
+                    "value": {
+                      "error": "Email verification required"
+                    }
+                  },
+                  "case2": {
+                    "value": {
+                      "error": "Identity confirmation failed"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Verified account email unavailable.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Account cannot be verified"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected application error, including the current generic response to an oversized JSON body.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Internal server error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Authentication provider or account deletion unavailable.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "case1": {
+                    "value": {
+                      "error": "Authentication service unavailable"
+                    }
+                  },
+                  "case2": {
+                    "value": {
+                      "error": "Account deletion unavailable"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Supabase access token for an authenticated, email-confirmed user."
+      }
+    },
+    "headers": {
+      "NoStore": {
+        "description": "Private API response must not be stored.",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "const": "no-store"
+        }
+      }
+    },
+    "schemas": {
+      "Health": {
+        "type": "object",
+        "required": [
+          "status",
+          "service"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok"
+          },
+          "service": {
+            "type": "string",
+            "const": "rpg-character-creator-api"
+          }
+        }
+      },
+      "CharacterInput": {
+        "type": "object",
+        "required": [
+          "name",
+          "characterClass",
+          "ancestry",
+          "background",
+          "weapon",
+          "artifact",
+          "personality",
+          "aura",
+          "companion",
+          "motivation"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]*$",
+            "description": "Server trims surrounding whitespace; the trimmed name must contain 2–32 Unicode code points. Control characters are rejected even before trimming. The server remains authoritative for normalized length."
+          },
+          "characterClass": {
+            "type": "string",
+            "enum": [
+              "warrior",
+              "paladin",
+              "mage",
+              "rogue",
+              "ranger",
+              "druid",
+              "cleric",
+              "bard"
+            ]
+          },
+          "ancestry": {
+            "type": "string",
+            "enum": [
+              "human",
+              "elf",
+              "dwarf",
+              "orc",
+              "fae",
+              "construct"
+            ]
+          },
+          "background": {
+            "type": "string",
+            "enum": [
+              "noble",
+              "scholar",
+              "wanderer",
+              "guardian",
+              "artisan",
+              "outlaw"
+            ]
+          },
+          "weapon": {
+            "type": "string",
+            "enum": [
+              "sword",
+              "bow",
+              "staff",
+              "dagger",
+              "axe",
+              "spear",
+              "hammer",
+              "wand"
+            ]
+          },
+          "artifact": {
+            "type": "string",
+            "enum": [
+              "arcane-seal",
+              "ancient-ring",
+              "moon-crystal",
+              "runic-compass",
+              "shadow-crown",
+              "phoenix-feather",
+              "chaos-orb",
+              "sun-relic"
+            ]
+          },
+          "personality": {
+            "type": "string",
+            "enum": [
+              "brave",
+              "curious",
+              "loyal",
+              "cunning",
+              "kind",
+              "stoic",
+              "rebellious",
+              "mysterious"
+            ]
+          },
+          "aura": {
+            "type": "string",
+            "enum": [
+              "fire",
+              "ice",
+              "nature",
+              "shadow",
+              "light",
+              "storm",
+              "arcane",
+              "void"
+            ]
+          },
+          "companion": {
+            "type": "string",
+            "enum": [
+              "none",
+              "wolf",
+              "owl",
+              "cat",
+              "fox",
+              "raven",
+              "turtle",
+              "dragon"
+            ]
+          },
+          "motivation": {
+            "type": "string",
+            "enum": [
+              "protection",
+              "freedom",
+              "justice",
+              "redemption",
+              "glory",
+              "knowledge",
+              "revenge",
+              "adventure"
+            ]
+          }
+        }
+      },
+      "Character": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "characterClass",
+          "ancestry",
+          "background",
+          "weapon",
+          "artifact",
+          "personality",
+          "aura",
+          "companion",
+          "motivation",
+          "createdAt",
+          "updatedAt"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "characterClass": {
+            "type": "string",
+            "description": "Stored slug; legacy values may be returned. Current write options are specified by CharacterInput."
+          },
+          "ancestry": {
+            "type": "string",
+            "description": "Stored slug; legacy values may be returned. Current write options are specified by CharacterInput."
+          },
+          "background": {
+            "type": "string",
+            "description": "Stored slug; legacy values may be returned. Current write options are specified by CharacterInput."
+          },
+          "weapon": {
+            "type": "string",
+            "description": "Stored slug; legacy values may be returned. Current write options are specified by CharacterInput."
+          },
+          "artifact": {
+            "type": "string",
+            "description": "Stored slug; legacy values may be returned. Current write options are specified by CharacterInput."
+          },
+          "personality": {
+            "type": "string",
+            "description": "Stored slug; legacy values may be returned. Current write options are specified by CharacterInput."
+          },
+          "aura": {
+            "type": "string",
+            "description": "Stored slug; legacy values may be returned. Current write options are specified by CharacterInput."
+          },
+          "companion": {
+            "type": "string",
+            "description": "Stored slug; legacy values may be returned. Current write options are specified by CharacterInput."
+          },
+          "motivation": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Legacy stored characters may have null motivation."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CharacterEnvelope": {
+        "type": "object",
+        "required": [
+          "character"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "character": {
+            "$ref": "#/components/schemas/Character"
+          }
+        }
+      },
+      "AccountDeletionInput": {
+        "type": "object",
+        "required": [
+          "password",
+          "confirmation"
+        ],
+        "additionalProperties": true,
+        "properties": {
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024,
+            "writeOnly": true,
+            "description": "Current password; server enforces a maximum of 1024 JavaScript UTF-16 code units."
+          },
+          "confirmation": {
+            "type": "string",
+            "const": "DELETE"
+          },
+          "captchaToken": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "writeOnly": true,
+            "description": "Fresh proof when CAPTCHA is configured; server enforces a maximum of 4096 UTF-16 code units."
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "CharacterValidationError": {
+        "type": "object",
+        "required": [
+          "error",
+          "details"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "error": {
+            "type": "string",
+            "const": "Invalid character data"
+          },
+          "details": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

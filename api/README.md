@@ -4,6 +4,16 @@ REST API for the Adventure Files character-creator application.
 
 Built with Node.js, Express, TypeScript, and Supabase Auth.
 
+## OpenAPI contract (R3)
+
+The machine-readable [OpenAPI 3.1 specification](openapi.json) documents the five existing HTTP operations, local server, Bearer authentication, request/response schemas, expected status codes, error examples and private-response `Cache-Control: no-store` headers. The API implementation remains authoritative for runtime behavior. Supabase Auth itself is not exposed as an Express login endpoint.
+
+Open `api/openapi.json` in an OpenAPI-compatible local editor or viewer. Examples are fictional; the specified server is `http://localhost:3000`, not the public demo. Do not send real credentials or execute account/character deletion against hosted accounts. No new documentation route or Swagger UI deployment is provided.
+
+The current write catalog is separate from the read model, which permits legacy stored slugs and nullable Motivation. The server still checks trimmed name length, JavaScript string limits, verified identity and CAPTCHA configuration. The existing DELETE account request accepts a JSON body; clients must support that existing behavior. Unexpected oversized JSON currently returns the existing generic 500 response, not a new 413 contract.
+
+Run `npm test` or `npx vitest run src/openapi.test.ts` from `api/` to check local references, documented examples against the schema keywords used here, catalog parity and selected actual Express HTTP responses with mocked services. These checks are intentionally bounded and not a full standards-conformance validator or hosted integration test. Existing route tests remain authoritative for additional error cases. When changing a route or catalog, update the contract and regression tests in the same PR.
+
 ## Technology Stack
 
 - Node.js 24
@@ -15,6 +25,7 @@ Built with Node.js, Express, TypeScript, and Supabase Auth.
 - ESLint
 - Vitest
 - Supertest
+- OpenAPI 3.1 (version-controlled contract)
 - GitHub Actions
 
 ## Project Status
@@ -581,7 +592,9 @@ npm test
 
 The November 5, 2026 [API Checks run](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/42101618812) at `fea7ac8` passed **108 tests across 9 files**; **2 opt-in local integration tests in a tenth file were skipped by design**. Lint and build also passed. The original job log was reviewed on November 12; this is not a new local execution. See the [post-MVP engineering baseline](../docs/post-mvp-engineering.md).
 
-### Test Organization
+The R2 merge `f6f3102` on November 12 passed **117 API tests + 2 opt-in skipped**, ESLint and build ([CI](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43230655232)). The table below is the historical November 5 breakdown; R2 added nine app-level cases and R3 adds a separate OpenAPI contract suite. See the latest CI for the current total.
+
+### Historical Test Organization — November 5
 
 | Test File | Tests |
 |---|---:|
