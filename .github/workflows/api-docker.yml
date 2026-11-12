@@ -1,0 +1,26 @@
+name: API Docker Checks
+
+on:
+  pull_request:
+    paths:
+      - "api/**"
+      - ".github/workflows/api-docker.yml"
+  push:
+    branches: [main]
+    paths:
+      - "api/**"
+      - ".github/workflows/api-docker.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  docker:
+    name: Build and smoke-test API container
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Build and verify container
+        run: bash api/scripts/smoke-container.sh
