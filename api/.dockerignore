@@ -1,0 +1,18 @@
+# Allow only files needed to compile the API.
+**
+!package.json
+!package-lock.json
+!tsconfig.json
+!src
+!src/**
+# Keep tests and sensitive/local material out of the build context.
+**/*.test.ts
+**/.env
+**/.env.*
+**/.npmrc
+**/*.pem
+**/*.key
+**/*.p12
+**/*.log
+**/node_modules
+**/dist
