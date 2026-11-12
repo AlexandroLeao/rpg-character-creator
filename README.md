@@ -248,6 +248,7 @@ The project does not include character gender selection, combat mechanics, or re
 
 - [Free Portfolio Release Runbook](docs/free-portfolio-release.md) — historical release gates, owner acceptance evidence, and zero-cost hosting risk decisions.
 - [Post-MVP Engineering Roadmap](docs/post-mvp-engineering.md) — dated CI evidence and the separate R1–R7 improvement cycle.
+- [OpenAPI 3.1 API contract](api/openapi.json) — five existing operations, local examples and schemas; see [API documentation](api/README.md) for usage and validation.
 - [Project Overview](docs/project-overview.md)
 - [System Requirements](docs/requirements.md)
 - [Customization Catalog](docs/customization-catalog.md)
