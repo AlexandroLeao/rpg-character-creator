@@ -68,6 +68,7 @@ describe('DELETE /api/account/me', () => {
       .send({ password: 'password', confirmation: 'DELETE' })
 
     expect(response.status).toBe(401)
+    expect(response.headers['cache-control']).toBe('no-store')
     expect(mocks.deleteUser).not.toHaveBeenCalled()
   })
 
@@ -80,6 +81,7 @@ describe('DELETE /api/account/me', () => {
     const response = await deletionRequest()
 
     expect(response.status).toBe(401)
+    expect(response.headers['cache-control']).toBe('no-store')
     expect(mocks.signInWithPassword).not.toHaveBeenCalled()
     expect(mocks.deleteUser).not.toHaveBeenCalled()
   })
@@ -111,6 +113,7 @@ describe('DELETE /api/account/me', () => {
         .set('Authorization', 'Bearer verified-owner-token')
         .send(body)
       expect(response.status).toBe(400)
+      expect(response.headers['cache-control']).toBe('no-store')
     }
     expect(mocks.signInWithPassword).not.toHaveBeenCalled()
     expect(mocks.deleteUser).not.toHaveBeenCalled()
@@ -124,6 +127,7 @@ describe('DELETE /api/account/me', () => {
 
     const response = await deletionRequest()
     expect(response.status).toBe(403)
+    expect(response.headers['cache-control']).toBe('no-store')
     expect(response.body).toEqual({
       error: 'Identity confirmation failed',
     })
@@ -140,6 +144,7 @@ describe('DELETE /api/account/me', () => {
 
     const response = await deletionRequest()
     expect(response.status).toBe(403)
+    expect(response.headers['cache-control']).toBe('no-store')
     expect(mocks.signInWithPassword).toHaveBeenCalledWith({
       email: 'owner@example.test',
       password: 'correct-owner-password',
@@ -189,6 +194,7 @@ describe('DELETE /api/account/me', () => {
     })
     const response = await deletionRequest()
     expect(response.status).toBe(503)
+    expect(response.headers['cache-control']).toBe('no-store')
     expect(response.text).not.toContain('Configuration missing')
     expect(mocks.deleteUser).not.toHaveBeenCalled()
     expect(log).toHaveBeenCalledWith('[account-delete] admin_client_unavailable')
@@ -200,18 +206,17 @@ describe('DELETE /api/account/me', () => {
       data: { user: null },
       error: Object.assign(new Error('Private database details'), {
         status: 500,
-        code: 'database_error',
+        code: 'synthetic-private-provider-code',
       }),
     })
 
     const response = await deletionRequest()
     expect(response.status).toBe(503)
+    expect(response.headers['cache-control']).toBe('no-store')
     expect(response.text).not.toContain('Private database details')
-    expect(log).toHaveBeenCalledWith('[account-delete] admin_delete_rejected', {
-      status: 500,
-      code: 'database_error',
-    })
+    expect(log.mock.calls).toEqual([['[account-delete] admin_delete_rejected']])
     expect(JSON.stringify(log.mock.calls)).not.toContain('Private database details')
+    expect(JSON.stringify(log.mock.calls)).not.toContain('synthetic-private-provider-code')
   })
 
   it('handles auth service exceptions without exposing internals', async () => {
@@ -221,6 +226,7 @@ describe('DELETE /api/account/me', () => {
     )
     const response = await deletionRequest()
     expect(response.status).toBe(503)
+    expect(response.headers['cache-control']).toBe('no-store')
     expect(response.text).not.toContain('private authentication information')
     expect(mocks.deleteUser).not.toHaveBeenCalled()
     expect(log).toHaveBeenCalledWith('[account-delete] password_verification_exception')
