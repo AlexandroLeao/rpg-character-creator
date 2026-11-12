@@ -4,6 +4,20 @@
 **Baseline commit:** `fea7ac86ea8c0caadf099f3c881d9e44b8640c03` (merged November 5, 2026).  
 **Prerequisite:** developer portfolio quality/documentation cycle completed; [portfolio PR #114](https://github.com/AlexandroLeao/developer-portfolio/pull/114) merged.
 
+## Current verified status — November 12, 2026
+
+R1–R5 merged through `348bc83`. R2 code and CI are complete; the direct Render/proxy HTTP smoke is still pending. R6 is optional and recommended for deferral unless a concrete risk or operational need emerges; R7 is the next portfolio milestone after owner review. No new product scope or paid service is proposed.
+
+| Latest applicable main check | Verified result | Evidence |
+|---|---|---|
+| Frontend | 183 passed / 20 files; lint/build passed | [R1 main](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43227874332) |
+| API | 133 passed / 10 files; 2 opt-in skipped / 1 file; lint/build passed | [R4 main](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43233078424) |
+| Database | 39 pgTAP assertions / 2 files | [R4 main](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43233078236) |
+| API Docker | Real build and non-root health/401/no-store smoke passed | [R4 main](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43233078118) |
+| Full-stack E2E | 3 passed in 10.2s, including both PNGs and local account separation | [R5 main](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43235672788) |
+
+**358 passing tests/assertions across distinct suites/runs**, not a single combined run or a coverage percentage. Two opt-in API integration tests are skipped by default; the full-stack suite is separate. Five workflows use path filters. No fresh npm audit, live auth or hosted database inspection was performed. The API Docker smoke is credential-free, not authenticated container-to-Supabase testing.
+
 ## R1 — Technical baseline and prioritization
 
 The MVP was accepted by the owner on November 5, 2026 ([release #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24), [post-MVP assurance #31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31)). The following engineering cycle does not reopen the product release or change its approved appearance or rules.
@@ -17,7 +31,7 @@ The MVP was accepted by the owner on November 5, 2026 ([release #24](https://git
 
 Original workflow job logs were inspected on November 12. No Supabase files or database workflow changed between `0b22f48` and `fea7ac8`. These are dated CI results, not newly executed local tests, a fresh database test, or independent proof of current live behavior. The two opt-in local integration tests were intentionally skipped in default API CI; they must only be run against an isolated local Supabase instance.
 
-The repository includes two versioned SQL migrations, separate frontend/API/database workflows, typed React and Express applications, tests, and technical documentation. OpenAPI, a backend Dockerfile/Compose, and Playwright full-stack browser coverage are not implemented in the reviewed tree. The prior development-dependency audit in the release runbook remains historical; no new npm audit was run during this read-only review.
+The repository includes two versioned SQL migrations, separate frontend/API/database workflows, typed React and Express applications, tests, and technical documentation. At the historical R1 baseline, OpenAPI, a backend Dockerfile and full-stack Playwright were absent; R3–R5 subsequently implemented them. The prior development-dependency audit in the release runbook remains historical; no new npm audit was run during this read-only review.
 
 ### Deployment and operational boundaries
 
@@ -80,9 +94,21 @@ No deployed service, dependency manifest, runtime route or migration was changed
 - [x] Add browser scenarios for real login, six stages, save/retry, reload, edit, PNG file signatures and dimensions, sign-out/re-login, separate account isolation, PT/EN and mobile login/error feedback.
 - [x] Use disposable local accounts with cleanup, loopback-only URLs, no hosted credentials and no trace/video/screenshot recording of authentication.
 - [x] Document local usage and exact scope in [e2e/README.md](../e2e/README.md).
-- [ ] Confirm the new full-stack CI actually passes and owner review/merge in [Issue #49](https://github.com/AlexandroLeao/rpg-character-creator/issues/49).
+- [x] [PR #50](https://github.com/AlexandroLeao/rpg-character-creator/pull/50) merged; [Issue #49](https://github.com/AlexandroLeao/rpg-character-creator/issues/49) closed. Initial [run](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43233773537) passed two scenarios and failed at a sign-out assertion after PNG verification. Corrected only the test in `cf91a7d` to follow the existing PRESS START behavior. [PR run](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43234975048) passed 3/3 in 8.6s; [main run](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43235672788) passed 3/3 in 10.2s after merge `348bc83`. Both migrations applied and local stack cleanup passed.
 
-No runtime UI or auth change, production settings, migrations or hosted data. One intentionally simulated save failure is followed by real persistence; the remaining authentication/character operations use the local stack. The API runs as a compiled Node process; the API Docker smoke remains separate. R6–R7 remain pending. Existing MVP tests and safeguards are not proof of future improvements. Issues #30 (future admin/RBAC) and #32 (analytics) are separate product research, outside this cycle.
+No runtime UI or auth change, production settings, migrations or hosted data. One intentionally simulated save failure is followed by real persistence; the remaining authentication/character operations use the local stack. The API runs as a compiled Node process; the API Docker smoke remains separate. R6 remains optional and R7 pending. Existing MVP tests and safeguards are not proof of future improvements. Issues #30 (future admin/RBAC) and #32 (analytics) are separate product research, outside this cycle.
+
+### R6 — Recommended decision (owner review)
+
+- [ ] Confirm the recommendation to defer CSP, app-level rate limiting and wider observability unless real risk, failures or usage justify a separately scoped change. R2 already minimizes sensitive error logging. A CSP rollout would need compatibility testing (including Turnstile); a limiter must not disrupt legitimate users behind proxies. No policy or runtime change is proposed here.
+- [ ] Close the separate R2 published smoke by checking the Render Live revision (R2 merge or a descendant) and GET /api/health (200) and GET /api/characters/me (401 + no-store) directly and via Vercel, without credentials. Prior external network access failed; no hosted success is claimed.
+
+### R7 — Next portfolio milestone
+
+- [ ] After owner review of this documentation, update the portfolio once with verified OpenAPI, Docker and full-stack Playwright evidence, bilingual project descriptions and accurate technology classifications. Do not claim new framework or cloud deployment skills that were not demonstrated.
+- [ ] Run portfolio checks and owner review/merge, then select a suitably scoped external open-source contribution.
+
+The earlier application-gap review supports consolidating Docker and browser-testing evidence rather than rewriting the accepted RPG for new framework keywords. Next.js/NestJS, Python/FastAPI and cloud fundamentals can be pursued separately after the agreed portfolio/open-source milestones. No paid AWS account or new infrastructure is required.
 
 ## Constraints
 
