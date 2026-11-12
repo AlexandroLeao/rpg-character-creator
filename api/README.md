@@ -571,7 +571,7 @@ Run:
 npm test
 ```
 
-The current API test suite contains **80 automated tests**.
+The November 5, 2026 [API Checks run](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/42101618812) at `fea7ac8` passed **108 tests across 9 files**; **2 opt-in local integration tests in a tenth file were skipped by design**. Lint and build also passed. The original job log was reviewed on November 12; this is not a new local execution. See the [post-MVP engineering baseline](../docs/post-mvp-engineering.md).
 
 ### Test Organization
 
@@ -580,11 +580,14 @@ The current API test suite contains **80 automated tests**.
 | `src/app.test.ts` | 2 |
 | `src/middleware/requireAuth.test.ts` | 12 |
 | `src/lib/supabase.test.ts` | 9 |
-| `src/lib/characterValidation.test.ts` | 24 |
-| `src/routes/characters.test.ts` | 9 |
-| `src/routes/characters.put.test.ts` | 15 |
+| `src/lib/characterValidation.test.ts` | 32 |
+| `src/routes/characters.test.ts` | 10 |
+| `src/routes/characters.put.test.ts` | 17 |
 | `src/routes/characters.delete.test.ts` | 9 |
-| **Total** | **80** |
+| `src/routes/characters.authorization.test.ts` | 6 |
+| `src/routes/account.test.ts` | 11 |
+| `src/integration/characters.local.test.ts` | 2 opt-in (skipped by default) |
+| **Default suite** | **108 passed + 2 skipped** |
 
 ### Authentication Coverage
 
