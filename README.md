@@ -39,6 +39,8 @@ A compact bilingual **Extras** panel in the authenticated dashboard contains cre
 
 Adventure Files is a **completed, owner-tested MVP** on `main` at application commit `32bb63d` (November 5, 2026). The creator/PNG exports, Turnstile compatibility, account-deletion fixes, and email-only signup were reviewed and merged. The owner accepted desktop/mobile PT/EN smoke tests, account deletion/re-registration and account isolation; [release issue #24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24) is closed. [Post-MVP security review #31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31) records bounded additional checks and accepted follow-ups, not a release blocker.
 
+**November 12 post-MVP review:** [Frontend Checks](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/42101618668) and [API Checks](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/42101618812) on `main` commit `fea7ac8` passed **183 frontend tests (20 files)** and **108 API tests (9 files passed; 2 opt-in tests in a tenth file skipped)**, respectively, with lint and builds. The [November 4 database run](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/41918531601) passed **39 pgTAP assertions (2 files)** at `0b22f48`; no database files or workflow changed through `fea7ac8`. These original logs were inspected, not rerun. The [post-MVP engineering roadmap](docs/post-mvp-engineering.md) tracks the separate R1–R7 cycle, including OpenAPI, Docker and full-stack Playwright as future work.
+
 ### Implemented
 
 - React, Vite, and TypeScript frontend; Node.js, Express, and TypeScript API.
@@ -245,6 +247,7 @@ The project does not include character gender selection, combat mechanics, or re
 ## Documentation
 
 - [Free Portfolio Release Runbook](docs/free-portfolio-release.md) — historical release gates, owner acceptance evidence, and zero-cost hosting risk decisions.
+- [Post-MVP Engineering Roadmap](docs/post-mvp-engineering.md) — dated CI evidence and the separate R1–R7 improvement cycle.
 - [Project Overview](docs/project-overview.md)
 - [System Requirements](docs/requirements.md)
 - [Customization Catalog](docs/customization-catalog.md)
@@ -570,7 +573,7 @@ The initial release does not include:
 
 **MVP accepted (November 5, 2026):** the owner completed PT/EN desktop/mobile acceptance and the engineering release tracker [#24](https://github.com/AlexandroLeao/rpg-character-creator/issues/24) was closed. Future security assurance and product research are separate optional work, not blockers for the completed portfolio demo.
 
-The six-stage creator, owner-scoped CRUD, two PNG exports, email recovery, verified account deletion, responsive bilingual UI and minimal email-only signup are integrated into `main` at `32bb63d`. The latest Frontend GitHub Actions check and Vercel integration status passed; API and database security checks passed on earlier approved implementation commits with no subsequent API/database schema changes. The owner reports successful live account deletion/re-registration and cross-account regression testing.
+The six-stage creator, owner-scoped CRUD, two PNG exports, email recovery, verified account deletion, responsive bilingual UI and minimal email-only signup are integrated into `main` at `32bb63d`. Frontend and API GitHub Actions checks and Vercel commit status passed on the later reviewed `main` commit `fea7ac8`; database CI passed at `0b22f48`, with no subsequent database files/workflow changes through `fea7ac8`. See the [dated engineering baseline](docs/post-mvp-engineering.md). The owner reports successful live account deletion/re-registration and cross-account regression testing.
 
 **Bounded post-release security review:** hosted HTTPS/headers, public assets, CORS, noindex, the public-bundle secret search and a manual ZAP Safe-mode passive review are documented in [#31](https://github.com/AlexandroLeao/rpg-character-creator/issues/31). A full penetration test or automated ZAP Baseline was **not** performed. No high-severity alert was recorded in the reviewed passive session, but this is not a security certification. The documented CSP, direct Render response caching and Express limiter considerations are optional follow-ups, not verified vulnerabilities or current MVP blockers. The owner accepted the Supabase Free no-automatic-backup risk; manual exports remain deferred.
 
