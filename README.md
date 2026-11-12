@@ -250,6 +250,7 @@ The project does not include character gender selection, combat mechanics, or re
 - [Post-MVP Engineering Roadmap](docs/post-mvp-engineering.md) — dated CI evidence and the separate R1–R7 improvement cycle.
 - [OpenAPI 3.1 API contract](api/openapi.json) — five existing operations, local examples and schemas; see [API documentation](api/README.md) for usage and validation.
 - [Local API Docker execution](api/README.md#local-docker-execution-r4) — Node 24 container, healthcheck, non-root runtime and isolated smoke verification; current hosting is unchanged.
+- [Isolated full-stack Playwright tests](e2e/README.md) — real local Auth, Express and PostgreSQL browser scenarios, separate from unit and Docker checks.
 - [Project Overview](docs/project-overview.md)
 - [System Requirements](docs/requirements.md)
 - [Customization Catalog](docs/customization-catalog.md)
