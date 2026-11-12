@@ -40,11 +40,10 @@ describe('Private API cache policy', () => {
   })
 
   it.each([
-    '/api/characters/me',
-    '/api/account/me',
-  ])('applies no-store before parsing malformed JSON at %s', async (path) => {
-    const response = await request(app)
-      .put(path)
+    ['put', '/api/characters/me'],
+    ['delete', '/api/account/me'],
+  ] as const)('applies no-store before parsing malformed JSON on %s %s', async (method, path) => {
+    const response = await request(app)[method](path)
       .set('Content-Type', 'application/json')
       .send('{"invalid":')
 
