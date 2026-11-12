@@ -47,6 +47,12 @@ The two integration tests are skipped during ordinary `npm test` runs unless `RU
 
 **Latest reported local verification (November 1, 2026):** 39 pgTAP assertions passed; 2 opt-in Express/Supabase integration tests passed; the API's standard suite passed 97 tests with 2 integration tests skipped by default. CI and final deployment-specific verification remain separate release gates.
 
+## R4 — Isolated database validation with Docker
+
+The [API Docker image and smoke](../api/README.md#local-docker-execution-r4) are separate from the existing database test workflow. The latter starts isolated local PostgreSQL via Supabase CLI and runs the same version-controlled migrations and pgTAP assertions. For a full local Auth stack use `supabase start` from the root; for database-only CI the existing `supabase db start` is sufficient. Run `supabase test db` only against the local stack. No hosted schema or data is changed. The container smoke does not require or verify authenticated connections to the local Supabase gateway.
+
+Stop your local stack with `supabase stop` when finished; do not delete volumes or reset a database that contains data you need. See the [official local development guide](https://supabase.com/docs/guides/local-development) for isolated network setup.
+
 ## Security verification matrix
 
 | Scenario | Expected result |
