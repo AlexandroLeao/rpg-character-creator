@@ -101,7 +101,7 @@ npm run build
 
 ## Verification and Release
 
-**Latest verified baseline:** [Frontend Checks on November 5, 2026](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/42101618668) at `fea7ac8` passed **183 tests across 20 files**, ESLint and the production build. The original job log was reviewed on November 12. See the [post-MVP engineering baseline](../docs/post-mvp-engineering.md); the older acceptance results below remain historical.
+**Latest verified frontend CI:** [Frontend Checks on November 12, 2026](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43227874332) at R1 merge `8c36830` passed **183 tests across 20 files**, ESLint and the production build. R2–R5 did not modify frontend source or dependencies. [Full-stack E2E on the R5 merge](https://github.com/AlexandroLeao/rpg-character-creator/actions/runs/43235672788) passed **3 Chromium scenarios** against real Vite, Express and local Supabase, including six stages, persistence, editing, both PNG dimensions, sign-out/re-login, isolation, mobile and PT/EN. See [E2E instructions](../e2e/README.md) and the [engineering roadmap](../docs/post-mvp-engineering.md). No new hosted UX inspection or complete accessibility conformance claim is made.
 
 Developer-reported desktop/mobile, PT/EN, keyboard/reduced-motion, six-stage creator, save/edit/delete and PNG Story/Portrait QA passed. At merged `main` commit `0b22f48` on November 4, CI passed **180 frontend tests across 20 files**, **107 API tests** (2 opt-in integration tests skipped by default), frontend/API lint and builds, and database security/pgTAP. The creator also reported a successful desktop/mobile PT/EN signup-terms acceptance and real new-account creation test.
 
