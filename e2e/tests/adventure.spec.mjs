@@ -169,7 +169,12 @@ test('six stages, safe retry, persistence, edit and both PNG downloads', async (
   await verifyPng(page, 'PNG RETRATO — 1080 × 1350', 1080, 1350)
 
   await page.locator('.character-dashboard').getByRole('button', { name: 'Sair', exact: true }).click()
-  await expect(page.getByLabel('Email', { exact: true })).toBeVisible()
+  // After a reload, the app restores the session without setting hasStarted.
+  // Signing out therefore returns to the existing PRESS START screen.
+  await expect(button(page, 'PRESS START')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'LUNA NOVA', exact: true })).toHaveCount(0)
+  // loginPt navigates to / and presses START. A persisted session would
+  // prevent START from appearing, so this also checks logout across reload.
   await loginPt(page, accounts.a)
   await expect(page.getByRole('heading', { name: 'LUNA NOVA', exact: true })).toBeVisible()
 })
